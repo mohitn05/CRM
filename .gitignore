@@ -3,6 +3,11 @@
 # dependencies
 /node_modules
 
+# Python virtual environment
+venv/
+__pycache__/
+*.pyc
+
 # next.js
 /.next/
 /out/
@@ -26,7 +31,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Python virtual environment
-venv/
-__pycache__/
-*.pyc
+# logs
+build/
