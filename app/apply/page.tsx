@@ -28,6 +28,15 @@ import {
 import Link from "next/link"
 
 export default function ApplyPage() {
+  type FormDataType = {
+    name: string
+    email: string
+    phone: string
+    domain: string
+    password: string
+    confirmPassword: string
+    resume: File | null
+  }
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -45,6 +54,27 @@ export default function ApplyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validate email format using regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validate Phone number format : should be 10 digits
+    if(!/^\d{10}$/.test(formData.phone)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Phone number must be 10 digits long.",
+        variant: "destructive",
+      })
+      return
+    }
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -69,56 +99,47 @@ export default function ApplyPage() {
     setIsLoading(true)
 
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    const formpayload = new FormData()
+    formpayload.append("name", formData.name)
+    formpayload.append("email", formData.email)
+    formpayload.append("phone", formData.phone)
+    formpayload.append("domain", formData.domain)
+    formpayload.append("password", formData.password)
+    formpayload.append("resume", formData.resume!)
 
-    // Convert resume to base64 for storage (in real app, upload to cloud storage)
-    let resumeData = null
-    if (formData.resume) {
-      const reader = new FileReader()
-      resumeData = await new Promise((resolve) => {
-        reader.onload = () => resolve(reader.result)
-        reader.readAsDataURL(formData.resume!)
+    console.log("Submitting application with data:",formData)
+
+    try{
+      const response = await fetch("http://127.0.0.1:5000/api/apply", {
+        method: "POST",
+        body: formpayload,
       })
-    }
 
-    // Save to localStorage (simulating database) - DON'T SAVE PASSWORD
-    const existingApplications = JSON.parse(localStorage.getItem("applications") || "[]")
-    const newApplication = {
-      id: Date.now(),
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      domain: formData.domain,
-      resume: resumeData,
-      resumeName: formData.resume?.name || null,
-      status: "Applied",
-      dateApplied: new Date().toISOString().split("T")[0],
-    }
-    existingApplications.push(newApplication)
-    localStorage.setItem("applications", JSON.stringify(existingApplications))
+      console.log("Response status:", response.status)
 
-    // Save intern account with password for login
-    const internAccounts = JSON.parse(localStorage.getItem("internAccounts") || "[]")
-    const newAccount = {
-      id: Date.now(),
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      password: formData.password, // Only save in intern accounts for login
-      domain: formData.domain,
-      applicationId: newApplication.id,
-      status: "Applied",
-      dateRegistered: new Date().toISOString(),
+      if (response.ok) {
+        setIsSubmitted(true)
+        toast({
+          title: "Success",
+        description: "Your application has been submitted successfully!",
+        })
+      } else {
+        const err = await response.json()
+        toast({
+          title: "Server Error",
+          description: err.message || "Something went wrong",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Network Error",
+        description: "Could not connect to server",
+        variant: "destructive",
+      })
+    }finally {
+      setIsLoading(false)
     }
-    internAccounts.push(newAccount)
-    localStorage.setItem("internAccounts", JSON.stringify(internAccounts))
-
-    setIsLoading(false)
-    setIsSubmitted(true)
-    toast({
-      title: "Application Submitted Successfully! 🎉",
-      description: "Your internship application has been received and is being processed.",
-    })
   }
 
   const handleInputChange = (field: string, value: string) => {
