@@ -46,11 +46,6 @@ export default function LandingPage() {
 
       {/* Main Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-200px)] px-4 text-center">
-        {/* Glassmorphic Badge */}
-        <div className="mb-8 inline-flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-full shadow-lg">
-          <Sparkles className="w-4 h-4 text-emerald-600" />
-          <span className="text-sm font-medium text-gray-700">AI-Powered CRM Solution</span>
-        </div>
 
         {/* Main Heading */}
         <h1 className="text-5xl md:text-7xl font-serif font-bold text-gray-800 mb-6 leading-tight">

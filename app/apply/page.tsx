@@ -447,12 +447,12 @@ export default function ApplyPage() {
           </CardContent>
         </Card>
 
-        {/* Admin Access */}
+        {/* Admin Access
         <div className="text-center mt-8">
           <Link href="/admin/login" className="text-sm text-gray-500 hover:text-gray-700 transition-colors underline">
             Admin Access
           </Link>
-        </div>
+        </div> */}
       </div>
     </div>
   )

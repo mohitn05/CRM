@@ -431,12 +431,12 @@ export default function StudentDetailPage() {
 
             <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-purple-500/20">
               <CardHeader>
-                <CardTitle className="text-white">Contact Actions</CardTitle>
+                <CardTitle className="text-black">Contact Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button
                   variant="outline"
-                  className="w-full justify-start bg-white/10 border-purple-500/20 text-white hover:bg-purple-500/20"
+                  className="w-full justify-start bg-white/10 border-purple-500/20 text-black hover:bg-purple-500/20"
                   onClick={() => window.open(`mailto:${application.email}`)}
                 >
                   <Mail className="h-4 w-4 mr-2" />
@@ -444,7 +444,7 @@ export default function StudentDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full justify-start bg-white/10 border-purple-500/20 text-white hover:bg-purple-500/20"
+                  className="w-full justify-start bg-white/10 border-purple-500/20 text-black hover:bg-purple-500/20"
                   onClick={() => window.open(`tel:${application.phone}`)}
                 >
                   <Phone className="h-4 w-4 mr-2" />
@@ -452,7 +452,7 @@ export default function StudentDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full justify-start bg-white/10 border-purple-500/20 text-white hover:bg-purple-500/20"
+                  className="w-full justify-start bg-white/10 border-purple-500/20 text-black hover:bg-purple-500/20"
                   onClick={() => window.open(`sms:${application.phone}`)}
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
