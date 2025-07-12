@@ -40,7 +40,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       title: "Logged Out Successfully ✅",
       description: "Thank you for using our platform!",
     })
-    router.push("/home")
+    router.push("/")
   }
 
   return (

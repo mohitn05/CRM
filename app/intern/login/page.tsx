@@ -245,7 +245,7 @@ export default function InternLoginPage() {
         </Link>
 
         <div className="flex items-center gap-4">
-          <Link href="/intern/register">
+          <Link href="/apply">
             <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">Register</Button>
           </Link>
         </div>
@@ -334,7 +334,7 @@ export default function InternLoginPage() {
                 <div className="text-center">
                   <p className="text-gray-600 text-sm">
                     Don't have an account?{" "}
-                    <Link href="/intern/register" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                    <Link href="/apply" className="text-emerald-600 hover:text-emerald-700 font-medium">
                       Register here
                     </Link>
                   </p>

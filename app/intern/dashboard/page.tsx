@@ -24,6 +24,7 @@ import {
   LogOut,
   Bell,
   FileText,
+  Sparkles,
 } from "lucide-react"
 
 interface InternAccount {
@@ -37,6 +38,19 @@ interface InternAccount {
   dateRegistered: string
 }
 
+const domainDisplayNames: { [key: string]: string } = {
+  Frontend: "Frontend Development",
+  Backend: "Backend Development",
+  Database: "Database Management",
+  Others: "Others",
+  Technology: "Technology",
+  Marketing: "Marketing",
+  Design: "Design",
+  Finance: "Finance",
+  Operations: "Operations",
+  HR: "Human Resources",
+}
+
 export default function InternDashboard() {
   const [internData, setInternData] = useState<InternAccount | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -46,7 +60,6 @@ export default function InternDashboard() {
   const { toast } = useToast()
 
   useEffect(() => {
-    // Check authentication
     const authData = localStorage.getItem("internAuth")
     if (!authData) {
       router.push("/intern/login")
@@ -57,9 +70,9 @@ export default function InternDashboard() {
     setInternData(account)
     setEditData(account)
 
-    // Get updated status from applications
     const applications = JSON.parse(localStorage.getItem("applications") || "[]")
     const currentApp = applications.find((app: any) => app.id === account.applicationId)
+
     if (currentApp && currentApp.status !== account.status) {
       const updatedAccount = { ...account, status: currentApp.status }
       setInternData(updatedAccount)
@@ -70,18 +83,15 @@ export default function InternDashboard() {
 
   const handleSave = async () => {
     if (!editData || !internData) return
-
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((res) => setTimeout(res, 1000))
 
-    // Update intern account - KEEP THE SAME STATUS
     const internAccounts = JSON.parse(localStorage.getItem("internAccounts") || "[]")
     const updatedAccounts = internAccounts.map((acc: InternAccount) =>
       acc.id === editData.id ? { ...editData, status: internData.status } : acc,
     )
     localStorage.setItem("internAccounts", JSON.stringify(updatedAccounts))
 
-    // Update application data - KEEP THE SAME STATUS
     const applications = JSON.parse(localStorage.getItem("applications") || "[]")
     const updatedApplications = applications.map((app: any) =>
       app.id === internData.applicationId
@@ -91,14 +101,12 @@ export default function InternDashboard() {
             email: editData.email,
             phone: editData.phone,
             domain: editData.domain,
-            // Keep the original status - don't change to "Under Review"
             status: internData.status,
           }
         : app,
     )
     localStorage.setItem("applications", JSON.stringify(updatedApplications))
 
-    // Update local state - KEEP THE SAME STATUS
     const updatedInternData = { ...editData, status: internData.status }
     setInternData(updatedInternData)
     setEditData(updatedInternData)
@@ -144,19 +152,13 @@ export default function InternDashboard() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "Applied":
-        return <Clock className="w-4 h-4" />
-      case "Under Review":
-      case "In Review":
-        return <Clock className="w-4 h-4" />
       case "Selected":
+      case "Completed":
         return <CheckCircle className="w-4 h-4" />
       case "Rejected":
         return <XCircle className="w-4 h-4" />
       case "In Training":
         return <FileText className="w-4 h-4" />
-      case "Completed":
-        return <CheckCircle className="w-4 h-4" />
       default:
         return <Clock className="w-4 h-4" />
     }
@@ -184,7 +186,7 @@ export default function InternDashboard() {
 
   if (!internData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your dashboard...</p>
@@ -194,235 +196,148 @@ export default function InternDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 p-8">
       {/* Header */}
-      <header className="bg-white/10 backdrop-blur-md border-b border-white/20 p-6">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Welcome, {internData.name}!</h1>
-              <p className="text-gray-600">Intern Dashboard</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-gray-600" />
-              <span className="text-sm text-gray-600">Notifications</span>
-            </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+      <header className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome, {internData.name}!</h1>
+          <p className="text-gray-600">Intern Dashboard</p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900">
+            <Bell className="w-5 h-5" />
+          </Button>
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="border-red-300 text-red-600 hover:bg-red-50 bg-transparent"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Information */}
-          <div className="lg:col-span-2">
-            <Card className="bg-white/20 backdrop-blur-md border border-white/30 shadow-xl">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-gray-800 flex items-center gap-2">
-                    <User className="w-5 h-5" />
-                    Profile Information
-                  </CardTitle>
-                  {!isEditing ? (
-                    <Button
-                      onClick={() => setIsEditing(true)}
-                      variant="outline"
-                      className="bg-white/20 border-white/30 text-gray-700 hover:bg-white/30"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit
-                    </Button>
+      {/* Grid Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Profile Card */}
+        <Card className="lg:col-span-2 p-6 shadow-sm">
+          <CardHeader className="p-0 mb-6">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <User className="w-5 h-5 text-gray-700" />
+                Profile Information
+              </CardTitle>
+              {!isEditing ? (
+                <Button onClick={() => setIsEditing(true)} variant="ghost" size="sm" className="text-blue-600">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button onClick={() => { setIsEditing(false); setEditData(internData) }} variant="outline">
+                    <X className="w-4 h-4 mr-2" />
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSave} disabled={isLoading} className="bg-emerald-600 text-white">
+                    <Save className="w-4 h-4 mr-2" />
+                    {isLoading ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { label: "Full Name", value: internData.name, icon: <User />, key: "name" },
+                { label: "Email Address", value: internData.email, icon: <Mail />, key: "email" },
+                { label: "Phone Number", value: internData.phone, icon: <Phone />, key: "phone" },
+              ].map(({ label, value, icon, key }) => (
+                <div key={key} className="bg-gray-50 p-4 rounded-lg border">
+                  <Label className="flex items-center gap-2 text-gray-700 mb-1">{icon}<span>{label}</span></Label>
+                  {isEditing ? (
+                    <Input value={(editData as any)[key]} onChange={(e) => setEditData(prev => prev ? { ...prev, [key]: e.target.value } : null)} />
                   ) : (
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => {
-                          setIsEditing(false)
-                          setEditData(internData) // Reset to original data
-                        }}
-                        variant="outline"
-                        className="bg-white/20 border-white/30 text-gray-700 hover:bg-white/30"
-                      >
-                        <X className="w-4 h-4 mr-2" />
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleSave}
-                        disabled={isLoading}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                      >
-                        <Save className="w-4 h-4 mr-2" />
-                        {isLoading ? "Saving..." : "Save"}
-                      </Button>
-                    </div>
+                    <p className="text-gray-900 font-semibold">{value}</p>
                   )}
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2 text-gray-700 font-medium">
-                      <User className="w-4 h-4" />
-                      Full Name
-                    </Label>
-                    {isEditing ? (
-                      <Input
-                        value={editData?.name || ""}
-                        onChange={(e) => setEditData((prev) => (prev ? { ...prev, name: e.target.value } : null))}
-                        className="bg-white/50 backdrop-blur-sm border-white/40"
-                      />
-                    ) : (
-                      <p className="text-gray-800 font-medium bg-white/30 p-3 rounded-lg">{internData.name}</p>
-                    )}
-                  </div>
+              ))}
 
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2 text-gray-700 font-medium">
-                      <Mail className="w-4 h-4" />
-                      Email Address
-                    </Label>
-                    {isEditing ? (
-                      <Input
-                        type="email"
-                        value={editData?.email || ""}
-                        onChange={(e) => setEditData((prev) => (prev ? { ...prev, email: e.target.value } : null))}
-                        className="bg-white/50 backdrop-blur-sm border-white/40"
-                      />
-                    ) : (
-                      <p className="text-gray-800 font-medium bg-white/30 p-3 rounded-lg">{internData.email}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2 text-gray-700 font-medium">
-                      <Phone className="w-4 h-4" />
-                      Phone Number
-                    </Label>
-                    {isEditing ? (
-                      <Input
-                        value={editData?.phone || ""}
-                        onChange={(e) => setEditData((prev) => (prev ? { ...prev, phone: e.target.value } : null))}
-                        className="bg-white/50 backdrop-blur-sm border-white/40"
-                      />
-                    ) : (
-                      <p className="text-gray-800 font-medium bg-white/30 p-3 rounded-lg">{internData.phone}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2 text-gray-700 font-medium">
-                      <Building2 className="w-4 h-4" />
-                      Domain
-                    </Label>
-                    {isEditing ? (
-                      <Select
-                        value={editData?.domain || ""}
-                        onValueChange={(value) => setEditData((prev) => (prev ? { ...prev, domain: value } : null))}
-                      >
-                        <SelectTrigger className="bg-white/50 backdrop-blur-sm border-white/40">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Frontend">Frontend Development</SelectItem>
-                          <SelectItem value="Backend">Backend Development</SelectItem>
-                          <SelectItem value="Database">Database Management</SelectItem>
-                          <SelectItem value="Others">Others</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <Badge className="bg-emerald-100 text-emerald-800 text-base px-4 py-2">{internData.domain}</Badge>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-gray-700 font-medium">
-                    <Calendar className="w-4 h-4" />
-                    Registration Date
-                  </Label>
-                  <p className="text-gray-800 font-medium bg-white/30 p-3 rounded-lg">
-                    {new Date(internData.dateRegistered).toLocaleDateString()}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Status and Progress */}
-          <div className="space-y-6">
-            <Card className="bg-white/20 backdrop-blur-md border border-white/30 shadow-xl">
-              <CardHeader>
-                <CardTitle className="text-gray-800 flex items-center gap-2">
-                  {getStatusIcon(internData.status)}
-                  Application Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <Badge className={`${getStatusColor(internData.status)} text-lg px-4 py-2 mb-4`}>
-                    {internData.status}
-                  </Badge>
-                  <p className="text-gray-700 text-sm leading-relaxed">{getStatusMessage(internData.status)}</p>
-                </div>
-
-                {(internData.status === "Under Review" || internData.status === "In Review") && (
-                  <div className="bg-yellow-50/50 border border-yellow-200/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Clock className="w-4 h-4 text-yellow-600" />
-                      <span className="font-medium text-yellow-800">Review in Progress</span>
-                    </div>
-                    <p className="text-yellow-700 text-sm">
-                      Our team is currently reviewing your application. You'll receive an update within 48 hours.
-                    </p>
-                  </div>
+              {/* Domain */}
+              <div className="bg-gray-50 p-4 rounded-lg border">
+                <Label className="flex items-center gap-2 text-gray-700 mb-1">
+                  <Building2 className="w-4 h-4" /> Domain
+                </Label>
+                {isEditing ? (
+                  <Select value={editData?.domain || ""} onValueChange={(v) => setEditData((p) => p ? { ...p, domain: v } : null)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Domain" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(domainDisplayNames).map((val) => (
+                        <SelectItem key={val} value={val}>{domainDisplayNames[val]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Badge>{domainDisplayNames[internData.domain] || internData.domain}</Badge>
                 )}
+              </div>
 
-                {internData.status === "Selected" && (
-                  <div className="bg-green-50/50 border border-green-200/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="font-medium text-green-800">Congratulations!</span>
-                    </div>
-                    <p className="text-green-700 text-sm">
-                      You've been selected! Check your email for onboarding instructions and next steps.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              {/* Registration Date */}
+              <div className="bg-gray-50 p-4 rounded-lg border">
+                <Label className="flex items-center gap-2 text-gray-700 mb-1">
+                  <Calendar className="w-4 h-4" /> Registration Date
+                </Label>
+                <p className="text-gray-900 font-semibold">
+                  {new Date(internData.dateRegistered).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-            <Card className="bg-white/20 backdrop-blur-md border border-white/30 shadow-xl">
-              <CardHeader>
-                <CardTitle className="text-gray-800">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-white/20 border-white/30 text-gray-700 hover:bg-white/30"
-                  onClick={() => window.open(`mailto:contact@internshipcrm.com`)}
-                >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Contact Support
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-white/20 border-white/30 text-gray-700 hover:bg-white/30"
-                  onClick={() => window.open(`tel:+15551234567`)}
-                >
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call Support
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+        {/* Right Column */}
+        <div className="flex flex-col gap-6">
+          {/* Status */}
+          <Card className="p-6 shadow-sm">
+            <CardHeader className="p-0 mb-4">
+              <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                {getStatusIcon(internData.status)}
+                Application Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 space-y-4">
+              <div className="text-center">
+                <Badge className={`${getStatusColor(internData.status)} text-lg px-4 py-2 mb-4`}>
+                  {internData.status}
+                </Badge>
+                <p className="text-gray-600 text-sm leading-relaxed">{getStatusMessage(internData.status)}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card className="p-6 shadow-sm">
+            <CardHeader className="p-0 mb-4">
+              <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-gray-700" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 space-y-3">
+              <Button variant="ghost" className="w-full justify-start text-gray-700 hover:bg-gray-100"
+                onClick={() => window.open("mailto:contact@internshipcrm.com")}>
+                <Mail className="w-4 h-4 mr-2" /> Contact Support
+              </Button>
+              <Button variant="ghost" className="w-full justify-start text-gray-700 hover:bg-gray-100"
+                onClick={() => window.open("tel:+15551234567")}>
+                <Phone className="w-4 h-4 mr-2" /> Call Support
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

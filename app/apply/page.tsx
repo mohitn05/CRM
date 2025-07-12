@@ -126,8 +126,8 @@ export default function ApplyPage() {
       } else {
         const err = await response.json()
         toast({
-          title: "Server Error",
-          description: err.message || "Something went wrong",
+          title: "Submission Failed",
+          description: err.message || err.error || "Something went wrong",
           variant: "destructive",
         })
       }
@@ -285,7 +285,7 @@ export default function ApplyPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className={`${isLoading ? "opacity-50 pointer-events-none" :"space-y-8"}`}>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <Label htmlFor="name" className="text-gray-700 font-semibold flex items-center gap-2">
@@ -475,6 +475,20 @@ export default function ApplyPage() {
           </Link>
         </div> */}
       </div>
+      {/* <Button
+      className="mt-6"
+      variant="outline"
+      onClick={() =>
+        toast({
+          title:"Toast Test",
+          description: "If you see this, your toast is working",
+        })
+      }
+      >
+        Trigger Test Toast
+      </Button> */}
+
+
     </div>
   )
 }
