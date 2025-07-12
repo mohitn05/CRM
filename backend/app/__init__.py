@@ -1,28 +1,22 @@
 from flask import Flask
 from flask_cors import CORS
-from flask_migrate import Migrate
-from .db import db
-from .routes.admin import admin_bp
-from .routes.apply import apply_bp
-from dotenv import load_dotenv
-import os
+from flask_sqlalchemy import SQLAlchemy
+from config import Config
 
-migrate = Migrate()
+db = SQLAlchemy()
 
 def create_app():
-    load_dotenv()
     app = Flask(__name__)
-
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    db.init_app(app)
-    migrate.init_app(app, db)
-
+    app.config.from_object(Config)
     CORS(app)
 
-    # Register routes
-    app.register_blueprint(admin_bp, url_prefix='/admin')
-    app.register_blueprint(apply_bp, url_prefix='/')
+    # Import routes from app.routes
+    from app.routes.apply import apply_bp
+    app.register_blueprint(apply_bp, url_prefix="/api")
+
+    db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
 
     return app

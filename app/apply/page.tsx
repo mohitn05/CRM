@@ -110,7 +110,7 @@ export default function ApplyPage() {
     console.log("Submitting application with data:",formData)
 
     try{
-      const response = await fetch("http://127.0.0.1:5000/api/apply", {
+      const response = await fetch("http://localhost:5000/api/apply", {
         method: "POST",
         body: formpayload,
       })

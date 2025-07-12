@@ -1,47 +1,45 @@
 from flask import Blueprint, request, jsonify
-from werkzeug.utils import secure_filename
-from app.models.student import Student
-from app.controllers.notifications import send_notification
-from app.db import db
+from app.models.student import StudentApplication
+from app import db
 import os
 
-apply_bp = Blueprint('apply', __name__)
+apply_bp = Blueprint("apply", __name__)
 
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-@apply_bp.route('/apply', methods=['POST'])
+@apply_bp.route("/apply", methods=["POST"])
 def apply():
-    name = request.form.get('name')
-    email = request.form.get('email')
-    phone = request.form.get('phone')
-    domain = request.form.get('domain')
-    resume_file = request.files.get('resume')
+    data = request.form
+    resume = request.files.get("resume")
 
-    # Check for all required fields
-    if not all([name, email, phone, domain, resume_file]):
-        return jsonify({'error': 'All fields are required'}), 400
+    name = data.get("name")
+    email = data.get("email")
+    phone = data.get("phone")
+    domain = data.get("domain")
+    password = data.get("password")
 
-    # Save resume
-    filename = secure_filename(resume_file.filename)
-    resume_path = os.path.join(UPLOAD_FOLDER, filename)
-    resume_file.save(resume_path)
+    if not all([name, email, phone, domain, password, resume]):
+        return jsonify({"message": "All fields are required"}), 400
 
-    # Create student object
-    student = Student(
+    if len(phone) != 10 or not phone.isdigit():
+        return jsonify({"message": "Invalid phone number"}), 400
+
+    if len(password) < 6:
+        return jsonify({"message": "Password must be at least 6 characters"}), 400
+
+    upload_path = os.path.join("uploads", resume.filename)
+    os.makedirs("uploads", exist_ok=True)
+    resume.save(upload_path)
+
+    # Save to DB
+    application = StudentApplication( 
         name=name,
         email=email,
         phone=phone,
         domain=domain,
-        resume_name=filename,
-        resume_path=resume_path,
-        status="Applied"
+        password=password,
+        resume_filename=resume.filename,
     )
-
-    db.session.add(student)
+    db.session.add(application)
     db.session.commit()
 
-    # Send notification
-    send_notification(email, phone, name, "Applied")
-
-    return jsonify({'message': 'Application submitted successfully'}), 201
+    print("✅ Received application:", name, email, phone, domain)
+    return jsonify({"message": "Application received!"}), 200
