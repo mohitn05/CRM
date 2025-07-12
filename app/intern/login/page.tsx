@@ -35,7 +35,7 @@ export default function InternLoginPage() {
 
     // Check credentials against stored intern accounts
     try{
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch("http://localhost:5000/api/intern/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

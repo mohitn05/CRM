@@ -5,7 +5,7 @@ from app import db
 
 login_bp = Blueprint("login", __name__)
 
-@login_bp.route("/login", methods=["POST"])
+@login_bp.route("/intern/login", methods=["POST"])
 def login():
  try:
     data = request.get_json(force=True)
@@ -37,7 +37,7 @@ def login():
                 "email": user.email,
                 "phone": user.phone,
                 "domain": user.domain,
-                "registration_date":user.registration_date
+                "registration_date":user.date_registered
             }
         }),200
     print("Invalid credentials")

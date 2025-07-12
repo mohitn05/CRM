@@ -1,15 +1,15 @@
 from flask import Flask
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from app.db import db
 from config import Config
+from app.db import db
+from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object("config.Config")
-    CORS(app)
+    app.config.from_object(Config)
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
     # Import routes from app.routes
     from app.routes.apply import apply_bp

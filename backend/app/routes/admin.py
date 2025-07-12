@@ -6,7 +6,7 @@ import os
 
 admin_bp = Blueprint('admin', __name__)
 
-@admin_bp.route('/admin/applications', methods=['GET'])
+@admin_bp.route('/api/admin/applications', methods=['GET'])
 def get_all_applications():
     try:
         applications = StudentApplication.query.all()
@@ -19,14 +19,15 @@ def get_all_applications():
              'phone': app.phone,
              'domain': app.domain,
              'status': app.status,
-             'resume': app.resume_name,
-             'date_registered': app.date_registered.isoformat() if app.date_registered else None
+             'resume': f"http://localhost:5000/api/students/{app.id}/resume",
+             'resumeName': app.resume_name,
+             'dateApplied': app.date_registered.isoformat() if app.date_registered else None
             })
         return jsonify(result),200
     except Exception as e:
         return jsonify({"message":"Failed to fetch applications","error":str(e)}), 500
 
-@admin_bp.route('/students/<int:id>', methods=['GET', 'PUT'])
+@admin_bp.route('/api/students/<int:id>', methods=['GET', 'PUT'])
 def student_detail(id):
     student = StudentApplication.query.get_or_404(id)
 
@@ -38,7 +39,9 @@ def student_detail(id):
             'phone': student.phone,
             'domain': student.domain,
             'status': student.status,
-            'resume': student.resume_name
+            'resume': f"http://localhost:5000/api/students/{student.id}resume",
+            'resumeName': student.resume_name,
+            'dateApplied': student.date_registered.isoformat() if student.date_registered else None
         })
 
     if request.method == 'PUT':
@@ -51,7 +54,7 @@ def student_detail(id):
 
         return jsonify({'message': 'Student status updated'}), 200
 
-@admin_bp.route('/students/<int:id>/resume', methods=['GET'])
+@admin_bp.route('/api/students/<int:id>/resume', methods=['GET'])
 def download_resume(id):
     student = StudentApplication.query.get_or_404(id)
     if student.resume_path and os.path.exists(f'uploads/{student.resume_path}'):
