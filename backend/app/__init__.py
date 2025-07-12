@@ -1,13 +1,14 @@
 from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from app.db import db
 from config import Config
 
 db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object("config.Config")
     CORS(app)
 
     # Import routes from app.routes
@@ -16,6 +17,9 @@ def create_app():
 
     from app.routes.login import login_bp
     app.register_blueprint(login_bp, url_prefix="/api")
+
+    from app.routes.admin import admin_bp
+    app.register_blueprint(admin_bp, url_prefix="/api")
 
     db.init_app(app)
 

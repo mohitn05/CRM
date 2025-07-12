@@ -49,7 +49,11 @@ export default function InternLoginPage() {
    const data = await response.json()
 
    if (response.ok) {
-    localStorage.setItem("internAuth", JSON.stringify(data.student))
+    localStorage.setItem("internAuth", JSON.stringify({
+      ...data.student,
+      status: data.student.status || "Applied",
+      dateRegistered: data.student.dateRegistered || new Date().toISOString(),
+    }))
     toast({
       title: "Login Successful 🎉",
       description: `Welcome back, ${data.student.name}`,

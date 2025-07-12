@@ -21,6 +21,7 @@ import {
   FileText,
   Download,
 } from "lucide-react"
+import type { ChartOptions } from "chart.js"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js"
 import { Pie, Bar } from "react-chartjs-2"
 import { useToast } from "@/hooks/use-toast"
@@ -67,16 +68,25 @@ export default function AdminDashboard() {
     loadApplications()
   }, [router])
 
-  const loadApplications = () => {
-    const savedApplications = JSON.parse(localStorage.getItem("applications") || "[]")
-    console.log("Loaded applications:", savedApplications) // Debug log
-    setApplications(savedApplications)
+  const loadApplications = async () => {
+    try{
+      const response = await fetch("/api/admin/applications")
+      const data = await response.json()
+      setApplications(data)
 
-    // Get recent applications (last 10)
-    const recent = savedApplications
-      .sort((a: Application, b: Application) => new Date(b.dateApplied).getTime() - new Date(a.dateApplied).getTime())
-      .slice(0, 10)
-    setRecentApplications(recent)
+      const recent = data
+      .sort((a: Application, b: Application) => new Date(b.dateApplied).getTime()-new Date(a.dateApplied).getTime())
+      .slice(0,10)
+
+      setRecentApplications(recent)
+    } catch (error) {
+      console.error("Failed to fetch applications:",error)
+      toast({
+        title: "Fetch Error",
+        description: "Could not load applications from server",
+        variant: "destructive"
+      })
+    }
   }
 
   const updateApplicationStatus = async (id: number, newStatus: string) => {
@@ -87,7 +97,6 @@ export default function AdminDashboard() {
     const updatedApplications = applications.map((app) => (app.id === id ? { ...app, status: newStatus } : app))
     setApplications(updatedApplications)
     setRecentApplications((prev) => prev.map((app) => (app.id === id ? { ...app, status: newStatus } : app)))
-    localStorage.setItem("applications", JSON.stringify(updatedApplications))
 
     // Update intern account status if exists
     const internAccounts = JSON.parse(localStorage.getItem("internAccounts") || "[]")
@@ -168,18 +177,18 @@ export default function AdminDashboard() {
     ],
   }
 
-  const chartOptions = {
+  const barChartOptions : ChartOptions<"bar"> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "bottom" as const,
+        position: "bottom",
         labels: {
           padding: 20,
           usePointStyle: true,
           font: {
             size: 12,
-            weight: "500",
+            weight: 500,
           },
           color: "#000000",
         },
@@ -212,6 +221,35 @@ export default function AdminDashboard() {
         grid: {
           color: "rgba(0, 0, 0, 0.1)",
         },
+      },
+    },
+  }
+
+    const pieChartOptions : ChartOptions <"pie"> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+          font: {
+            size: 12,
+            weight: 500 ,
+          },
+          color: "#000000",
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        titleColor: "#000000",
+        bodyColor: "#000000",
+        borderColor: "#e5e7eb",
+        borderWidth: 1,
+        cornerRadius: 12,
+        displayColors: true,
+        padding: 12,
       },
     },
   }
@@ -531,7 +569,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="h-64 lg:h-80">
-                <Pie data={pieChartData} options={chartOptions} />
+                <Pie data={pieChartData} options={pieChartOptions} />
               </div>
             </CardContent>
           </Card>
@@ -552,7 +590,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="h-64 lg:h-80">
-                <Bar data={barChartData} options={chartOptions} />
+                <Bar data={barChartData} options={barChartOptions} />
               </div>
             </CardContent>
           </Card>

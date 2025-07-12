@@ -1,30 +1,34 @@
 from flask import Blueprint, request, jsonify, send_from_directory
-from app.models.student import Student
+from app.models.student import StudentApplication
 from app.controllers.notifications import send_notification
 from app.db import db
 import os
 
 admin_bp = Blueprint('admin', __name__)
 
-@admin_bp.route('/students', methods=['GET'])
-def get_students():
-    students = Student.query.all()
-    result = [
-        {
-            'id': s.id,
-            'name': s.name,
-            'email': s.email,
-            'phone': s.phone,
-            'domain': s.domain,
-            'status': s.status,
-            'resume': s.resume_name
-        } for s in students
-    ]
-    return jsonify(result)
+@admin_bp.route('/admin/applications', methods=['GET'])
+def get_all_applications():
+    try:
+        applications = StudentApplication.query.all()
+        result = []
+        for app in applications:
+            result.append({
+             'id': app.id,
+             'name': app.name,
+             'email': app.email,
+             'phone': app.phone,
+             'domain': app.domain,
+             'status': app.status,
+             'resume': app.resume_name,
+             'date_registered': app.date_registered.isoformat() if app.date_registered else None
+            })
+        return jsonify(result),200
+    except Exception as e:
+        return jsonify({"message":"Failed to fetch applications","error":str(e)}), 500
 
 @admin_bp.route('/students/<int:id>', methods=['GET', 'PUT'])
 def student_detail(id):
-    student = Student.query.get_or_404(id)
+    student = StudentApplication.query.get_or_404(id)
 
     if request.method == 'GET':
         return jsonify({
@@ -49,7 +53,7 @@ def student_detail(id):
 
 @admin_bp.route('/students/<int:id>/resume', methods=['GET'])
 def download_resume(id):
-    student = Student.query.get_or_404(id)
+    student = StudentApplication.query.get_or_404(id)
     if student.resume_path and os.path.exists(f'uploads/{student.resume_path}'):
         return send_from_directory('uploads', student.resume_path, as_attachment=True)
     return jsonify({'error': 'Resume not found'}), 404

@@ -1,4 +1,5 @@
 from app import db
+from datetime import datetime
 
 class StudentApplication(db.Model):
     __tablename__ = "applications"
@@ -10,6 +11,8 @@ class StudentApplication(db.Model):
     domain = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(128), nullable=False)  # Ideally, hash this
     resume_filename = db.Column(db.String(255), nullable=True)
+    status = db.Column(db.String(50), default="Applied")
+    date_registered = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f"<StudentApplication {self.name}>"

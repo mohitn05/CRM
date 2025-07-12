@@ -46,7 +46,8 @@ def apply():
             phone=phone,
             domain=domain,
             password=password,
-            resume_filename=resume.filename
+            resume_filename=resume.filename,
+            status ="Applied"
         )
         db.session.add(application)
         db.session.commit()

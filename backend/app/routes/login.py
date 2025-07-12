@@ -33,9 +33,11 @@ def login():
             "message": "Login successful",
             "student":{
                 "id":user.id,
+                "name": user.name,
                 "email": user.email,
                 "phone": user.phone,
                 "domain": user.domain,
+                "registration_date":user.registration_date
             }
         }),200
     print("Invalid credentials")

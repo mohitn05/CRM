@@ -292,7 +292,9 @@ export default function InternDashboard() {
                   <Calendar className="w-4 h-4" /> Registration Date
                 </Label>
                 <p className="text-gray-900 font-semibold">
-                  {new Date(internData.dateRegistered).toLocaleDateString()}
+                  {internData.dateRegistered && !isNaN (new Date(internData.dateRegistered).getTime())
+                  ? new Date(internData.dateRegistered).toLocaleDateString()
+                  : "Not Available"}
                 </p>
               </div>
             </div>
