@@ -34,31 +34,44 @@ export default function InternLoginPage() {
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
     // Check credentials against stored intern accounts
-    const internAccounts = JSON.parse(localStorage.getItem("internAccounts") || "[]")
-    const account = internAccounts.find(
-      (acc: any) =>
-        (acc.email === credentials.emailOrPhone || acc.phone === credentials.emailOrPhone) &&
-        acc.password === credentials.password,
-    )
+    try{
+      const response = await fetch("http://localhost:5000/api/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      emailOrPhone: credentials.emailOrPhone,
+      password: credentials.password,
+    }),
+   })
 
-    if (account) {
-      localStorage.setItem("internAuth", JSON.stringify(account))
-      toast({
-        title: "Login Successful! 🎉",
-        description: `Welcome back, ${account.name}!`,
-      })
-      router.push("/intern/dashboard")
-    } else {
-      toast({
-        title: "Login Failed ❌",
-        description: "Invalid email/phone or password. Please try again.",
-        variant: "destructive",
-      })
+   const data = await response.json()
+
+   if (response.ok) {
+    localStorage.setItem("internAuth", JSON.stringify(data.student))
+    toast({
+      title: "Login Successful 🎉",
+      description: `Welcome back, ${data.student.name}`,
+    })
+    router.push("/intern/dashboard")
+   } else {
+    toast({
+      title: "Login Failed ❌",
+      description: data.message || "Invalid credentials",
+      variant: "destructive",
+    })
+   }
+   } catch (error) {
+   toast({
+    title: "Server Error ❌",
+    description: "Unable to connect to server",
+    variant: "destructive",
+   })
+   }finally{
+   setIsLoading(false)
     }
-
-    setIsLoading(false)
   }
-
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)

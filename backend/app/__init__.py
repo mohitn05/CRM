@@ -14,6 +14,9 @@ def create_app():
     from app.routes.apply import apply_bp
     app.register_blueprint(apply_bp, url_prefix="/api")
 
+    from app.routes.login import login_bp
+    app.register_blueprint(login_bp, url_prefix="/api")
+
     db.init_app(app)
 
     with app.app_context():
