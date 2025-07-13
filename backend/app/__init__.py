@@ -11,13 +11,15 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    print("Database path:",app.config["SQLALCHEMY_DATABASE_URI"])
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
     db.init_app(app)
     migrate.init_app(app, db)
 
+    print("Database path:",app.config["SQLALCHEMY_DATABASE_URI"])
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+
     # Import routes from app.routes
+    from app.models.student import StudentApplication
     from app.routes.apply import apply_bp
     app.register_blueprint(apply_bp, url_prefix="/api")
 
