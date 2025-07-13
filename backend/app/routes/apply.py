@@ -24,6 +24,9 @@ def apply():
         domain = request.form.get("domain", "").strip()
         password = request.form.get("password", "")
         resume = request.files.get("resume")
+        print("Resume filename from frontend:",resume.filename)
+        safe_filename =secure_filename(resume.filename)
+        print("Sanitized (safe) filename:",safe_filename)
 
         # ⚠️ Validate required fields
         if not all([name, email, phone, domain, password, resume]):
@@ -42,7 +45,8 @@ def apply():
         upload_dir = os.path.join(os.getcwd(), "uploads")
         os.makedirs(upload_dir, exist_ok=True)
         safe_filename = secure_filename(resume.filename)
-        resume.save(os.path.join(upload_dir, secure_filename(resume.filename)))
+        resume_path = os.path.join(upload_dir, safe_filename)
+        resume.save(resume_path)
 
         # 🗃️ Save to database
         application = StudentApplication(
@@ -51,7 +55,7 @@ def apply():
             phone=phone,
             domain=domain,
             password=hashed_password,
-            resume=secure_filename(resume.filename),
+            resume=safe_filename,
             status="Applied",
             date_applied=datetime.utcnow()
         )

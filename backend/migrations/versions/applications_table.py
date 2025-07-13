@@ -19,7 +19,7 @@ def upgrade():
         sa.Column('domain', sa.String(length=50), nullable=False),
         sa.Column('password', sa.String(length=255), nullable=False),
         sa.Column('resume', sa.String(length=255), nullable=False),
-        sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.func.now())
+        sa.Column('date_applied', sa.DateTime(), nullable=True)
     )
 
 def downgrade():
