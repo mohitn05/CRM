@@ -10,8 +10,7 @@ class StudentApplication(db.Model):
     phone = db.Column(db.String(10), nullable=False)
     domain = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(128), nullable=False)  # Ideally, hash this
-    resume = db.Column(db.String(255), nullable=True)
-    resume_path = db.Column(db.String(255))
+    resume = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(50), default="Applied")
     date_applied = db.Column(db.DateTime(),nullable=True)
 
