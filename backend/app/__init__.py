@@ -3,13 +3,19 @@ from flask_cors import CORS
 from config import Config
 from app.db import db
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    print("Database path:",app.config["SQLALCHEMY_DATABASE_URI"])
     CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+
+    db.init_app(app)
+    migrate.init_app(app, db)
 
     # Import routes from app.routes
     from app.routes.apply import apply_bp
@@ -20,8 +26,6 @@ def create_app():
 
     from app.routes.admin import admin_bp
     app.register_blueprint(admin_bp, url_prefix="/api")
-
-    db.init_app(app)
 
     with app.app_context():
         db.create_all()

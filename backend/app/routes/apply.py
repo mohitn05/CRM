@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.models.student import StudentApplication
 import sqlalchemy
 from app import db
+from datetime import datetime
 import traceback
 import os
 
@@ -46,8 +47,10 @@ def apply():
             phone=phone,
             domain=domain,
             password=password,
-            resume_filename=resume.filename,
-            status ="Applied"
+            resume=resume.filename,
+            resume_path=resume_path,
+            status ="Applied",
+            date_applied=datetime.utcnow()
         )
         db.session.add(application)
         db.session.commit()
