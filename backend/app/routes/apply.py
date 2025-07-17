@@ -3,7 +3,7 @@ from app.models.student import StudentApplication
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from app import db
-from datetime import datetime
+from datetime import datetime, timezone
 import sqlalchemy
 import traceback
 import os
@@ -24,13 +24,17 @@ def apply():
         domain = request.form.get("domain", "").strip()
         password = request.form.get("password", "")
         resume = request.files.get("resume")
-        print("Resume filename from frontend:",resume.filename)
-        safe_filename =secure_filename(resume.filename)
-        print("Sanitized (safe) filename:",safe_filename)
 
         # ⚠️ Validate required fields
-        if not all([name, email, phone, domain, password, resume]):
+        if not all([name, email, phone, domain, password]):
             return jsonify({"message": "All fields are required"}), 400
+
+        if not resume or not resume.filename:
+            return jsonify({"message": "Resume file is required"}), 400
+
+        print("Resume filename from frontend:", resume.filename)
+        safe_filename = secure_filename(resume.filename)
+        print("Sanitized (safe) filename:", safe_filename)
 
         if len(phone) != 10 or not phone.isdigit():
             return jsonify({"message": "Invalid phone number"}), 400
@@ -57,7 +61,7 @@ def apply():
             password=hashed_password,
             resume=safe_filename,
             status="Applied",
-            date_applied=datetime.utcnow()
+            date_applied=datetime.now(timezone.utc)
         )
 
         db.session.add(application)
@@ -76,3 +80,5 @@ def apply():
         print("❌ Internal Error:", str(e))
         traceback.print_exc()
         return jsonify({"message": "Internal Server Error", "detail": str(e)}), 500
+
+

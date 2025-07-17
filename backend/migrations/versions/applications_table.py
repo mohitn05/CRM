@@ -15,11 +15,13 @@ def upgrade():
         sa.Column('id', sa.Integer(), primary_key=True),
         sa.Column('name', sa.String(length=100), nullable=False),
         sa.Column('email', sa.String(length=120), nullable=False),
-        sa.Column('phone', sa.String(length=20), nullable=False),
-        sa.Column('domain', sa.String(length=50), nullable=False),
-        sa.Column('password', sa.String(length=255), nullable=False),
+        sa.Column('phone', sa.String(length=10), nullable=False),
+        sa.Column('domain', sa.String(length=100), nullable=False),
+        sa.Column('password', sa.String(length=128), nullable=False),
         sa.Column('resume', sa.String(length=255), nullable=False),
-        sa.Column('date_applied', sa.DateTime(), nullable=True)
+        sa.Column('status', sa.String(length=50), nullable=True, default='Applied'),
+        sa.Column('date_applied', sa.DateTime(), nullable=True),
+        sa.UniqueConstraint('email')
     )
 
 def downgrade():

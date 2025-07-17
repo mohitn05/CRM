@@ -22,6 +22,7 @@ import {
   Download,
   Eye,
   MessageSquare,
+  Trash2,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -37,18 +38,7 @@ interface Application {
   resumeName?: string
 }
 
-// Enhanced notification service
-const sendNotification = async (email: string, phone: string, name: string, status: string) => {
-  console.log(`Sending ${status} notification to ${email} and ${phone} for ${name}`)
 
-  await new Promise((resolve) => setTimeout(resolve, 1500))
-
-  return {
-    success: true,
-    email: { sent: true },
-    sms: { sent: true },
-  }
-}
 
 export default function StudentDetailPage() {
   const [application, setApplication] = useState<Application | null>(null)
@@ -66,68 +56,79 @@ export default function StudentDetailPage() {
       return
     }
 
-    // Load specific application
-    const savedApplications = JSON.parse(localStorage.getItem("applications") || "[]")
-    const app = savedApplications.find((a: Application) => a.id === Number.parseInt(params.id as string))
-
-    if (app) {
-      setApplication(app)
-      setEditData(app)
-    } else {
-      router.push("/admin/students")
+    // Load specific application from API
+    const fetchStudent = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/students/${params.id}`)
+        if (response.ok) {
+          const studentData = await response.json()
+          setApplication(studentData)
+          setEditData(studentData)
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to load student data",
+            variant: "destructive",
+          })
+          router.push("/admin/students")
+        }
+      } catch (error) {
+        console.error("Error fetching student:", error)
+        toast({
+          title: "Error",
+          description: "Failed to connect to server",
+          variant: "destructive",
+        })
+        router.push("/admin/students")
+      }
     }
-  }, [router, params.id])
+
+    fetchStudent()
+  }, [router, params.id, toast])
 
   const handleSave = async () => {
     if (!editData) return
 
     setIsLoading(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    // Update in localStorage
-    const savedApplications = JSON.parse(localStorage.getItem("applications") || "[]")
-    const updatedApplications = savedApplications.map((app: Application) => (app.id === editData.id ? editData : app))
-    localStorage.setItem("applications", JSON.stringify(updatedApplications))
-
-    setApplication(editData)
-    setIsEditing(false)
-    setIsLoading(false)
-
-    toast({
-      title: "Application Updated ✅",
-      description: "Student application has been updated successfully.",
-    })
-  }
-
-  const updateStatus = async (newStatus: string) => {
-    if (!application) return
-
-    setIsLoading(true)
-
-    // Update status
-    const updatedApp = { ...application, status: newStatus }
-    const savedApplications = JSON.parse(localStorage.getItem("applications") || "[]")
-    const updatedApplications = savedApplications.map((app: Application) =>
-      app.id === application.id ? updatedApp : app,
-    )
-    localStorage.setItem("applications", JSON.stringify(updatedApplications))
-    setApplication(updatedApp)
-    setEditData(updatedApp)
-
-    // Send notifications
     try {
-      await sendNotification(application.email, application.phone, application.name, newStatus)
-
-      toast({
-        title: `Application ${newStatus} ✅`,
-        description: `${application.name}'s application updated. Email & SMS notifications sent!`,
+      const response = await fetch(`http://localhost:5000/api/students/${editData.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: editData.name,
+          email: editData.email,
+          phone: editData.phone,
+          domain: editData.domain,
+          status: editData.status,
+        }),
       })
+
+      if (response.ok) {
+        const result = await response.json()
+        setApplication(result.student)
+        setEditData(result.student)
+        setIsEditing(false)
+
+        toast({
+          title: "Application Updated ✅",
+          description: "Student application has been updated successfully.",
+        })
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Update Failed",
+          description: error.message || "Failed to update student data",
+          variant: "destructive",
+        })
+      }
     } catch (error) {
+      console.error("Error updating student:", error)
       toast({
-        title: `Application ${newStatus}`,
-        description: `Status updated, but notification failed.`,
+        title: "Update Failed",
+        description: "Failed to connect to server",
         variant: "destructive",
       })
     }
@@ -135,20 +136,115 @@ export default function StudentDetailPage() {
     setIsLoading(false)
   }
 
-  const downloadResume = () => {
-    if (!application?.resume) return
+  const updateStatus = async (newStatus: string) => {
+    if (!application) return
 
-    const link = document.createElement("a")
-    link.href = application.resume
-    link.download = application.resumeName || "resume.pdf"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    setIsLoading(true)
 
-    toast({
-      title: "Resume Downloaded ✅",
-      description: `${application.resumeName || "Resume"} has been downloaded.`,
-    })
+    try {
+      const response = await fetch(`http://localhost:5000/api/students/${application.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: newStatus,
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        setApplication(result.student)
+        setEditData(result.student)
+
+        toast({
+          title: `Application ${newStatus} ✅`,
+          description: `${application.name}'s application updated. Email & SMS notifications sent!`,
+        })
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Status Update Failed",
+          description: error.message || "Failed to update status",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error updating status:", error)
+      toast({
+        title: "Status Update Failed",
+        description: "Failed to connect to server",
+        variant: "destructive",
+      })
+    }
+
+    setIsLoading(false)
+  }
+
+  const downloadResume = async () => {
+    if (!application?.id || !application?.resumeName) {
+      toast({
+        title: "Download Failed",
+        description: "No resume file available for this student.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      // Use the working student detail endpoint with download parameter
+      const response = await fetch(`http://localhost:5000/api/students/${application.id}?download=resume`)
+
+      if (!response.ok) {
+        throw new Error('Resume not found')
+      }
+
+      // Check if response is a file or JSON
+      const contentType = response.headers.get('Content-Type')
+      if (contentType && (contentType.includes('application/pdf') || contentType.includes('application/octet-stream'))) {
+        // It's a file - download it
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = application.resumeName
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+
+        toast({
+          title: "Resume Downloaded ✅",
+          description: `${application.resumeName} has been downloaded successfully.`,
+        })
+      } else {
+        // It's JSON - fallback to opening in new tab
+        const fileUrl = `http://localhost:5000/uploads/${application.resumeName}`
+        window.open(fileUrl, '_blank')
+
+        toast({
+          title: "Resume Opened ✅",
+          description: `${application.resumeName} has been opened in a new tab.`,
+        })
+      }
+    } catch (error) {
+      // Fallback: try to open the file directly
+      try {
+        const fileUrl = `http://localhost:5000/uploads/${application.resumeName}`
+        window.open(fileUrl, '_blank')
+
+        toast({
+          title: "Resume Opened ✅",
+          description: `${application.resumeName} has been opened in a new tab.`,
+        })
+      } catch (fallbackError) {
+        toast({
+          title: "Download Failed",
+          description: "Could not download or open resume. Please try again.",
+          variant: "destructive",
+        })
+      }
+    }
   }
 
   const viewResume = () => {
@@ -180,6 +276,43 @@ export default function StudentDetailPage() {
     }
   }
 
+  const deleteApplication = async () => {
+    if (!application?.id) return
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${application.name}'s application? This action cannot be undone.`
+    )
+
+    if (!confirmed) return
+
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/students/${application.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Application Deleted ✅",
+          description: `${application.name}'s application has been deleted successfully.`,
+        })
+        router.push('/admin/dashboard')
+      } else {
+        throw new Error('Failed to delete application')
+      }
+    } catch (error) {
+      console.error("Error deleting application:", error)
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete application. Please try again.",
+        variant: "destructive",
+      })
+    }
+
+    setIsLoading(false)
+  }
+
   if (!application) {
     return (
       <AdminLayout>
@@ -195,15 +328,15 @@ export default function StudentDetailPage() {
       <div className="space-y-6 p-4 lg:p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/admin/students" className="flex items-center gap-2 text-purple-300 hover:text-white">
+            <Link href="/admin/dashboard" className="flex items-center gap-2 text-purple-700 hover:text-black dark:text-purple-700 dark:hover:text-black">
               <ArrowLeft className="h-4 w-4" />
-              Back to Students
+              Back to Dashboard
             </Link>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold text-black">
                 {application.name}
               </h1>
-              <p className="text-purple-300">Application Details</p>
+              {/* <p className="text-black">Application Details</p> */}
             </div>
           </div>
           <div className="flex gap-2">
@@ -212,7 +345,7 @@ export default function StudentDetailPage() {
                 <Button
                   variant="outline"
                   onClick={() => setIsEditing(false)}
-                  className="bg-white/10 border-purple-500/20 text-white"
+                  className="bg-white/10 border-purple-500/20 text-black"
                 >
                   Cancel
                 </Button>
@@ -226,9 +359,20 @@ export default function StudentDetailPage() {
                 </Button>
               </>
             ) : (
-              <Button onClick={() => setIsEditing(true)} className="bg-gradient-to-r from-blue-600 to-purple-600">
-                Edit Application
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={() => setIsEditing(true)} className="bg-gradient-to-r from-blue-600 to-purple-600">
+                  Edit Application
+                </Button>
+                <Button
+                  onClick={deleteApplication}
+                  variant="destructive"
+                  disabled={isLoading}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </Button>
+              </div>
             )}
           </div>
         </div>
@@ -238,7 +382,7 @@ export default function StudentDetailPage() {
           <div className="lg:col-span-2">
             <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-purple-500/20">
               <CardHeader>
-                <CardTitle className="text-white">Application Information</CardTitle>
+                <CardTitle className="text-black">Application Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -285,8 +429,10 @@ export default function StudentDetailPage() {
                     {isEditing ? (
                       <Input
                         id="phone"
+                        type="tel"
                         value={editData?.phone || ""}
                         onChange={(e) => setEditData((prev) => (prev ? { ...prev, phone: e.target.value } : null))}
+                        maxLength={10}
                         className="bg-zinc-100/10 border-zinc-500/20 text-zinc-700 dark:text-zinc-300"
                       />
                     ) : (
@@ -304,10 +450,10 @@ export default function StudentDetailPage() {
                         value={editData?.domain || ""}
                         onValueChange={(value) => setEditData((prev) => (prev ? { ...prev, domain: value } : null))}
                       >
-                        <SelectTrigger className="bg-zinc-100/10 border-zinc-500/20 text-zinc-700 dark:text-zinc-300">
+                        <SelectTrigger className="bg-white/10 border-emerald-500/20 text-gray-800">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-zinc-100 border-zinc-200">
+                        <SelectContent className="bg-white border-grey-500">
                           <SelectItem value="Frontend">Frontend Development</SelectItem>
                           <SelectItem value="Backend">Backend Development</SelectItem>
                           <SelectItem value="Database">Database Management</SelectItem>
@@ -376,7 +522,7 @@ export default function StudentDetailPage() {
           <div className="space-y-6">
             <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-purple-500/20">
               <CardHeader>
-                <CardTitle className="text-white">Application Status</CardTitle>
+                <CardTitle className="text-black">Application Status</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -386,10 +532,10 @@ export default function StudentDetailPage() {
                       value={editData?.status || ""}
                       onValueChange={(value) => setEditData((prev) => (prev ? { ...prev, status: value } : null))}
                     >
-                      <SelectTrigger className="bg-zinc-100/10 border-zinc-500/20 text-zinc-700 dark:text-zinc-300">
+                      <SelectTrigger className="bg-white/10 border-emerald-500/20 text-gray-800">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-zinc-100 border-zinc-200">
+                      <SelectContent className="bg-white border-grey-500">
                         <SelectItem value="Applied">Applied</SelectItem>
                         <SelectItem value="In Review">In Review</SelectItem>
                         <SelectItem value="Selected">Selected</SelectItem>

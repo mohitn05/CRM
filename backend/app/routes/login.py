@@ -2,14 +2,21 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy import or_
 from app.models.student import StudentApplication # Make sure your model name is correct
 from app import db
+from werkzeug.security import check_password_hash
 
 login_bp = Blueprint("login", __name__)
+
+@login_bp.route("/test", methods=["GET"])
+def test_route():
+    print("🔥 TEST ROUTE CALLED!")
+    return jsonify({"message": "Login blueprint is working!"})
 
 @login_bp.route("/intern/login", methods=["POST"])
 def login():
  try:
+    print("🔥 LOGIN ROUTE CALLED!")
     data = request.get_json(force=True)
-    print("Login Data Received:",data)
+    print("🔥 Login Data Received:",data)
 
     email_or_phone = data.get("emailOrPhone")
     password = data.get("password")
@@ -27,8 +34,14 @@ def login():
 
     if user:
         print("user Found:", user.email)
+        print("Stored password hash:", user.password)
+        print("Provided password:", password)
+        print("Password check result:", check_password_hash(user.password, password))
+    else:
+        print("No user found with email/phone:", email_or_phone)
 
-    if user and user.password == password:
+    if user and check_password_hash(user.password, password):
+        print("✅ Login successful for:", user.email)
         return jsonify({
             "message": "Login successful",
             "student":{
@@ -37,10 +50,11 @@ def login():
                 "email": user.email,
                 "phone": user.phone,
                 "domain": user.domain,
-                "registration_date":user.date_registered
+                "status": user.status,
+                "dateRegistered": user.date_applied.isoformat() if user.date_applied else None
             }
         }),200
-    print("Invalid credentials")
+    print("❌ Invalid credentials for:", email_or_phone)
     return jsonify({"message":"Invalid email or password"}),401
 
  except Exception as e:

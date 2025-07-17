@@ -64,11 +64,33 @@ export default function StudentsPage() {
       return
     }
 
-    // Load applications
-    const savedApplications = JSON.parse(localStorage.getItem("applications") || "[]")
-    setApplications(savedApplications)
-    setFilteredApplications(savedApplications)
+    // Load applications from backend API
+    loadApplications()
   }, [router])
+
+  const loadApplications = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/admin/applications")
+      if (response.ok) {
+        const data = await response.json()
+        setApplications(data)
+        setFilteredApplications(data)
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to load applications from server",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error("Failed to fetch applications:", error)
+      toast({
+        title: "Network Error",
+        description: "Could not connect to server",
+        variant: "destructive"
+      })
+    }
+  }
 
   useEffect(() => {
     let filtered = applications
@@ -122,18 +144,23 @@ export default function StudentsPage() {
     }
   }
 
-  const downloadResume = (resume: string, fileName: string) => {
-    const link = document.createElement("a")
-    link.href = resume
-    link.download = fileName
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  const downloadResume = (studentId: number, fileName: string) => {
+    try {
+      // Open the file in a new tab for download
+      const fileUrl = `http://localhost:5000/uploads/${fileName}`
+      window.open(fileUrl, '_blank')
 
-    toast({
-      title: "Resume Downloaded ✅",
-      description: `${fileName} has been downloaded successfully.`,
-    })
+      toast({
+        title: "Resume Opened ✅",
+        description: `${fileName} has been opened in a new tab. You can save it using Ctrl+S.`,
+      })
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Could not open resume. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   const viewResume = (resume: string) => {
@@ -193,7 +220,7 @@ export default function StudentsPage() {
       <div className="space-y-6 p-4 lg:p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple to-black-200 bg-clip-text text-transparent">
+            <h1 className="text-3xl text-black ">
               Student Applications
             </h1>
             <p className="text-gray-600">Manage and track internship applications</p>
@@ -314,7 +341,7 @@ export default function StudentsPage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => downloadResume(app.resume!, app.resumeName || "resume.pdf")}
+                                onClick={() => downloadResume(app.id, app.resumeName || "resume.pdf")}
                                 className="bg-green-500/10 border-green-500/20 text-green-400 hover:bg-green-500/20 p-1"
                                 title="Download Resume"
                               >

@@ -330,6 +330,7 @@ export default function ApplyPage() {
                     placeholder="Enter your phone number"
                     value={formData.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
+                    maxLength={10}
                     required
                     className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-green-400 focus:ring-green-400/20 h-12 rounded-xl"
                   />
@@ -345,10 +346,10 @@ export default function ApplyPage() {
                     onValueChange={(value) => handleInputChange("domain", value)}
                     required
                   >
-                    <SelectTrigger className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 focus:border-orange-400 focus:ring-orange-400/20 h-12 rounded-xl">
+                    <SelectTrigger className="bg-white/10 border-emerald-500/20 text-gray-800 h-12 rounded-xl">
                       <SelectValue placeholder="Select your domain" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-200">
+                    <SelectContent className="bg-white border-grey-500">
                       <SelectItem value="Frontend">🎨 Frontend Development</SelectItem>
                       <SelectItem value="Backend">⚙️ Backend Development</SelectItem>
                       <SelectItem value="Database">🗄️ Database Management</SelectItem>

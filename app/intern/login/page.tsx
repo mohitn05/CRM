@@ -50,7 +50,12 @@ export default function InternLoginPage() {
 
    if (response.ok) {
     localStorage.setItem("internAuth", JSON.stringify({
-      ...data.student,
+      id: data.student.id,
+      name: data.student.name,
+      email: data.student.email,
+      phone: data.student.phone,
+      domain: data.student.domain,
+      applicationId: data.student.id,
       status: data.student.status || "Applied",
       dateRegistered: data.student.dateRegistered || new Date().toISOString(),
     }))

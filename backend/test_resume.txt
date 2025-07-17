@@ -1,0 +1,9 @@
+Test Resume Content
+==================
+
+Name: Test Student
+Email: test@example.com
+Phone: 1234567890
+Domain: Computer Science
+
+This is a test resume file for testing the CRM application.

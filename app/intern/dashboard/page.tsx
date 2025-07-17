@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
+import { NotificationBell } from "@/components/notification-bell"
 import {
   User,
   Mail,
@@ -22,9 +23,9 @@ import {
   Save,
   X,
   LogOut,
-  Bell,
   FileText,
   Sparkles,
+  Trash2,
 } from "lucide-react"
 
 interface InternAccount {
@@ -67,58 +68,103 @@ export default function InternDashboard() {
     }
 
     const account = JSON.parse(authData)
-    setInternData(account)
-    setEditData(account)
 
-    const applications = JSON.parse(localStorage.getItem("applications") || "[]")
-    const currentApp = applications.find((app: any) => app.id === account.applicationId)
-
-    if (currentApp && currentApp.status !== account.status) {
-      const updatedAccount = { ...account, status: currentApp.status }
-      setInternData(updatedAccount)
-      setEditData(updatedAccount)
-      localStorage.setItem("internAuth", JSON.stringify(updatedAccount))
+    // Fetch latest data from API to ensure we have current status
+    const fetchLatestData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/students/${account.id}`)
+        if (response.ok) {
+          const latestData = await response.json()
+          const updatedAccount = {
+            id: latestData.id,
+            name: latestData.name,
+            email: latestData.email,
+            phone: latestData.phone,
+            domain: latestData.domain,
+            applicationId: latestData.id,
+            status: latestData.status,
+            dateRegistered: latestData.dateApplied
+          }
+          setInternData(updatedAccount)
+          setEditData(updatedAccount)
+          // Update localStorage with latest data
+          localStorage.setItem("internAuth", JSON.stringify(updatedAccount))
+        } else {
+          // If API fails, use stored data
+          setInternData(account)
+          setEditData(account)
+        }
+      } catch (error) {
+        console.error("Error fetching latest data:", error)
+        // If API fails, use stored data
+        setInternData(account)
+        setEditData(account)
+      }
     }
+
+    fetchLatestData()
   }, [router])
 
   const handleSave = async () => {
     if (!editData || !internData) return
     setIsLoading(true)
-    await new Promise((res) => setTimeout(res, 1000))
 
-    const internAccounts = JSON.parse(localStorage.getItem("internAccounts") || "[]")
-    const updatedAccounts = internAccounts.map((acc: InternAccount) =>
-      acc.id === editData.id ? { ...editData, status: internData.status } : acc,
-    )
-    localStorage.setItem("internAccounts", JSON.stringify(updatedAccounts))
+    try {
+      const response = await fetch(`http://localhost:5000/api/students/${editData.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: editData.name,
+          email: editData.email,
+          phone: editData.phone,
+          domain: editData.domain,
+          // Don't send status - intern can't change their own status
+        }),
+      })
 
-    const applications = JSON.parse(localStorage.getItem("applications") || "[]")
-    const updatedApplications = applications.map((app: any) =>
-      app.id === internData.applicationId
-        ? {
-            ...app,
-            name: editData.name,
-            email: editData.email,
-            phone: editData.phone,
-            domain: editData.domain,
-            status: internData.status,
-          }
-        : app,
-    )
-    localStorage.setItem("applications", JSON.stringify(updatedApplications))
+      if (response.ok) {
+        const result = await response.json()
+        const updatedInternData = {
+          id: result.student.id,
+          name: result.student.name,
+          email: result.student.email,
+          phone: result.student.phone,
+          domain: result.student.domain,
+          applicationId: result.student.id,
+          status: result.student.status, // Keep the status from server
+          dateRegistered: result.student.dateApplied
+        }
 
-    const updatedInternData = { ...editData, status: internData.status }
-    setInternData(updatedInternData)
-    setEditData(updatedInternData)
-    localStorage.setItem("internAuth", JSON.stringify(updatedInternData))
+        setInternData(updatedInternData)
+        setEditData(updatedInternData)
+        localStorage.setItem("internAuth", JSON.stringify(updatedInternData))
 
-    setIsEditing(false)
+        setIsEditing(false)
+
+        toast({
+          title: "Profile Updated! ✅",
+          description: "Your information has been updated successfully.",
+        })
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Update Failed",
+          description: error.message || "Failed to update profile",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error)
+      toast({
+        title: "Update Failed",
+        description: "Failed to connect to server",
+        variant: "destructive",
+      })
+    }
+
     setIsLoading(false)
-
-    toast({
-      title: "Profile Updated! ✅",
-      description: "Your information has been updated successfully.",
-    })
   }
 
   const handleLogout = () => {
@@ -128,6 +174,44 @@ export default function InternDashboard() {
       description: "Thank you for using our platform!",
     })
     router.push("/")
+  }
+
+  const deleteApplication = async () => {
+    if (!internData?.id) return
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your application? This action cannot be undone and you will lose all your data."
+    )
+
+    if (!confirmed) return
+
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/students/${internData.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        localStorage.removeItem("internAuth")
+        toast({
+          title: "Application Deleted ✅",
+          description: "Your application has been deleted successfully.",
+        })
+        router.push("/")
+      } else {
+        throw new Error('Failed to delete application')
+      }
+    } catch (error) {
+      console.error("Error deleting application:", error)
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete application. Please try again.",
+        variant: "destructive",
+      })
+    }
+
+    setIsLoading(false)
   }
 
   const getStatusColor = (status: string) => {
@@ -204,9 +288,7 @@ export default function InternDashboard() {
           <p className="text-gray-600">Intern Dashboard</p>
         </div>
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900">
-            <Bell className="w-5 h-5" />
-          </Button>
+          <NotificationBell studentId={internData.id} />
           <Button
             onClick={handleLogout}
             variant="outline"
@@ -258,7 +340,12 @@ export default function InternDashboard() {
                 <div key={key} className="bg-gray-50 p-4 rounded-lg border">
                   <Label className="flex items-center gap-2 text-gray-700 mb-1">{icon}<span>{label}</span></Label>
                   {isEditing ? (
-                    <Input value={(editData as any)[key]} onChange={(e) => setEditData(prev => prev ? { ...prev, [key]: e.target.value } : null)} />
+                    <Input
+                      type={key === "phone" ? "tel" : "text"}
+                      value={(editData as any)[key]}
+                      onChange={(e) => setEditData(prev => prev ? { ...prev, [key]: e.target.value } : null)}
+                      maxLength={key === "phone" ? 10 : undefined}
+                    />
                   ) : (
                     <p className="text-gray-900 font-semibold">{value}</p>
                   )}
@@ -337,6 +424,14 @@ export default function InternDashboard() {
               <Button variant="ghost" className="w-full justify-start text-gray-700 hover:bg-gray-100"
                 onClick={() => window.open("tel:+15551234567")}>
                 <Phone className="w-4 h-4 mr-2" /> Call Support
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+                onClick={deleteApplication}
+                disabled={isLoading}
+              >
+                <Trash2 className="w-4 h-4 mr-2" /> Delete Application
               </Button>
             </CardContent>
           </Card>
