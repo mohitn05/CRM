@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, send_from_directory
+from flask import Blueprint, request, jsonify
 from app.models.student import StudentApplication
 from app.controllers.notifications import send_notification
 from app.services.notification_service import NotificationService
@@ -28,66 +28,13 @@ def get_all_applications():
     except Exception as e:
         return jsonify({"message":"Failed to fetch applications","error":str(e)}), 500
 
-@admin_bp.route('/download-resume/<int:student_id>', methods=['GET'])
-def download_student_resume(student_id):
-    print(f"DEBUG: download_student_resume called with student_id={student_id}")
-    try:
-        student = StudentApplication.query.get_or_404(student_id)
-        print(f"DEBUG: Found student: {student.name}, resume: {student.resume}")
 
-        if student.resume:
-            # Use absolute path to uploads directory
-            import os
-            from flask import current_app
-            uploads_dir = os.path.join(current_app.root_path, '..', 'uploads')
-            uploads_dir = os.path.abspath(uploads_dir)
-            file_path = os.path.join(uploads_dir, student.resume)
-            print(f"DEBUG: Looking for file at: {file_path}")
-            print(f"DEBUG: File exists: {os.path.exists(file_path)}")
-
-            if os.path.exists(file_path):
-                print(f"DEBUG: Sending file from {uploads_dir}")
-                return send_from_directory(uploads_dir, student.resume, as_attachment=True)
-
-        print("DEBUG: Resume not found")
-        return jsonify({'error': 'Resume not found'}), 404
-    except Exception as e:
-        print(f"DEBUG: Exception in download_student_resume: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@admin_bp.route('/resume/<int:id>', methods=['GET'])
-def download_resume(id):
-    print(f"DEBUG: download_resume called with id={id}")
-    return jsonify({'message': f'Resume download for student {id}', 'debug': 'Function called successfully'}), 200
 
 @admin_bp.route('/students/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def student_detail(id):
     student = StudentApplication.query.get_or_404(id)
 
     if request.method == 'GET':
-        # Check if this is a resume download request
-        download_param = request.args.get('download')
-        print(f"DEBUG: download parameter = {download_param}")
-        if download_param == 'resume':
-            print(f"DEBUG: Resume download requested for student {id}")
-            if student.resume:
-                # Use absolute path to uploads directory
-                import os
-                from flask import current_app
-                uploads_dir = os.path.join(current_app.root_path, '..', 'uploads')
-                uploads_dir = os.path.abspath(uploads_dir)
-                file_path = os.path.join(uploads_dir, student.resume)
-                print(f"DEBUG: Looking for file at: {file_path}")
-                print(f"DEBUG: File exists: {os.path.exists(file_path)}")
-
-                if os.path.exists(file_path):
-                    print(f"DEBUG: Sending file from {uploads_dir}")
-                    return send_from_directory(uploads_dir, student.resume, as_attachment=True)
-
-            print("DEBUG: Resume not found")
-            return jsonify({'error': 'Resume not found'}), 404
-
-        # Regular student detail response
         return jsonify({
             'id': student.id,
             'name': student.name,
@@ -95,7 +42,7 @@ def student_detail(id):
             'phone': student.phone,
             'domain': student.domain,
             'status': student.status,
-            'resume': f"http://localhost:5000/api/students/{student.id}?download=resume",
+            'resume': f"http://localhost:5000/uploads/{student.resume}" if student.resume else None,
             'resumeName': student.resume,
             'dateApplied': student.date_applied.isoformat() if student.date_applied else None
         })

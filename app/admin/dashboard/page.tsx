@@ -122,7 +122,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const downloadResume = (studentId: number, fileName: string) => {
+  const downloadResume = (fileName: string) => {
     try {
       // Open the file in a new tab for download
       const fileUrl = `http://localhost:5000/uploads/${fileName}`
@@ -448,7 +448,7 @@ export default function AdminDashboard() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => downloadResume(app.id, app.resumeName || "resume.pdf")}
+                              onClick={() => downloadResume(app.resumeName || "resume.pdf")}
                               className="bg-white/50 border-gray-200/50 text-gray-700 hover:bg-gray-100/50 text-xs"
                             >
                               <FileText className="h-3 w-3 mr-1" />

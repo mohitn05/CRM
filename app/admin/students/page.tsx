@@ -144,7 +144,7 @@ export default function StudentsPage() {
     }
   }
 
-  const downloadResume = (studentId: number, fileName: string) => {
+  const downloadResume = (fileName: string) => {
     try {
       // Open the file in a new tab for download
       const fileUrl = `http://localhost:5000/uploads/${fileName}`
@@ -341,7 +341,7 @@ export default function StudentsPage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => downloadResume(app.id, app.resumeName || "resume.pdf")}
+                                onClick={() => downloadResume(app.resumeName || "resume.pdf")}
                                 className="bg-green-500/10 border-green-500/20 text-green-400 hover:bg-green-500/20 p-1"
                                 title="Download Resume"
                               >
