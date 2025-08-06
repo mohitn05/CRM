@@ -146,7 +146,7 @@ export default function AdminLoginPage() {
             </form>
 
             {/* Demo credentials with green styling */}
-            <div className="mt-8 p-6 bg-gradient-to-r from-emerald-500/10 to-green-500/10 backdrop-blur-sm border border-emerald-400/20 rounded-2xl">
+            {/* <div className="mt-8 p-6 bg-gradient-to-r from-emerald-500/10 to-green-500/10 backdrop-blur-sm border border-emerald-400/20 rounded-2xl">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-gray-800 font-semibold text-sm">Demo Access</span>
@@ -161,7 +161,7 @@ export default function AdminLoginPage() {
                   <code className="bg-white/30 px-2 py-1 rounded font-mono">admin123</code>
                 </div>
               </div>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       </div>
