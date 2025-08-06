@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.models.student import StudentApplication
+from app.services.email_service import validate_email, send_email
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from app import db
@@ -41,6 +42,9 @@ def apply():
 
         if len(password) < 6:
             return jsonify({"message": "Password must be at least 6 characters"}), 400
+        
+        if not validate_email(email):
+            return jsonify({"message": "Invalid email address"}),400
 
         # 🛡️ Hash password
         hashed_password = generate_password_hash(password)
@@ -67,6 +71,10 @@ def apply():
         db.session.add(application)
         db.session.commit()
         print("✅ Application Saved:", name, email)
+
+        subject = "Application Received"
+        body = f"Hi {name},\n\n Thanks for applying to the {domain} domain. We'll get back to you soon !"
+        send_email(email,subject,body)
 
         return jsonify({"message": "Application received!"}), 200
 
