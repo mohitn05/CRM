@@ -7,8 +7,17 @@ body {
 }
 
 @layer utilities {
+  .border-border {
+    border-color: hsl(var(--border));
+  }
+  .bg-background {
+    background-color: hsl(var(--background));
+  }
   .text-balance {
     text-wrap: balance;
+  }
+  .test-foreground{
+    color: hsl(var(--foreground));
   }
 }
 
@@ -85,10 +94,13 @@ body {
 }
 
 @layer base {
-  * {
-    @apply border;
-  }
   body {
     @apply bg-background text-foreground;
+  }
+  input,
+  select,
+  textarea,
+  button{
+    @apply appearance-none border-none bg-transparent outline-none shadow-none;
   }
 }

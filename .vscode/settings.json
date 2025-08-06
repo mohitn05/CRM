@@ -1,3 +1,18 @@
 {
-    "terminal.integrated.sendKeybindingsToShell": true
+  // Tailwind CSS IntelliSense support
+  "tailwindCSS.experimental.configFile": "tailwind.config.ts",
+
+  // Enable suggestions inside className=""
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+
+  // Prevent false CSS warnings from VS Code
+  "css.validate": false,
+
+  // Enable inline suggestions (Copilot, IntelliSense, etc.)
+  "editor.inlineSuggest.enabled": true,
+
+  // Ensure terminal keybindings like Ctrl+C go to the shell
+  "terminal.integrated.sendKeybindingsToShell": true
 }
