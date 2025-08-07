@@ -291,8 +291,7 @@ export default function InternDashboard() {
           <NotificationBell studentId={internData.id} />
           <Button
             onClick={handleLogout}
-            variant="outline"
-            className="border-red-300 text-red-600 hover:bg-red-50 bg-transparent"
+            className="btn btn-outline text-red-600 border-red-300 hover:bg-red-50"
           >
             <LogOut className="w-4 h-4 mr-2" />
             Logout
@@ -311,17 +310,17 @@ export default function InternDashboard() {
                 Profile Information
               </CardTitle>
               {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)} variant="ghost" size="sm" className="text-blue-600">
+                <Button onClick={() => setIsEditing(true)} className="btn btn-muted text-blue-600">
                   <Edit className="w-4 h-4 mr-2" />
                   Edit
                 </Button>
               ) : (
                 <div className="flex gap-2">
-                  <Button onClick={() => { setIsEditing(false); setEditData(internData) }} variant="outline">
+                  <Button onClick={() => { setIsEditing(false); setEditData(internData) }} className = "btn btn-outline">
                     <X className="w-4 h-4 mr-2" />
                     Cancel
                   </Button>
-                  <Button onClick={handleSave} disabled={isLoading} className="bg-emerald-600 text-white">
+                  <Button onClick={handleSave} disabled={isLoading} className="btn btn-primary bg-emerald-600 hover:bg-emerald-700">
                     <Save className="w-4 h-4 mr-2" />
                     {isLoading ? "Saving..." : "Save"}
                   </Button>
@@ -417,17 +416,16 @@ export default function InternDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 space-y-3">
-              <Button variant="ghost" className="w-full justify-start text-gray-700 hover:bg-gray-100"
+              <Button className="btn btn-muted w-full justify-start"
                 onClick={() => window.open("mailto:contact@internshipcrm.com")}>
                 <Mail className="w-4 h-4 mr-2" /> Contact Support
               </Button>
-              <Button variant="ghost" className="w-full justify-start text-gray-700 hover:bg-gray-100"
+              <Button className="btn btn-muted w-full justify-start"
                 onClick={() => window.open("tel:+15551234567")}>
                 <Phone className="w-4 h-4 mr-2" /> Call Support
               </Button>
               <Button
-                variant="ghost"
-                className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+                className="btn btn-danger w-full justify-start"
                 onClick={deleteApplication}
                 disabled={isLoading}
               >

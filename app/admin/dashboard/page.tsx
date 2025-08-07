@@ -392,13 +392,12 @@ export default function AdminDashboard() {
               <div className="flex gap-2">
                 <Button
                   onClick={loadApplications}
-                  variant="outline"
-                  className="bg-white/50 border-gray-200/50 text-black hover:bg-gray-100/50"
+                  className="btn btn-outline bg-white/50 border-gray-200/50 text-black hover:bg-gray-100/50"
                 >
                   Refresh
                 </Button>
                 <Link href="/admin/students">
-                  <Button variant="outline" className="bg-white/50 border-gray-200/50 text-black hover:bg-gray-100/50">
+                  <Button className="btn btn-outline bg-white/50 border-gray-200/50 text-black hover:bg-gray-100/50">
                     View All
                   </Button>
                 </Link>
@@ -413,8 +412,7 @@ export default function AdminDashboard() {
                   <p className="text-sm">Students can apply through the application form.</p>
                   <Button
                     onClick={loadApplications}
-                    variant="outline"
-                    className="mt-4 bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                    className="btn btn-outline mt-4 bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
                   >
                     Refresh Data
                   </Button>
@@ -446,10 +444,8 @@ export default function AdminDashboard() {
                         {app.resume && (
                           <div className="mt-2">
                             <Button
-                              size="sm"
-                              variant="outline"
                               onClick={() => downloadResume(app.resumeName || "resume.pdf")}
-                              className="bg-white/50 border-gray-200/50 text-gray-700 hover:bg-gray-100/50 text-xs"
+                              className="btn btn-outline bg-white/50 border-gray-200/50 text-gray-700 hover:bg-gray-100/50 text-xs"
                             >
                               <FileText className="h-3 w-3 mr-1" />
                               <Download className="h-3 w-3 mr-1" />
@@ -463,26 +459,23 @@ export default function AdminDashboard() {
                         {(app.status === "Applied" || app.status === "Under Review") && (
                           <>
                             <Button
-                              size="sm"
                               onClick={() => updateApplicationStatus(app.id, "In Review")}
-                              className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                              className="btn btn-primary bg-blue-600 hover:bg-blue-700 text-xs"
                             >
                               <Clock className="h-3 w-3 mr-1" />
                               Review
                             </Button>
                             <Button
+                              variant="default"
                               size="sm"
                               onClick={() => updateApplicationStatus(app.id, "Selected")}
-                              className="bg-green-600 hover:bg-green-700 text-white text-xs"
                             >
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Accept
                             </Button>
                             <Button
-                              size="sm"
-                              variant="destructive"
                               onClick={() => updateApplicationStatus(app.id, "Rejected")}
-                              className="bg-red-600 hover:bg-red-700 text-xs"
+                              className="btn btn-danger text-xs"
                             >
                               <XCircle className="h-3 w-3 mr-1" />
                               Reject
@@ -492,9 +485,7 @@ export default function AdminDashboard() {
 
                         <Link href={`/admin/student/${app.id}`}>
                           <Button
-                            size="sm"
-                            variant="outline"
-                            className="bg-white/50 border-gray-200/50 text-black hover:bg-gray-100/50 text-xs"
+                            className="btn btn-outline bg-white/50 border-gray-200/50 text-black hover:bg-gray-100/50 text-xs"
                           >
                             <Eye className="h-3 w-3 mr-1" />
                             View
