@@ -251,7 +251,7 @@ export default function ApplyPage() {
 
         <div className="flex items-center gap-4">
           <Link href="/intern/login">
-            <Button variant="outline" className="bg-white/20 border-white/30 text-gray-700 hover:bg-white/30">
+            <Button variant="outline" className="bg-emerald-600 hover:bg-emerald-700 text-white">
               Login
             </Button>
           </Link>
