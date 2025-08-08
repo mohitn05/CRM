@@ -14,5 +14,12 @@
   "editor.inlineSuggest.enabled": true,
 
   // Ensure terminal keybindings like Ctrl+C go to the shell
-  "terminal.integrated.sendKeybindingsToShell": true
+  "terminal.integrated.sendKeybindingsToShell": true,
+
+  // Enable Python linter and module resolution
+  "python.analysis.extraPaths": [
+    "backend/app"
+  ],
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true
 }
