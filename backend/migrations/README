@@ -1,1 +1,55 @@
 Single-database configuration for Flask.
+
+## 🔐 Password Reset via OTP
+
+This flow allows users to reset their password securely using OTP verification. All routes are managed under the `login` blueprint.
+
+### Endpoints
+
+| Route                | Method | Description                          |
+|---------------------|--------|--------------------------------------|
+| `/api/request-otp`  | POST   | Request OTP using email & phone      |
+| `/api/resend-otp`   | POST   | Resend OTP with cooldown & limit     |
+| `/api/verify-otp`   | POST   | Verify OTP and mark request verified |
+| `/api/set-new-password` | POST | Update password after OTP verification |
+
+### Model Used
+
+- `PasswordResetRequest` — tracks OTP status, attempts, expiry, etc.
+
+### Notes for Devs
+
+- OTP expires after **10 minutes**, max **3 resends**, **5 attempts** allowed.
+- Status transitions: `pending → verified → used`, or `expired` / `blocked`.
+- Each route updates `PasswordResetRequest` with timestamps and counters.
+- Passwords are hashed using `werkzeug.security.generate_password_hash`.
+
+This system ensures password resets are secure, auditable, and scalable.
+
+
+# 🔧 Alembic Configuration for Backend Migrations
+
+This repo uses a single-database setup for Flask with Alembic. All migration scripts are tracked under this folder.
+
+## ✅ Setup Notes
+
+- Alembic config (`alembic.ini`) lives at repo root.
+- Migrations generated with: `alembic revision --autogenerate -m "..."`  
+- Run migrations with: `alembic upgrade head`
+
+## 🧪 Schema Drift Checks
+
+- Ensure ORM models (e.g. `PasswordResetRequest`) are always in sync with DB
+- After major model changes, run:
+
+- If generated revision is empty: ✅ you're clean
+- If not: inspect changes and reconcile ORM + migration manually
+
+## 📦 Repo Hygiene
+
+- No stray alembic.ini files allowed inside `/backend/` or `/migrations/`
+- Commit lockfiles and `.gitignore` before pushing new branches
+
+## ℹ️ Related Models
+
+- `PasswordResetRequest`: used in OTP + password reset flow
