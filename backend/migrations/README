@@ -53,3 +53,15 @@ This repo uses a single-database setup for Flask with Alembic. All migration scr
 ## ℹ️ Related Models
 
 - `PasswordResetRequest`: used in OTP + password reset flow
+
+# 🧠 CRM Backend Setup Guide
+
+## 🚀 Getting Started
+
+<!-- ```bash -->
+
+git clone https://github.com/your-org/crm-backend.git
+cd crm-backend
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt

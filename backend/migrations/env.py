@@ -20,7 +20,7 @@ for path in [BACKEND_DIR, PROJECT_ROOT]:
 # 🔥 Flask app + DB bootstrap
 # -----------------------------------------------------------------------------
 from app import create_app, db  # Requires app/__init__.py with exports
-app = create_app()
+flask_app = create_app()
 
 # 🚨 Import models to expose metadata for Alembic
 import app.models  # noqa: F401
@@ -33,7 +33,7 @@ fileConfig(config.config_file_name)
 logger = logging.getLogger("alembic.env")
 
 # 🔗 DB URL injected from app config
-db_url = app.config.get("SQLALCHEMY_DATABASE_URI")
+db_url = flask_app.config.get("SQLALCHEMY_DATABASE_URI")
 if not db_url:
     raise RuntimeError("Missing SQLALCHEMY_DATABASE_URI in Flask app config.")
 config.set_main_option("sqlalchemy.url", db_url)
@@ -76,7 +76,7 @@ def run_migrations_online():
         future=True,
     )
 
-    with app.app_context():
+    with flask_app.app_context():
         with connectable.connect() as connection:
             context.configure(
                 connection=connection,
