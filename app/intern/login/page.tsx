@@ -260,7 +260,7 @@ export default function InternLoginPage() {
       <header className="relative z-20 flex items-center justify-between p-6 bg-white/10 backdrop-blur-md border-b border-white/20">
         <Link
           href="/"
-          className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors font-medium"
+          className="flex items-center gap-2 text-white bg-emerald-600 hover:bg-emerald-700 transition-colors font-medium px-6 py-2 rounded-full"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
@@ -268,11 +268,12 @@ export default function InternLoginPage() {
 
         <div className="flex items-center gap-4">
           <Link href="/apply">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">Register</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6">Register</Button>
           </Link>
         </div>
       </header>
 
+      {/* Background Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-emerald-200/20 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-green-200/15 rounded-full blur-3xl"></div>

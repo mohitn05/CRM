@@ -106,79 +106,120 @@ export function NotificationBell({ studentId }: NotificationBellProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="relative p-2 hover:bg-gray-100"
+          className="relative p-2 hover:bg-green-50 transition-all duration-200"
         >
           <Bell className="h-5 w-5 text-gray-600" />
           {unreadCount > 0 && (
             <Badge 
               variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs animate-pulse bg-emerald-500 hover:bg-emerald-500"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Notifications</CardTitle>
-              {unreadCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={markAllAsRead}
-                  className="text-xs text-blue-600 hover:text-blue-800"
-                >
-                  Mark all read
-                </Button>
-              )}
+      <PopoverContent className="w-96 p-0 z-[9999] bg-gradient-to-br from-white to-emerald-50 border-0 shadow-2xl rounded-2xl overflow-hidden" align="end" side="bottom" sideOffset={12}>
+        <div className="bg-gradient-to-r from-emerald-600 to-green-600 p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm">
+                <Bell className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Notifications</h3>
+                <p className="text-emerald-100 text-sm">Stay updated with your application</p>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="h-80">
-              {notifications.length === 0 ? (
-                <div className="p-4 text-center text-gray-500">
-                  No notifications yet
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  {notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={`p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
-                        !notification.is_read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                      }`}
-                      onClick={() => !notification.is_read && markAsRead(notification.id)}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="text-lg">{getNotificationIcon(notification.type)}</span>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <h4 className={`text-sm font-medium ${!notification.is_read ? 'text-gray-900' : 'text-gray-700'}`}>
-                              {notification.title}
-                            </h4>
-                            {!notification.is_read && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                            )}
-                          </div>
-                          <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={markAllAsRead}
+                className="text-white hover:bg-white/20 text-xs px-3 py-1 rounded-full transition-all duration-200"
+              >
+                Mark all read
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        <div className="max-h-80 overflow-y-auto">
+          {notifications.length === 0 ? (
+            <div className="p-8 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-emerald-100 to-green-100 rounded-full flex items-center justify-center">
+                <Bell className="h-8 w-8 text-emerald-400" />
+              </div>
+              <h4 className="text-gray-600 font-medium mb-2">No notifications yet</h4>
+              <p className="text-gray-400 text-sm">We'll notify you when there are updates</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`p-4 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 cursor-pointer transition-all duration-300 group ${
+                    !notification.is_read ? 'bg-gradient-to-r from-emerald-50/50 to-green-50/50 border-l-4 border-l-emerald-500' : 'bg-white'
+                  }`}
+                  onClick={() => !notification.is_read && markAsRead(notification.id)}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`p-2 rounded-full flex-shrink-0 ${
+                      !notification.is_read 
+                        ? 'bg-gradient-to-br from-emerald-500 to-green-500 text-white' 
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      <span className="text-sm">{getNotificationIcon(notification.type)}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className={`text-sm font-semibold truncate pr-2 ${
+                          !notification.is_read ? 'text-gray-900' : 'text-gray-700'
+                        }`}>
+                          {notification.title}
+                        </h4>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {!notification.is_read && (
+                            <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full animate-pulse"></div>
+                          )}
+                          <span className="text-xs text-gray-400 whitespace-nowrap">
                             {formatDate(notification.created_at)}
-                          </p>
+                          </span>
                         </div>
                       </div>
+                      <p className="text-sm text-gray-600 leading-relaxed mb-2">
+                        {notification.message}
+                      </p>
+                      {!notification.is_read && (
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="px-2 py-1 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full">
+                            New
+                          </div>
+                          <span className="text-emerald-600 group-hover:text-green-600 transition-colors">
+                            Click to mark as read
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              )}
-            </ScrollArea>
-          </CardContent>
-        </Card>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        {notifications.length > 0 && (
+          <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 border-t">
+            <div className="text-center">
+              <p className="text-xs text-gray-500">
+                {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up! 🎉'}
+              </p>
+            </div>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   )
 }
+
+

@@ -285,16 +285,19 @@ export default function InternDashboard() {
       <header className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Welcome, {internData.name}!</h1>
-          <p className="text-gray-600">Intern Dashboard</p>
+          <p className="text-gray-600">Interns Dashboard</p>
         </div>
         <div className="flex items-center space-x-4">
           <NotificationBell studentId={internData.id} />
           <Button
             onClick={handleLogout}
-            className="btn btn-outline text-red-600 border-red-300 hover:bg-red-50"
+            className="group relative overflow-hidden bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-2.5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-red-400"
           >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
+            <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-red-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative flex items-center gap-2">
+              <LogOut className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+              <span className="font-semibold">Logout</span>
+            </div>
           </Button>
         </div>
       </header>
@@ -302,11 +305,11 @@ export default function InternDashboard() {
       {/* Grid Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card */}
-        <Card className="lg:col-span-2 p-6 shadow-sm">
+        <Card className="lg:col-span-2 p-6 shadow-sm bg-white border border-gray-200">
           <CardHeader className="p-0 mb-6">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <User className="w-5 h-5 text-gray-700" />
+              <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                <User className="w-6 h-6 text-gray-700" />
                 Profile Information
               </CardTitle>
               {!isEditing ? (
@@ -336,29 +339,30 @@ export default function InternDashboard() {
                 { label: "Email Address", value: internData.email, icon: <Mail />, key: "email" },
                 { label: "Phone Number", value: internData.phone, icon: <Phone />, key: "phone" },
               ].map(({ label, value, icon, key }) => (
-                <div key={key} className="bg-gray-50 p-4 rounded-lg border">
-                  <Label className="flex items-center gap-2 text-gray-700 mb-1">{icon}<span>{label}</span></Label>
+                <div key={key} className="bg-gray-100 p-5 rounded-lg border border-gray-200">
+                  <Label className="flex items-center gap-2 text-gray-700 mb-2 text-base font-medium">{icon}<span>{label}</span></Label>
                   {isEditing ? (
                     <Input
                       type={key === "phone" ? "tel" : "text"}
                       value={(editData as any)[key]}
                       onChange={(e) => setEditData(prev => prev ? { ...prev, [key]: e.target.value } : null)}
                       maxLength={key === "phone" ? 10 : undefined}
+                      className="text-base"
                     />
                   ) : (
-                    <p className="text-gray-900 font-semibold">{value}</p>
+                    <p className="text-gray-900 font-semibold text-base">{value}</p>
                   )}
                 </div>
               ))}
 
               {/* Domain */}
-              <div className="bg-gray-50 p-4 rounded-lg border">
-                <Label className="flex items-center gap-2 text-gray-700 mb-1">
+              <div className="bg-gray-100 p-5 rounded-lg border border-gray-200">
+                <Label className="flex items-center gap-2 text-gray-700 mb-2 text-base font-medium">
                   <Building2 className="w-4 h-4" /> Domain
                 </Label>
                 {isEditing ? (
                   <Select value={editData?.domain || ""} onValueChange={(v) => setEditData((p) => p ? { ...p, domain: v } : null)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="text-base">
                       <SelectValue placeholder="Select Domain" />
                     </SelectTrigger>
                     <SelectContent>
@@ -368,16 +372,16 @@ export default function InternDashboard() {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <Badge>{domainDisplayNames[internData.domain] || internData.domain}</Badge>
+                  <Badge className="text-base px-3 py-1">{domainDisplayNames[internData.domain] || internData.domain}</Badge>
                 )}
               </div>
 
               {/* Registration Date */}
-              <div className="bg-gray-50 p-4 rounded-lg border">
-                <Label className="flex items-center gap-2 text-gray-700 mb-1">
+              <div className="bg-gray-100 p-5 rounded-lg border border-gray-200">
+                <Label className="flex items-center gap-2 text-gray-700 mb-2 text-base font-medium">
                   <Calendar className="w-4 h-4" /> Registration Date
                 </Label>
-                <p className="text-gray-900 font-semibold">
+                <p className="text-gray-900 font-semibold text-base">
                   {internData.dateRegistered && !isNaN (new Date(internData.dateRegistered).getTime())
                   ? new Date(internData.dateRegistered).toLocaleDateString()
                   : "Not Available"}
@@ -390,9 +394,9 @@ export default function InternDashboard() {
         {/* Right Column */}
         <div className="flex flex-col gap-6">
           {/* Status */}
-          <Card className="p-6 shadow-sm">
+          <Card className="p-6 shadow-sm bg-white border border-gray-200">
             <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+              <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
                 {getStatusIcon(internData.status)}
                 Application Status
               </CardTitle>
@@ -402,35 +406,151 @@ export default function InternDashboard() {
                 <Badge className={`${getStatusColor(internData.status)} text-lg px-4 py-2 mb-4`}>
                   {internData.status}
                 </Badge>
-                <p className="text-gray-600 text-sm leading-relaxed">{getStatusMessage(internData.status)}</p>
+
+                {/* Animated Emoji and Message for Applied */}
+                {internData.status === "Applied" && (
+                  <div className="space-y-2">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-pulse" style={{animationDuration: '2s'}}>
+                        📝
+                      </div>
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">Your application has been submitted</p>
+                      <div className="flex items-center justify-center text-blue-600">
+                        <span className="text-sm font-medium">Waiting for review</span>
+                      </div>
+                      <p className="text-xs text-gray-500">We'll update you soon</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Animated Emoji and Message for Selected */}
+                {internData.status === "Selected" && (
+                  <div className="space-y-2">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-bounce" style={{animationDuration: '1s'}}>
+                        😊
+                      </div>
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">You have been selected!</p>
+                      <div className="flex items-center justify-center text-green-600">
+                        <span className="text-sm font-medium">Congratulations!</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Check your email for next steps</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Animated Emoji and Message for Rejected */}
+                {internData.status === "Rejected" && (
+                  <div className="space-y-2">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-bounce" style={{animationDuration: '1s'}}>
+                        😢
+                      </div>
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">Your application was not successful</p>
+                      <div className="flex items-center justify-center text-red-600">
+                        <span className="text-sm font-medium">Better luck next time!</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Keep improving and apply again</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Message for In Review */}
+                {(internData.status === "In Review" || internData.status === "Under Review") && (
+                  <div className="space-y-2">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-spin" style={{animationDuration: '2s'}}>
+                        ⏳
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-blue-600">Your application is under review</p>
+                      <div className="flex items-center justify-center text-blue-600">
+                        <span className="text-sm font-medium">Please wait for updates</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Animated Emoji for In Training */}
+                {internData.status === "In Training" && (
+                  <div className="space-y-2">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-bounce" style={{animationDuration: '1.5s'}}>
+                        🎓
+                      </div>
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">Welcome to the team!</p>
+                      <div className="flex items-center justify-center text-purple-600">
+                        <span className="text-sm font-medium">Your training has begun</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Keep up the great work</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Animated Emoji for Completed */}
+                {internData.status === "Completed" && (
+                  <div className="space-y-2">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-bounce" style={{animationDuration: '1s'}}>
+                        🏆
+                      </div>
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">Congratulations!</p>
+                      <div className="flex items-center justify-center text-green-600">
+                        <span className="text-sm font-medium">Internship completed successfully</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Well done!</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Default message for other statuses */}
+                {!["Applied", "Selected", "Rejected", "In Review", "Under Review", "In Training", "Completed"].includes(internData.status) && (
+                  <p className="text-gray-600 text-sm leading-relaxed">{getStatusMessage(internData.status)}</p>
+                )}
               </div>
             </CardContent>
           </Card>
 
           {/* Quick Actions */}
-          <Card className="p-6 shadow-sm">
-            <CardHeader className="p-0 mb-4">
+          <Card className="p-4 shadow-sm bg-white border border-gray-200">
+            <CardHeader className="p-0 mb-3">
               <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-gray-700" />
                 Quick Actions
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 space-y-3">
-              <Button className="btn btn-muted w-full justify-start"
-                onClick={() => window.open("mailto:contact@internshipcrm.com")}>
-                <Mail className="w-4 h-4 mr-2" /> Contact Support
-              </Button>
-              <Button className="btn btn-muted w-full justify-start"
-                onClick={() => window.open("tel:+15551234567")}>
-                <Phone className="w-4 h-4 mr-2" /> Call Support
-              </Button>
-              <Button
-                className="btn btn-danger w-full justify-start"
-                onClick={deleteApplication}
-                disabled={isLoading}
-              >
-                <Trash2 className="w-4 h-4 mr-2" /> Delete Application
-              </Button>
+            <CardContent className="p-0 space-y-2">
+              <Card className="p-4 bg-gray-100 border border-gray-200 hover:bg-gray-200 transition-colors cursor-pointer">
+                <div className="flex items-center gap-2" onClick={() => window.open("mailto:contact@internshipcrm.com")}>
+                  <Mail className="w-5 h-5 text-blue-600" />
+                  <span className="text-base font-medium text-gray-700">Contact Support</span>
+                </div>
+              </Card>
+              
+              <Card className="p-4 bg-gray-100 border border-gray-200 hover:bg-gray-200 transition-colors cursor-pointer">
+                <div className="flex items-center gap-2" onClick={() => window.open("tel:+15551234567")}>
+                  <Phone className="w-5 h-5 text-green-600" />
+                  <span className="text-base font-medium text-gray-700">Call Support</span>
+                </div>
+              </Card>
+              
+              <Card className="p-4 bg-red-50 border border-red-200 hover:bg-red-100 transition-colors cursor-pointer">
+                <div className="flex items-center gap-2" onClick={deleteApplication}>
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                  <span className="text-base font-medium text-red-700">Delete Application</span>
+                </div>
+              </Card>
             </CardContent>
           </Card>
         </div>

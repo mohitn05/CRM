@@ -16,7 +16,8 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
-    migrate.init_app(app, db)
+    # Specify migrations directory explicitly
+    migrate.init_app(app, db, directory='migrations')
 
     # Enable logging for debugging purposes
     logging.basicConfig(level=logging.INFO)
@@ -27,6 +28,7 @@ def create_app():
 
     # Import models to ensure they are registered with SQLAlchemy
     from app.models import StudentApplication, Notification
+    from app.models.password_reset import PasswordResetRequest
 
     # Register Blueprints
     from app.routes.apply import apply_bp

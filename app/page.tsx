@@ -6,7 +6,7 @@ export default function LandingPage() {
   return (
     // The main container retains its original gradient background
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 relative overflow-hidden">
-      {/* NEW: Geometric Wave Background SVG - Lowest Z-index (z-0) */}
+      {/* Enhanced Geometric Wave Background SVG - Lowest Z-index (z-0) */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <svg
           className="absolute top-0 left-0 w-full h-full"
@@ -15,20 +15,72 @@ export default function LandingPage() {
           fill="none"
         >
           <defs>
-            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.1" />
-              <stop offset="100%" stopColor="#059669" stopOpacity="0.05" />
+            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.15" />
+              <stop offset="50%" stopColor="#059669" stopOpacity="0.1" />
+              <stop offset="100%" stopColor="#047857" stopOpacity="0.05" />
             </linearGradient>
-            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#34d399" stopOpacity="0.1" />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0.05" />
+            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#34d399" stopOpacity="0.12" />
+              <stop offset="50%" stopColor="#10b981" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#059669" stopOpacity="0.04" />
+            </linearGradient>
+            <linearGradient id="gradient3" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#6ee7b7" stopOpacity="0.1" />
+              <stop offset="50%" stopColor="#34d399" stopOpacity="0.06" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0.03" />
+            </linearGradient>
+            <linearGradient id="gradient4" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#a7f3d0" stopOpacity="0.08" />
+              <stop offset="50%" stopColor="#6ee7b7" stopOpacity="0.05" />
+              <stop offset="100%" stopColor="#34d399" stopOpacity="0.02" />
             </linearGradient>
           </defs>
-          {/* First Wave */}
-          <path d="M0,200 Q300,100 600,200 T1200,200 L1200,0 L0,0 Z" fill="url(#gradient1)" />
-          {/* Second Wave - adjusted to fill the bottom part of the screen */}
-          <path d="M0,400 Q400,300 800,400 T1200,400 L1200,800 L0,800 Z" fill="url(#gradient2)" opacity="0.7" />
+
+          {/* Top flowing wave */}
+          <path d="M0,150 Q200,50 400,120 T800,100 Q1000,80 1200,140 L1200,0 L0,0 Z" fill="url(#gradient1)" />
+
+          {/* Second wave layer */}
+          <path d="M0,250 Q300,150 600,220 T1200,200 L1200,0 L0,0 Z" fill="url(#gradient2)" opacity="0.8" />
+
+          {/* Middle dynamic wave */}
+          <path d="M0,400 Q150,320 300,380 Q450,440 600,380 Q750,320 900,380 Q1050,440 1200,380 L1200,800 L0,800 Z" fill="url(#gradient3)" opacity="0.6" />
+
+          {/* Bottom flowing wave */}
+          <path d="M0,600 Q400,500 800,580 T1200,560 L1200,800 L0,800 Z" fill="url(#gradient4)" opacity="0.7" />
+
+          {/* Additional decorative curves */}
+          <path d="M0,300 Q600,200 1200,280" stroke="url(#gradient1)" strokeWidth="2" fill="none" opacity="0.3" />
+          <path d="M0,500 Q400,420 800,480 Q1000,520 1200,480" stroke="url(#gradient2)" strokeWidth="1.5" fill="none" opacity="0.4" />
         </svg>
+      </div>
+
+      {/* Moving geometric shapes */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Floating circles with pulse */}
+        <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/10 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-green-300/15 rounded-full blur-lg animate-bounce" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-emerald-100/20 rounded-full blur-2xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-green-200/12 rounded-full blur-xl animate-bounce" style={{animationDelay: '0.5s'}}></div>
+        <div className="absolute top-1/2 left-1/2 w-36 h-36 bg-emerald-300/8 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
+
+        {/* Moving geometric shapes with random paths */}
+        <div className="absolute top-16 -left-16 w-16 h-16 bg-emerald-400/20 rotate-45 animate-spin" style={{animation: 'moveRandom1 20s linear infinite'}}></div>
+        <div className="absolute top-32 -left-20 w-12 h-12 bg-green-500/15 rounded-full" style={{animation: 'moveRandom2 25s linear infinite', animationDelay: '3s'}}></div>
+        <div className="absolute top-48 -left-12 w-8 h-8 bg-emerald-300/25" style={{animation: 'moveRandom3 18s linear infinite', animationDelay: '6s'}}></div>
+
+        <div className="absolute bottom-16 -right-16 w-20 h-20 bg-green-400/18 rotate-45" style={{animation: 'moveRandom4 22s linear infinite'}}></div>
+        <div className="absolute bottom-32 -right-24 w-14 h-14 bg-emerald-500/12 rounded-full" style={{animation: 'moveRandom5 28s linear infinite', animationDelay: '4s'}}></div>
+        <div className="absolute bottom-48 -right-10 w-10 h-10 bg-green-300/20" style={{animation: 'moveRandom6 16s linear infinite', animationDelay: '7s'}}></div>
+
+        {/* Diagonal moving shapes with random paths */}
+        <div className="absolute -top-8 left-1/4 w-6 h-6 bg-emerald-600/15 rotate-45" style={{animation: 'moveRandom7 30s linear infinite'}}></div>
+        <div className="absolute -top-12 left-1/2 w-8 h-8 bg-green-400/20 rounded-full" style={{animation: 'moveRandom8 35s linear infinite', animationDelay: '5s'}}></div>
+        <div className="absolute -top-6 right-1/4 w-4 h-4 bg-emerald-500/25" style={{animation: 'moveRandom1 25s linear infinite', animationDelay: '8s'}}></div>
+
+        {/* Floating triangles with random movement */}
+        <div className="absolute top-1/3 -left-8 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[14px] border-l-transparent border-r-transparent border-b-emerald-400/20" style={{animation: 'moveRandom2 24s linear infinite', animationDelay: '2s'}}></div>
+        <div className="absolute top-2/3 -right-8 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[18px] border-l-transparent border-r-transparent border-b-green-500/15" style={{animation: 'moveRandom3 26s linear infinite', animationDelay: '9s'}}></div>
       </div>
 
       {/* NEW: Floating Geometric Shapes for the wave background - Also z-0 */}
@@ -40,15 +92,15 @@ export default function LandingPage() {
       </div>
 
       {/* Header - Z-index increased to z-30 to be on top of all backgrounds */}
-      <header className="relative z-30 flex items-center justify-end p-6 bg-white/10 backdrop-blur-md border-b border-white/20">
+      <header className="relative z-30 flex items-center justify-end p-6">
         <div className="flex items-center gap-4">
           <Link href="/intern/login">
-            <Button variant="outline" className="bg-white/20 border-white/30 text-gray-700 hover:bg-white/30">
+            <Button variant="outline" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6">
               Login
             </Button>
           </Link>
           <Link href="/apply">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">Register</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6">Register</Button>
           </Link>
         </div>
       </header>
@@ -88,9 +140,9 @@ export default function LandingPage() {
         </p>
         {/* CTA Button */}
         <Link href="/apply">
-          <Button className="group bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <Button className="group bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105">
             Get Started
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
           </Button>
         </Link>
         {/* Stats or Features */}
@@ -122,7 +174,7 @@ export default function LandingPage() {
               <div className="space-y-1">
                 <div className="flex items-center justify-center md:justify-end gap-2 text-gray-600 text-sm">
                   <Mail className="w-4 h-4" />
-                  <span>contact@internshipcrm.com</span>
+                  <span>info@aartmultiservices.com</span>
                 </div>
                 <div className="flex items-center justify-center md:justify-end gap-2 text-gray-600 text-sm">
                   <Phone className="w-4 h-4" />
@@ -130,7 +182,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> 
         </div>
       </footer>
     </div>

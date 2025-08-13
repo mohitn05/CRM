@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 import {
   ArrowLeft,
   CheckCircle,
@@ -33,6 +34,7 @@ export default function ApplyPage() {
     email: string
     phone: string
     domain: string
+    customDomain: string
     password: string
     confirmPassword: string
     resume: File | null
@@ -42,6 +44,7 @@ export default function ApplyPage() {
     email: "",
     phone: "",
     domain: "",
+    customDomain: "",
     password: "",
     confirmPassword: "",
     resume: null as File | null,
@@ -55,16 +58,19 @@ export default function ApplyPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validate email format using regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      })
-      return
-    }
+    // Temporarily disable frontend email validation
+    // const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    // if (!emailRegex.test(formData.email)) {
+    //   console.log("Frontend email validation failed for:", formData.email)
+    //   toast({
+    //     title: "Invalid Email",
+    //     description: "Please enter a valid email address.",
+    //     variant: "destructive",
+    //   })
+    //   return
+    // }
+
+    console.log("✅ Frontend email validation bypassed for:", formData.email)
 
     // Validate Phone number format : should be 10 digits
     if(!/^\d{10}$/.test(formData.phone)) {
@@ -96,6 +102,17 @@ export default function ApplyPage() {
       return
     }
 
+    // Validation for custom domain
+    if (formData.domain === "Others" && !formData.customDomain.trim()) {
+      toast({
+        title: "Custom Domain Required",
+        description: "Please enter your custom domain.",
+        variant: "destructive",
+      })
+      setIsLoading(false)
+      return
+    }
+
     setIsLoading(true)
 
     // Simulate API call
@@ -103,7 +120,8 @@ export default function ApplyPage() {
     formpayload.append("name", formData.name)
     formpayload.append("email", formData.email)
     formpayload.append("phone", formData.phone)
-    formpayload.append("domain", formData.domain)
+    // Send custom domain if "Others" is selected, otherwise send the selected domain
+    formpayload.append("domain", formData.domain === "Others" ? formData.customDomain : formData.domain)
     formpayload.append("password", formData.password)
     formpayload.append("resume", formData.resume!)
 
@@ -143,7 +161,12 @@ export default function ApplyPage() {
   }
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ 
+      ...prev, 
+      [field]: value,
+      // Clear custom domain if switching away from "Others"
+      ...(field === "domain" && value !== "Others" ? { customDomain: "" } : {})
+    }))
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -214,7 +237,7 @@ export default function ApplyPage() {
 
             <div className="space-y-3">
               <Link href="/">
-                <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-black-800 font-semibold py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
                   Back to Home
                 </Button>
               </Link>
@@ -234,12 +257,12 @@ export default function ApplyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 relative overflow-hidden page-transition">
       {/* Header */}
       <header className="relative z-20 flex items-center justify-between p-6 bg-white/10 backdrop-blur-md border-b border-white/20">
         <Link
           href="/"
-          className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors font-medium"
+          className="flex items-center gap-2 text-white bg-emerald-600 hover:bg-emerald-700 transition-colors font-medium px-6 py-2 rounded-full"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
@@ -251,7 +274,7 @@ export default function ApplyPage() {
 
         <div className="flex items-center gap-4">
           <Link href="/intern/login">
-            <Button variant="outline" className="bg-emerald-600 hover:bg-emerald-700 text-white">
+            <Button variant="outline" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6">
               Login
             </Button>
           </Link>
@@ -285,7 +308,7 @@ export default function ApplyPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className={`${isLoading ? "opacity-50 pointer-events-none" :"space-y-8"}`}>
+            <form onSubmit={handleSubmit} className={cn("space-y-8", isLoading && "opacity-50 pointer-events-none")}>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <Label htmlFor="name" className="text-gray-700 font-semibold flex items-center gap-2">
@@ -351,11 +374,26 @@ export default function ApplyPage() {
                     </SelectTrigger>
                     <SelectContent className="bg-white border-grey-500">
                       <SelectItem value="Frontend">🎨 Frontend Development</SelectItem>
-                      <SelectItem value="Backend">⚙️ Backend Development</SelectItem>
-                      <SelectItem value="Database">🗄️ Database Management</SelectItem>
+                      <SelectItem value="Backend">⚙ Backend Development</SelectItem>
+                      <SelectItem value="Database">🗄 Database Management</SelectItem>
                       <SelectItem value="Others">🚀 Others</SelectItem>
                     </SelectContent>
                   </Select>
+                  
+                  {/* Custom domain input - shows only when "Others" is selected */}
+                  {formData.domain === "Others" && (
+                    <div className="mt-3">
+                      <Input
+                        id="customDomain"
+                        type="text"
+                        placeholder="Enter your custom domain (e.g., Marketing, Design, etc.)"
+                        value={formData.customDomain}
+                        onChange={(e) => handleInputChange("customDomain", e.target.value)}
+                        required
+                        className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-orange-400 focus:ring-orange-400/20 h-12 rounded-xl"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-3">
@@ -493,3 +531,4 @@ export default function ApplyPage() {
     </div>
   )
 }
+

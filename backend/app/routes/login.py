@@ -58,8 +58,22 @@ def request_otp():
     email = data.get("email")
     phone = data.get("phone")
 
-    if not email or not phone:
-        return jsonify({"error": "Missing email or phone"}), 400
+    # Determine if user provided email or phone
+    if email:
+        # Find user by email
+        user = StudentApplication.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({"error": "No account found with this email"}), 404
+        phone_to_use = user.phone
+    elif phone:
+        # Find user by phone
+        user = StudentApplication.query.filter_by(phone=phone).first()
+        if not user:
+            return jsonify({"error": "No account found with this phone number"}), 404
+        email = user.email
+        phone_to_use = phone
+    else:
+        return jsonify({"error": "Email or phone number required"}), 400
 
     otp = str(random.randint(100000, 999999))
     otp_hash = bcrypt.hashpw(otp.encode(), bcrypt.gensalt()).decode()
@@ -67,7 +81,7 @@ def request_otp():
     prr = PasswordResetRequest(
         id=str(uuid.uuid4()),
         email=email,
-        phone_submitted=phone,
+        phone_submitted=phone_to_use,
         otp_code_hash=otp_hash,
         otp_expires_at=datetime.utcnow() + timedelta(minutes=10),
         otp_attempts=0,
@@ -81,7 +95,19 @@ def request_otp():
     db.session.add(prr)
     db.session.commit()
 
-    print("📤 OTP Sent:", otp)
+    # Send OTP via email for both email and phone requests
+    from app.services.email_service import send_email
+    
+    if data.get("email"):
+        subject = "Password Reset OTP"
+        body = f"Hi {user.name},\n\nYour password reset OTP code is: {otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email."
+    else:
+        subject = "Password Reset OTP (Phone Request)"
+        body = f"Hi {user.name},\n\nYour password reset OTP code is: {otp}\n\nThis code will expire in 10 minutes.\n\nNote: You requested OTP via phone number, but we're sending it to your registered email for security.\n\nIf you didn't request this, please ignore this email."
+    
+    send_email(email, subject, body)
+    print("📧 OTP Sent via Email:", otp, "to", email)
+
     return jsonify({"message": "OTP sent"}), 200
 
 # 🔁 OTP Resend route
@@ -98,7 +124,7 @@ def resend_otp():
     now = datetime.utcnow()
 
     if prr.last_sent_at and (now - prr.last_sent_at).total_seconds() < 30:
-        return jsonify({"error": "Please wait before resending"}, 429)
+        return jsonify({"error": "Please wait before resending"}), 429
 
     if prr.resend_count >= 3:
         return jsonify({"error": "Max resend limit reached"}), 429
@@ -114,7 +140,14 @@ def resend_otp():
 
     db.session.commit()
 
-    print("📤 Resent OTP:", otp)
+    # Send resend OTP via email
+    from app.services.email_service import send_email
+    user = StudentApplication.query.filter_by(email=email).first()
+    subject = "Password Reset OTP (Resent)"
+    body = f"Hi {user.name},\n\nYour new password reset OTP code is: {otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email."
+    send_email(email, subject, body)
+    print("📧 Resent OTP via Email:", otp, "to", email)
+
     return jsonify({"message": "OTP resent"}), 200
 
 # ✅ OTP Verification route
