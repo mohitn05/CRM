@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.models.student import StudentApplication
 from app.controllers.notifications import send_notification
 from app.services.notification_service import NotificationService
+from app.services.email_sender import send_email
 from app.db import db
 import os
 
@@ -65,6 +66,7 @@ def student_detail(id):
         # ✅ Send status update notification only if status changed
         if old_status != student.status:
             send_notification(student.email, student.phone, student.name, student.status)
+            send_email(student.email, "Status Updated","Your application status has been updated to " + student.status)
             # Create in-app notification
             NotificationService.create_status_change_notification(student.id, old_status, student.status)
 
@@ -132,3 +134,15 @@ def mark_all_notifications_read(student_id):
         return jsonify({"message": f"Marked {count} notifications as read"}), 200
     except Exception as e:
         return jsonify({"message": "Failed to update notifications", "error": str(e)}), 500
+    
+@admin_bp.route('/students/<int:student_id>/accpet', methods=['POST'])
+def accept_students(student_id):
+    student = StudentApplication.query.get_or_404(student_id)
+    send_email(student.email, 'Your application has been accepted','congratulations! Your application has been accepted!')
+    return jsonify({'message': 'Student accepted and notified successfully'}),200
+
+@admin_bp.route('/students/<int:student_id>/reject', methods=['POST'])
+def reject_students(student_id):
+    student = StudentApplication.query.get_or_404(student_id)
+    send_email(student.email, 'Your application has been rejected', 'Sorry to inform you that your application has been rejected.')
+    return jsonify({'message': 'Student rejected and notified'}), 200

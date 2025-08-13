@@ -13,3 +13,9 @@ class Config:
     SMTP_PORT = int(os.environ.get('SMTP_PORT', '587'))
     SMTP_USERNAME = os.environ.get('SMTP_USERNAME', '')
     SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD', '')
+
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = 'mohitnarnaware.ams@gmail.com'
+    MAIL_PASSWORD = 'Mohit@123'
