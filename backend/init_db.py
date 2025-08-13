@@ -4,6 +4,7 @@ Database initialization script
 """
 from app import create_app
 
+
 def init_database():
     """Initialize the database with all tables"""
     app = create_app()
@@ -19,18 +20,20 @@ def init_database():
 
         # Verify tables exist
         from sqlalchemy import inspect
+
         inspector = inspect(db.engine)
         tables = inspector.get_table_names()
         print(f"📋 Created tables: {tables}")
 
         # Check applications table structure
-        if 'applications' in tables:
-            columns = inspector.get_columns('applications')
+        if "applications" in tables:
+            columns = inspector.get_columns("applications")
             print("📊 Applications table columns:")
             for col in columns:
                 print(f"  - {col['name']}: {col['type']}")
         else:
             print("❌ Applications table not found!")
+
 
 if __name__ == "__main__":
     init_database()

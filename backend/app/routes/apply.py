@@ -1,15 +1,18 @@
-from flask import Blueprint, request, jsonify
-from app.models.student import StudentApplication
-from app.services.email_service import send_email, validate_email
+import os
+import traceback
+from datetime import datetime, timezone
+
+import sqlalchemy
+from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
+
 from app import db
-from datetime import datetime, timezone
-import sqlalchemy
-import traceback
-import os
+from app.models.student import StudentApplication
+from app.services.email_service import send_email, validate_email
 
 apply_bp = Blueprint("apply", __name__)
+
 
 @apply_bp.route("/apply", methods=["POST"])
 def apply():
@@ -42,7 +45,7 @@ def apply():
 
         if len(password) < 6:
             return jsonify({"message": "Password must be at least 6 characters"}), 400
-        
+
         # Free email validation (no API subscription needed)
         if not validate_email(email):
             return jsonify({"message": "Please enter a valid email address"}), 400
@@ -66,7 +69,7 @@ def apply():
             password=hashed_password,
             resume=safe_filename,
             status="Applied",
-            date_applied=datetime.now(timezone.utc)
+            date_applied=datetime.now(timezone.utc),
         )
 
         db.session.add(application)
@@ -75,19 +78,20 @@ def apply():
 
         subject = "Application Received"
         body = f"Hi {name},\n\n Thanks for applying to the {domain} domain. We'll get back to you soon !"
-        send_email(email,subject,body)
+        send_email(email, subject, body)
 
         return jsonify({"message": "Application received!"}), 200
 
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()
         print("❌ Duplicate email error")
-        return jsonify({"message": "Email already exists. Please use another email"}), 400
+        return (
+            jsonify({"message": "Email already exists. Please use another email"}),
+            400,
+        )
 
     except Exception as e:
         db.session.rollback()
         print("❌ Internal Error:", str(e))
         traceback.print_exc()
         return jsonify({"message": "Internal Server Error", "detail": str(e)}), 500
-
-

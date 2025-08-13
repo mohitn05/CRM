@@ -1,18 +1,24 @@
-from flask import Blueprint, request, jsonify
-from sqlalchemy import or_
-from app.models.student import StudentApplication
-from app.models.password_reset import PasswordResetRequest
-from app import db
-from werkzeug.security import check_password_hash, generate_password_hash
-import bcrypt, uuid, random
+import random
+import uuid
 from datetime import datetime, timedelta
 
+import bcrypt
+from flask import Blueprint, jsonify, request
+from sqlalchemy import or_
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app import db
+from app.models.password_reset import PasswordResetRequest
+from app.models.student import StudentApplication
+
 login_bp = Blueprint("login", __name__)
+
 
 # 🔧 Test route
 @login_bp.route("/test", methods=["GET"])
 def test_route():
     return jsonify({"message": "Login blueprint is working!"})
+
 
 # 🔐 Login endpoint
 @login_bp.route("/intern/login", methods=["POST"])
@@ -28,28 +34,38 @@ def login():
         user = StudentApplication.query.filter(
             or_(
                 StudentApplication.email == email_or_phone,
-                StudentApplication.phone == email_or_phone
+                StudentApplication.phone == email_or_phone,
             )
         ).first()
 
         if user and check_password_hash(user.password, password):
-            return jsonify({
-                "message": "Login successful",
-                "student": {
-                    "id": user.id,
-                    "name": user.name,
-                    "email": user.email,
-                    "phone": user.phone,
-                    "domain": user.domain,
-                    "status": user.status,
-                    "dateRegistered": user.date_applied.isoformat() if user.date_applied else None
-                }
-            }), 200
+            return (
+                jsonify(
+                    {
+                        "message": "Login successful",
+                        "student": {
+                            "id": user.id,
+                            "name": user.name,
+                            "email": user.email,
+                            "phone": user.phone,
+                            "domain": user.domain,
+                            "status": user.status,
+                            "dateRegistered": (
+                                user.date_applied.isoformat()
+                                if user.date_applied
+                                else None
+                            ),
+                        },
+                    }
+                ),
+                200,
+            )
 
         return jsonify({"message": "Invalid email or password"}), 401
 
     except Exception:
         return jsonify({"message": "Server error"}), 500
+
 
 # ✉️ OTP Request route
 @login_bp.route("/api/request-otp", methods=["POST"])
@@ -89,7 +105,7 @@ def request_otp():
         last_sent_at=datetime.utcnow(),
         status="pending",
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
     db.session.add(prr)
@@ -97,18 +113,19 @@ def request_otp():
 
     # Send OTP via email for both email and phone requests
     from app.services.email_service import send_email
-    
+
     if data.get("email"):
         subject = "Password Reset OTP"
         body = f"Hi {user.name},\n\nYour password reset OTP code is: {otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email."
     else:
         subject = "Password Reset OTP (Phone Request)"
         body = f"Hi {user.name},\n\nYour password reset OTP code is: {otp}\n\nThis code will expire in 10 minutes.\n\nNote: You requested OTP via phone number, but we're sending it to your registered email for security.\n\nIf you didn't request this, please ignore this email."
-    
+
     send_email(email, subject, body)
     print("📧 OTP Sent via Email:", otp, "to", email)
 
     return jsonify({"message": "OTP sent"}), 200
+
 
 # 🔁 OTP Resend route
 @login_bp.route("/api/resend-otp", methods=["POST"])
@@ -116,7 +133,11 @@ def resend_otp():
     data = request.get_json()
     email = data.get("email")
 
-    prr = PasswordResetRequest.query.filter_by(email=email).order_by(PasswordResetRequest.created_at.desc()).first()
+    prr = (
+        PasswordResetRequest.query.filter_by(email=email)
+        .order_by(PasswordResetRequest.created_at.desc())
+        .first()
+    )
 
     if not prr or prr.status != "pending":
         return jsonify({"error": "No active OTP request"}), 400
@@ -142,6 +163,7 @@ def resend_otp():
 
     # Send resend OTP via email
     from app.services.email_service import send_email
+
     user = StudentApplication.query.filter_by(email=email).first()
     subject = "Password Reset OTP (Resent)"
     body = f"Hi {user.name},\n\nYour new password reset OTP code is: {otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email."
@@ -150,6 +172,7 @@ def resend_otp():
 
     return jsonify({"message": "OTP resent"}), 200
 
+
 # ✅ OTP Verification route
 @login_bp.route("/api/verify-otp", methods=["POST"])
 def verify_otp():
@@ -157,7 +180,11 @@ def verify_otp():
     email = data.get("email")
     otp = data.get("otp")
 
-    prr = PasswordResetRequest.query.filter_by(email=email).order_by(PasswordResetRequest.created_at.desc()).first()
+    prr = (
+        PasswordResetRequest.query.filter_by(email=email)
+        .order_by(PasswordResetRequest.created_at.desc())
+        .first()
+    )
 
     if not prr or prr.status != "pending":
         return jsonify({"error": "No active request"}), 400
@@ -184,6 +211,7 @@ def verify_otp():
 
     return jsonify({"message": "OTP verified"}), 200
 
+
 # 🔐 Set new password route
 @login_bp.route("/api/set-new-password", methods=["POST"])
 def set_new_password():
@@ -194,7 +222,11 @@ def set_new_password():
     if not email or not new_password:
         return jsonify({"error": "Missing email or new password"}), 400
 
-    prr = PasswordResetRequest.query.filter_by(email=email).order_by(PasswordResetRequest.created_at.desc()).first()
+    prr = (
+        PasswordResetRequest.query.filter_by(email=email)
+        .order_by(PasswordResetRequest.created_at.desc())
+        .first()
+    )
 
     if not prr or prr.status != "verified":
         return jsonify({"error": "OTP not verified"}), 403
