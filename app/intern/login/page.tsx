@@ -1,15 +1,15 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, Mail, Lock, Eye, EyeOff, User, Phone } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, Lock, Mail, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import type React from "react"
+import { useState } from "react"
 
 export default function InternLoginPage() {
   const [credentials, setCredentials] = useState({
@@ -20,9 +20,9 @@ export default function InternLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [forgotPasswordData, setForgotPasswordData] = useState({
-    emailOrPhone: "",
+    email: "",
     otp: "",
-    step: 1, // 1: enter email/phone, 2: enter OTP, 3: reset password
+    step: 1, // 1: enter email, 2: enter OTP, 3: reset password
   })
   const { toast } = useToast()
   const router = useRouter()
@@ -34,51 +34,51 @@ export default function InternLoginPage() {
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
     // Check credentials against stored intern accounts
-    try{
+    try {
       const response = await fetch("http://localhost:5000/api/intern/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      emailOrPhone: credentials.emailOrPhone,
-      password: credentials.password,
-    }),
-   })
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          emailOrPhone: credentials.emailOrPhone,
+          password: credentials.password,
+        }),
+      })
 
-   const data = await response.json()
+      const data = await response.json()
 
-   if (response.ok) {
-    localStorage.setItem("internAuth", JSON.stringify({
-      id: data.student.id,
-      name: data.student.name,
-      email: data.student.email,
-      phone: data.student.phone,
-      domain: data.student.domain,
-      applicationId: data.student.id,
-      status: data.student.status || "Applied",
-      dateRegistered: data.student.dateRegistered || new Date().toISOString(),
-    }))
-    toast({
-      title: "Login Successful 🎉",
-      description: `Welcome back, ${data.student.name}`,
-    })
-    router.push("/intern/dashboard")
-   } else {
-    toast({
-      title: "Login Failed ❌",
-      description: data.message || "Invalid credentials",
-      variant: "destructive",
-    })
-   }
-   } catch (error) {
-   toast({
-    title: "Server Error ❌",
-    description: "Unable to connect to server",
-    variant: "destructive",
-   })
-   }finally{
-   setIsLoading(false)
+      if (response.ok) {
+        localStorage.setItem("internAuth", JSON.stringify({
+          id: data.student.id,
+          name: data.student.name,
+          email: data.student.email,
+          phone: data.student.phone,
+          domain: data.student.domain,
+          applicationId: data.student.id,
+          status: data.student.status || "Applied",
+          dateRegistered: data.student.dateRegistered || new Date().toISOString(),
+        }))
+        toast({
+          title: "Login Successful 🎉",
+          description: `Welcome back, ${data.student.name}`,
+        })
+        router.push("/intern/dashboard")
+      } else {
+        toast({
+          title: "Login Failed ❌",
+          description: data.message || "Invalid credentials",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Server Error ❌",
+        description: "Unable to connect to server",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -86,44 +86,67 @@ export default function InternLoginPage() {
     setIsLoading(true)
 
     if (forgotPasswordData.step === 1) {
-      // Send OTP
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const isEmail = forgotPasswordData.emailOrPhone.includes("@")
-      toast({
-        title: "OTP Sent! 📱",
-        description: `Verification code sent to your ${isEmail ? "email" : "phone number"}.`,
-      })
-
-      setForgotPasswordData((prev) => ({ ...prev, step: 2 }))
+      // Send OTP to email via backend
+      try {
+        const response = await fetch("http://localhost:5000/api/password-reset/request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: forgotPasswordData.email })
+        })
+        const data = await response.json()
+        if (response.ok) {
+          toast({ title: "OTP Sent! 📧", description: data.message })
+          setForgotPasswordData((prev) => ({ ...prev, step: 2 }))
+        } else {
+          toast({ title: "Error", description: data.message || "Failed to send OTP", variant: "destructive" })
+        }
+      } catch (error) {
+        toast({ title: "Server Error", description: "Unable to connect to server", variant: "destructive" })
+      }
     } else if (forgotPasswordData.step === 2) {
-      // Verify OTP (simulate)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      if (forgotPasswordData.otp === "123456") {
-        toast({
-          title: "OTP Verified! ✅",
-          description: "You can now reset your password.",
+      // Verify OTP via backend
+      try {
+        const response = await fetch("http://localhost:5000/api/password-reset/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: forgotPasswordData.email, otp: forgotPasswordData.otp })
         })
-        setForgotPasswordData((prev) => ({ ...prev, step: 3 }))
-      } else {
-        toast({
-          title: "Invalid OTP ❌",
-          description: "Please enter the correct verification code.",
-          variant: "destructive",
-        })
+        const data = await response.json()
+        if (response.ok) {
+          toast({ title: "OTP Verified! ✅", description: data.message })
+          setForgotPasswordData((prev) => ({ ...prev, step: 3 }))
+        } else {
+          toast({ title: "Invalid OTP ❌", description: data.message || "Please enter the correct verification code.", variant: "destructive" })
+        }
+      } catch (error) {
+        toast({ title: "Server Error", description: "Unable to connect to server", variant: "destructive" })
       }
     } else if (forgotPasswordData.step === 3) {
-      // Reset password step
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      toast({
-        title: "Password Reset Successful! ✅",
-        description: "Your password has been updated. You can now login.",
-      })
-
-      setShowForgotPassword(false)
-      setForgotPasswordData({ emailOrPhone: "", otp: "", step: 1 })
+      // Reset password via backend
+      const newPassword = (document.getElementById("newPassword") as HTMLInputElement)?.value
+      const confirmNewPassword = (document.getElementById("confirmNewPassword") as HTMLInputElement)?.value
+      if (!newPassword || !confirmNewPassword || newPassword !== confirmNewPassword) {
+        toast({ title: "Password Mismatch", description: "Passwords do not match.", variant: "destructive" })
+        setIsLoading(false)
+        return
+      }
+      try {
+        const response = await fetch("http://localhost:5000/api/password-reset/reset", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: forgotPasswordData.email, otp: forgotPasswordData.otp, new_password: newPassword })
+        })
+        const data = await response.json()
+        if (response.ok) {
+          toast({ title: "Password Reset Successful! ✅", description: data.message })
+          setShowForgotPassword(false)
+          setForgotPasswordData({ email: "", otp: "", step: 1 })
+        } else {
+          toast({ title: "Error", description: data.message || "Failed to reset password", variant: "destructive" })
+        }
+      } catch (error) {
+        toast({ title: "Server Error", description: "Unable to connect to server", variant: "destructive" })
+      }
     }
 
     setIsLoading(false)
@@ -136,7 +159,7 @@ export default function InternLoginPage() {
         <header className="relative z-20 flex items-center justify-between p-6 bg-white/10 backdrop-blur-md border-b border-white/20">
           <button
             onClick={() => setShowForgotPassword(false)}
-            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors font-medium"
+            className="inline-flex items-center gap-2 text-emerald-700 bg-white/80 hover:bg-white hover:text-emerald-800 transition-all duration-300 font-medium px-6 py-3 rounded-full shadow-lg hover:shadow-xl backdrop-blur-sm border border-emerald-200/50"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Login
@@ -163,16 +186,16 @@ export default function InternLoginPage() {
                 <form onSubmit={handleForgotPassword} className="space-y-6">
                   {forgotPasswordData.step === 1 && (
                     <div className="space-y-2">
-                      <Label htmlFor="emailOrPhone" className="flex items-center gap-2 text-gray-700 font-medium">
+                      <Label htmlFor="email" className="flex items-center gap-2 text-gray-700 font-medium">
                         <Mail className="w-4 h-4" />
-                        Email or Phone Number
+                        Email Address
                       </Label>
                       <Input
-                        id="emailOrPhone"
-                        type="text"
-                        placeholder="Enter email or phone number"
-                        value={forgotPasswordData.emailOrPhone}
-                        onChange={(e) => setForgotPasswordData((prev) => ({ ...prev, emailOrPhone: e.target.value }))}
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email address"
+                        value={forgotPasswordData.email}
+                        onChange={(e) => setForgotPasswordData((prev) => ({ ...prev, email: e.target.value }))}
                         required
                         className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-emerald-400 focus:ring-emerald-400/20 h-12"
                       />
@@ -182,19 +205,19 @@ export default function InternLoginPage() {
                   {forgotPasswordData.step === 2 && (
                     <div className="space-y-2">
                       <Label htmlFor="otp" className="flex items-center gap-2 text-gray-700 font-medium">
-                        <Phone className="w-4 h-4" />
+                        <Mail className="w-4 h-4" />
                         Verification Code
                       </Label>
                       <Input
                         id="otp"
                         type="text"
-                        placeholder="Enter 6-digit code (123456)"
+                        placeholder="Enter 6-digit code"
                         value={forgotPasswordData.otp}
                         onChange={(e) => setForgotPasswordData((prev) => ({ ...prev, otp: e.target.value }))}
                         required
                         className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-emerald-400 focus:ring-emerald-400/20 h-12"
                       />
-                      <p className="text-sm text-gray-600">Demo OTP: 123456</p>
+                      <p className="text-sm text-gray-600">Check your email for the code.</p>
                     </div>
                   )}
 

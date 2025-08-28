@@ -2,15 +2,15 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, Shield, Lock, User, Eye, EyeOff, Building2 } from "lucide-react"
+import { ArrowLeft, Building2, Eye, EyeOff, Lock, Shield, User } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export default function AdminLoginPage() {
   const [credentials, setCredentials] = useState({ username: "", password: "" })
@@ -56,13 +56,15 @@ export default function AdminLoginPage() {
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 mb-8 transition-colors group"
-        >
-          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Home
-        </Link>
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-emerald-700 bg-white/80 hover:bg-white hover:text-emerald-800 transition-all duration-300 font-medium px-6 py-3 rounded-full shadow-lg hover:shadow-xl backdrop-blur-sm border border-emerald-200/50"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </div>
 
         <Card className="bg-white/30 backdrop-blur-2xl border border-white/30 shadow-2xl">
           <CardHeader className="text-center pb-8">

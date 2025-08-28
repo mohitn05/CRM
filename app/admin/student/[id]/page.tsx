@@ -1,28 +1,28 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
 import { AdminLayout } from "@/components/admin-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useParams, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import {
   ArrowLeft,
-  Save,
-  User,
-  Mail,
-  Phone,
   Briefcase,
   Calendar,
-  FileText,
   Download,
   Eye,
+  FileText,
+  Mail,
   MessageSquare,
+  Phone,
+  Save,
   Trash2,
+  User,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -142,7 +142,7 @@ export default function StudentDetailPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`http://localhost:5000/api/students/${application.id}`, {
+      const response = await fetch(`http://localhost:5000/api/students/${application?.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ export default function StudentDetailPage() {
 
         toast({
           title: `Application ${newStatus} ✅`,
-          description: `${application.name}'s application updated. Email & SMS notifications sent!`,
+          description: `${result.student.name}'s status updated. Email notification sent automatically!`,
         })
       } else {
         const error = await response.json()
@@ -280,7 +280,7 @@ export default function StudentDetailPage() {
     if (!application?.id) return
 
     const confirmed = window.confirm(
-      `Are you sure you want to delete ${application.name}'s application? This action cannot be undone.`
+      `Are you sure you want to delete ${application?.name}'s application? This action cannot be undone.`
     )
 
     if (!confirmed) return
@@ -295,7 +295,7 @@ export default function StudentDetailPage() {
       if (response.ok) {
         toast({
           title: "Application Deleted ✅",
-          description: `${application.name}'s application has been deleted successfully.`,
+          description: `${application?.name}'s application has been deleted successfully.`,
         })
         router.push('/admin/dashboard')
       } else {
@@ -313,6 +313,27 @@ export default function StudentDetailPage() {
     setIsLoading(false)
   }
 
+  // Add this before your return statement
+  const fixedDomains = [
+    { value: "Frontend", label: "Frontend Development" },
+    { value: "Backend", label: "Backend Development" },
+    { value: "Database", label: "Database Management" },
+  ];
+
+  // If the intern's domain is not in the fixed list, add it as a custom option
+  const domainOptions = (() => {
+    if (
+      application &&
+      !fixedDomains.some((d) => d.value === application?.domain)
+    ) {
+      return [
+        ...fixedDomains,
+        { value: application?.domain, label: application?.domain },
+      ];
+    }
+    return fixedDomains;
+  })();
+
   if (!application) {
     return (
       <AdminLayout>
@@ -327,17 +348,11 @@ export default function StudentDetailPage() {
     <AdminLayout>
       <div className="space-y-6 p-4 lg:p-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/admin/dashboard" className="flex items-center gap-2 text-purple-700 hover:text-black dark:text-purple-700 dark:hover:text-black">
+          <div className="bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm">
+            <Link href="/admin/dashboard" className="flex items-center gap-2 text-purple-700 hover:text-purple-900 font-medium">
               <ArrowLeft className="h-4 w-4" />
               Back to Dashboard
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-black">
-                {application.name}
-              </h1>
-              {/* <p className="text-black">Application Details</p> */}
-            </div>
           </div>
           <div className="flex gap-2">
             {isEditing ? (
@@ -345,14 +360,14 @@ export default function StudentDetailPage() {
                 <Button
                   variant="outline"
                   onClick={() => setIsEditing(false)}
-                  className="bg-white/10 border-purple-500/20 text-black"
+                  className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleSave}
                   disabled={isLoading}
-                  className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600"
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                 >
                   <Save className="h-4 w-4" />
                   {isLoading ? "Saving..." : "Save Changes"}
@@ -360,14 +375,14 @@ export default function StudentDetailPage() {
               </>
             ) : (
               <div className="flex gap-2">
-                <Button onClick={() => setIsEditing(true)} className="bg-gradient-to-r from-blue-600 to-purple-600">
+                <Button onClick={() => setIsEditing(true)} className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50">
                   Edit Application
                 </Button>
                 <Button
                   onClick={deleteApplication}
-                  variant="destructive"
+                  variant="outline"
                   disabled={isLoading}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
@@ -380,162 +395,191 @@ export default function StudentDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Information */}
           <div className="lg:col-span-2">
-            <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-purple-500/20">
-              <CardHeader>
-                <CardTitle className="text-black">Application Information</CardTitle>
+            <Card className="bg-white border-2 border-gray-300 shadow-sm">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-gray-900 text-xl font-semibold">Application Information</CardTitle>
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    {application.name.charAt(0).toUpperCase()}
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
+                {/* Information Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-                      <User className="h-4 w-4" />
-                      Full Name
-                    </Label>
-                    {isEditing ? (
-                      <Input
-                        id="name"
-                        value={editData?.name || ""}
-                        onChange={(e) => setEditData((prev) => (prev ? { ...prev, name: e.target.value } : null))}
-                        className="bg-zinc-100/10 border-zinc-500/20 text-zinc-700 dark:text-zinc-300"
-                      />
-                    ) : (
-                      <p className="text-zinc-700 dark:text-zinc-300 font-medium">{application.name}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-                      <Mail className="h-4 w-4" />
-                      Email Address
-                    </Label>
-                    {isEditing ? (
-                      <Input
-                        id="email"
-                        type="email"
-                        value={editData?.email || ""}
-                        onChange={(e) => setEditData((prev) => (prev ? { ...prev, email: e.target.value } : null))}
-                        className="bg-zinc-100/10 border-zinc-500/20 text-zinc-700 dark:text-zinc-300"
-                      />
-                    ) : (
-                      <p className="text-zinc-700 dark:text-zinc-300 font-medium">{application.email}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-                      <Phone className="h-4 w-4" />
-                      Phone Number
-                    </Label>
-                    {isEditing ? (
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={editData?.phone || ""}
-                        onChange={(e) => setEditData((prev) => (prev ? { ...prev, phone: e.target.value } : null))}
-                        maxLength={10}
-                        className="bg-zinc-100/10 border-zinc-500/20 text-zinc-700 dark:text-zinc-300"
-                      />
-                    ) : (
-                      <p className="text-zinc-700 dark:text-zinc-300 font-medium">{application.phone}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="domain" className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-                      <Briefcase className="h-4 w-4" />
-                      Domain
-                    </Label>
-                    {isEditing ? (
-                      <Select
-                        value={editData?.domain || ""}
-                        onValueChange={(value) => setEditData((prev) => (prev ? { ...prev, domain: value } : null))}
-                      >
-                        <SelectTrigger className="bg-white/10 border-emerald-500/20 text-gray-800">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border-grey-500">
-                          <SelectItem value="Frontend">Frontend Development</SelectItem>
-                          <SelectItem value="Backend">Backend Development</SelectItem>
-                          <SelectItem value="Database">Database Management</SelectItem>
-                          <SelectItem value="Others">Others</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <Badge variant="outline" className="w-fit text-purple-300 border-purple-500/20">
-                        {application.domain}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="dateApplied" className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-                    <Calendar className="h-4 w-4" />
-                    Date Applied
-                  </Label>
-                  <p className="text-zinc-700 dark:text-zinc-300 font-medium">{application.dateApplied}</p>
-                </div>
-
-                {/* Resume Section */}
-                {application.resume && (
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-                      <FileText className="h-4 w-4" />
-                      Resume/CV
-                    </Label>
-                    <div className="flex items-center gap-3 p-4 bg-zinc-100/10 rounded-xl border border-zinc-500/20">
-                      <FileText className="h-8 w-8 text-purple-400" />
-                      <div className="flex-1">
-                        <p className="text-zinc-700 dark:text-zinc-300 font-medium">
-                          {application.resumeName || "Resume.pdf"}
-                        </p>
-                        <p className="text-purple-300 text-sm">Uploaded on {application.dateApplied}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={viewResume}
-                          className="bg-blue-500/10 border-blue-500/20 text-blue-400 hover:bg-blue-500/20"
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={downloadResume}
-                          className="bg-green-500/10 border-green-500/20 text-green-400 hover:bg-green-500/20"
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          Download
-                        </Button>
-                      </div>
+                  {/* Full Name Card */}
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <User className="h-5 w-5 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-600 mb-1">Full Name</p>
+                      {isEditing ? (
+                        <Input
+                          id="name"
+                          value={editData?.name || ""}
+                          onChange={(e) => setEditData((prev) => (prev ? { ...prev, name: e.target.value } : null))}
+                          className="bg-white border-gray-300 text-gray-900"
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-semibold">{application.name}</p>
+                      )}
                     </div>
                   </div>
-                )}
+
+                  {/* Email Address Card */}
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <Mail className="h-5 w-5 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-600 mb-1">Email Address</p>
+                      {isEditing ? (
+                        <Input
+                          id="email"
+                          type="email"
+                          value={editData?.email || ""}
+                          onChange={(e) => setEditData((prev) => (prev ? { ...prev, email: e.target.value } : null))}
+                          className="bg-white border-gray-300 text-gray-900"
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-semibold text-sm break-all">{application.email}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Phone Number Card */}
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <Phone className="h-5 w-5 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-600 mb-1">Phone Number</p>
+                      {isEditing ? (
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={editData?.phone || ""}
+                          onChange={(e) => setEditData((prev) => (prev ? { ...prev, phone: e.target.value } : null))}
+                          maxLength={10}
+                          className="bg-white border-gray-300 text-gray-900"
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-semibold">{application.phone}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Domain Card */}
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <Briefcase className="h-5 w-5 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-600 mb-1">Domain</p>
+                      {isEditing ? (
+                        <Select
+                          value={editData?.domain || ""}
+                          onValueChange={(value) => setEditData((prev) => (prev ? { ...prev, domain: value } : null))}
+                        >
+                          <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-gray-300">
+                            {domainOptions.map((domain) => (
+                              <SelectItem key={domain.value} value={domain.value}>
+                                {domain.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Badge variant="outline" className="text-green-600 border-green-300 bg-green-50 hover:bg-green-200">
+                          {application.domain}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Date Applied Card */}
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 md:col-span-2">
+                    <Calendar className="h-5 w-5 text-gray-500" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-black-600 mb-1">Date Applied</p>
+                      <p className="text-gray-900 font-semibold">
+                        {new Date(application.dateApplied).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Resume/CV Card - Full Width Below Grid */}
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <FileText className="h-5 w-5 text-gray-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-600 mb-1">Resume/CV</p>
+                    {application.resume ? (
+                      <div className="space-y-2">
+                        <p className="text-gray-900 font-semibold text-sm">
+                          {application.resumeName || "Mohit_Resume4.pdf"}
+                        </p>
+                        <p className="text-gray-600 text-xs">
+                          Uploaded on {new Date(application.dateApplied).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                          })}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={viewResume}
+                            className="bg-blue-500/10 border-blue-500/20 text-blue-600 hover:bg-blue-500/20 flex-1"
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            View
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={downloadResume}
+                            className="bg-green-500/10 border-green-500/20 text-green-600 hover:bg-green-500/20 flex-1"
+                          >
+                            <Download className="h-3 w-3 mr-1" />
+                            Download
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-purple-600 text-sm">No resume uploaded</p>
+                    )}
+                  </div>
+                </div>
+
+
               </CardContent>
             </Card>
           </div>
 
           {/* Status and Actions */}
           <div className="space-y-6">
-            <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-purple-500/20">
-              <CardHeader>
-                <CardTitle className="text-black">Application Status</CardTitle>
+            {/* Application Status */}
+            <Card className="bg-white border border-gray-200 shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-gray-900 text-lg font-semibold flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  Application Status
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-zinc-700 dark:text-zinc-300">Current Status</Label>
+                {/* Status Display */}
+                <div className="text-center py-4">
                   {isEditing ? (
                     <Select
                       value={editData?.status || ""}
                       onValueChange={(value) => setEditData((prev) => (prev ? { ...prev, status: value } : null))}
                     >
-                      <SelectTrigger className="bg-white/10 border-emerald-500/20 text-gray-800">
+                      <SelectTrigger className="bg-white border-gray-300 text-gray-900">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-white border-grey-500">
+                      <SelectContent className="bg-white border-gray-300">
                         <SelectItem value="Applied">Applied</SelectItem>
                         <SelectItem value="In Review">In Review</SelectItem>
                         <SelectItem value="Selected">Selected</SelectItem>
@@ -545,70 +589,180 @@ export default function StudentDetailPage() {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Badge className={getStatusColor(application.status)}>{application.status}</Badge>
+                    <div className="space-y-3">
+                      <Badge className={`${getStatusColor(application.status)} text-lg px-4 py-2 font-semibold`}>
+                        {application.status}
+                      </Badge>
+
+                      {/* Animated Emoji and Message for Selected */}
+                      {application.status === "Selected" && (
+                        <div className="space-y-2">
+                          <div className="flex justify-center">
+                            <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
+                              😊
+                            </div>
+                          </div>
+                          <div className="text-center space-y-1">
+                            <p className="text-sm text-gray-600">This applicant has been selected!</p>
+                            <div className="flex items-center justify-center text-green-600">
+                              <span className="text-sm font-medium">Congratulations!</span>
+                            </div>
+                            <p className="text-xs text-gray-500">This applicant has been selected!</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Animated Emoji and Message for Rejected */}
+                      {application.status === "Rejected" && (
+                        <div className="space-y-2">
+                          <div className="flex justify-center">
+                            <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
+                              😢
+                            </div>
+                          </div>
+                          <div className="text-center space-y-1">
+                            <p className="text-sm text-gray-600">This application was not successful</p>
+                            <div className="flex items-center justify-center text-red-600">
+                              <span className="text-sm font-medium">Better luck next time !!</span>
+                            </div>
+                            <p className="text-xs text-gray-500">Application has been rejected</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Animated Emoji and Message for Applied */}
+                      {application.status === "Applied" && (
+                        <div className="space-y-2">
+                          <div className="flex justify-center">
+                            <div className="text-5xl animate-pulse" style={{ animationDuration: '2s' }}>
+                              📝
+                            </div>
+                          </div>
+                          <div className="text-center space-y-1">
+                            <p className="text-sm text-gray-600">Application has been submitted</p>
+                            <div className="flex items-center justify-center text-blue-600">
+                              <span className="text-sm font-medium">Waiting for review</span>
+                            </div>
+                            <p className="text-xs text-gray-500">Application is pending</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Animated Emoji for In Training */}
+                      {application.status === "In Training" && (
+                        <div className="space-y-2">
+                          <div className="flex justify-center">
+                            <div className="text-5xl animate-bounce" style={{ animationDuration: '1.5s' }}>
+                              🎓
+                            </div>
+                          </div>
+                          <div className="text-center space-y-1">
+                            <p className="text-sm text-gray-600">Welcome to the team!</p>
+                            <div className="flex items-center justify-center text-purple-600">
+                              <span className="text-sm font-medium">Training has begun</span>
+                            </div>
+                            <p className="text-xs text-gray-500">Keep up the great work</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Animated Emoji for Completed */}
+                      {application.status === "Completed" && (
+                        <div className="space-y-2">
+                          <div className="flex justify-center">
+                            <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
+                              🏆
+                            </div>
+                          </div>
+                          <div className="text-center space-y-1">
+                            <p className="text-sm text-gray-600">Congratulations!</p>
+                            <div className="flex items-center justify-center text-green-600">
+                              <span className="text-sm font-medium">Internship completed successfully</span>
+                            </div>
+                            <p className="text-xs text-gray-500">Well done!</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Animated Emoji and Message for In Review */}
+                      {application.status === "In Review" && (
+                        <div className="space-y-2">
+                          <div className="flex justify-center">
+                            <div className="text-5xl animate-spin" style={{ animationDuration: '2s' }}>
+                              ⏳
+                            </div>
+                          </div>
+                          <div className="text-center space-y-1">
+                            <p className="text-sm text-gray-600">Application is under review</p>
+                            <div className="flex items-center justify-center text-yellow-600">
+                              <span className="text-sm font-medium">Please wait for updates</span>
+                            </div>
+                            <p className="text-xs text-gray-500">Review in progress</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 
-                {/* Quick Status Actions */}
+                {/* Quick Actions */}
                 {!isEditing && (application.status === "Applied" || application.status === "In Review") && (
                   <div className="space-y-2">
-                    <Label className="text-zinc-700 dark:text-zinc-300">Quick Actions</Label>
-                    <div className="space-y-2">
-                      <Button
-                        onClick={() => updateStatus("Selected")}
-                        disabled={isLoading}
-                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                      >
-                        {isLoading ? "Processing..." : "✓ Accept & Notify"}
-                      </Button>
-                      <Button
-                        onClick={() => updateStatus("Rejected")}
-                        disabled={isLoading}
-                        variant="destructive"
-                        className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800"
-                      >
-                        {isLoading ? "Processing..." : "✗ Reject & Notify"}
-                      </Button>
-                    </div>
+                    <Button
+                      onClick={() => updateStatus("Selected")}
+                      disabled={isLoading}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white text-sm"
+                    >
+                      {isLoading ? "Processing..." : "✓ Accept & Notify"}
+                    </Button>
+                    <Button
+                      onClick={() => updateStatus("Rejected")}
+                      disabled={isLoading}
+                      variant="destructive"
+                      className="w-full bg-red-600 hover:bg-red-700 text-white text-sm"
+                    >
+                      {isLoading ? "Processing..." : "✗ Reject & Notify"}
+                    </Button>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-purple-500/20">
-              <CardHeader>
-                <CardTitle className="text-black">Contact Actions</CardTitle>
+            {/* Contact Actions */}
+            <Card className="bg-white border border-gray-200 shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-gray-900 text-lg font-semibold flex items-center gap-2">
+                  <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                  Contact Actions
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-white/10 border-purple-500/20 text-black hover:bg-purple-500/20"
+              <CardContent className="space-y-1">
+                <button
+                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-purple-200 rounded-lg transition-colors border-b border-gray-100 last:border-b-0"
                   onClick={() => window.open(`mailto:${application.email}`)}
                 >
-                  <Mail className="h-4 w-4 mr-2" />
-                  Send Email
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-white/10 border-purple-500/20 text-black hover:bg-purple-500/20"
+                  <Mail className="h-4 w-4 text-gray-600" />
+                  <span className="text-gray-900 font-medium">Send Email</span>
+                </button>
+                <button
+                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-purple-200 rounded-lg transition-colors border-b border-gray-100 last:border-b-0"
                   onClick={() => window.open(`tel:${application.phone}`)}
                 >
-                  <Phone className="h-4 w-4 mr-2" />
-                  Call Applicant
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-white/10 border-purple-500/20 text-black hover:bg-purple-500/20"
+                  <Phone className="h-4 w-4 text-gray-600" />
+                  <span className="text-gray-900 font-medium">Call Applicant</span>
+                </button>
+                <button
+                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-purple-200 rounded-lg transition-colors"
                   onClick={() => window.open(`sms:${application.phone}`)}
                 >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Send SMS
-                </Button>
+                  <MessageSquare className="h-4 w-4 text-gray-600" />
+                  <span className="text-gray-900 font-medium">Send SMS</span>
+                </button>
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </div>
-    </AdminLayout>
+          </div >
+        </div >
+      </div >
+    </AdminLayout >
   )
 }

@@ -1,35 +1,21 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { AdminLayout } from "@/components/admin-layout"
-import {
-  Users,
-  UserCheck,
-  Clock,
-  TrendingUp,
-  Award,
-  Target,
-  Zap,
-  CheckCircle,
-  XCircle,
-  Eye,
-  Mail,
-  FileText,
-  Download,
-} from "lucide-react"
-import type { ChartOptions } from "chart.js"
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js"
-import { Pie, Bar } from "react-chartjs-2"
-import { useToast } from "@/hooks/use-toast"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "@/components/ui/use-toast"
+import { ArcElement, BarElement, CategoryScale, Chart, ChartOptions, Legend, LinearScale, Tooltip } from "chart.js"
+import { Award, CheckCircle, Clock, Download, Eye, FileText, GraduationCap, Mail, Phone, Target, TrendingUp, Users, XCircle, Zap } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { Bar, Pie } from "react-chartjs-2"
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
+// Register Chart.js elements for Pie and Bar charts
+Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
 
-interface Application {
+type Application = {
   id: number
   name: string
   email: string
@@ -41,21 +27,17 @@ interface Application {
   resumeName?: string
 }
 
-// Email notification service (simulated)
 const sendEmailNotification = async (email: string, name: string, status: string) => {
-  console.log(`Sending ${status} email to ${email} for ${name}`)
-  await new Promise((resolve) => setTimeout(resolve, 1000))
-  return {
-    success: true,
-    message: `${status} notification sent to ${email}`,
-  }
+  // Dummy implementation, replace with actual API call
+  return Promise.resolve()
 }
 
-export default function AdminDashboard() {
+export default function DashboardPage() {
+  const router = useRouter()
   const [applications, setApplications] = useState<Application[]>([])
   const [recentApplications, setRecentApplications] = useState<Application[]>([])
-  const router = useRouter()
-  const { toast } = useToast()
+  const [selectedDomain, setSelectedDomain] = useState<string>("")
+  const [domains, setDomains] = useState<string[]>([])
 
   useEffect(() => {
     // Check authentication
@@ -69,18 +51,29 @@ export default function AdminDashboard() {
   }, [router])
 
   const loadApplications = async () => {
-    try{
+    try {
       const response = await fetch("http://localhost:5000/api/admin/applications")
       const data = await response.json()
       setApplications(data)
 
       const recent = data
-      .sort((a: Application, b: Application) => new Date(b.dateApplied).getTime()-new Date(a.dateApplied).getTime())
-      .slice(0,10)
-
+        .sort((a: Application, b: Application) => new Date(b.dateApplied).getTime() - new Date(a.dateApplied).getTime())
+        .slice(0, 10)
       setRecentApplications(recent)
+
+      // Improved domain extraction: handles custom domains, trims, and preserves original casing
+      const domainMap: { [key: string]: string } = {}
+      data.forEach((app: Application) => {
+        if (app.domain && app.domain.trim()) {
+          const key = app.domain.trim().toLowerCase()
+          if (!domainMap[key]) {
+            domainMap[key] = app.domain.trim()
+          }
+        }
+      })
+      const uniqueDomains = Object.values(domainMap)
+      setDomains(uniqueDomains)
     } catch (error) {
-      console.error("Failed to fetch applications:",error)
       toast({
         title: "Fetch Error",
         description: "Could not load applications from server",
@@ -147,6 +140,8 @@ export default function AdminDashboard() {
     inReview: applications.filter((app) => app.status === "In Review" || app.status === "Under Review").length,
     selected: applications.filter((app) => app.status === "Selected").length,
     rejected: applications.filter((app) => app.status === "Rejected").length,
+    inTraining: applications.filter((app) => app.status === "In Training").length,
+    completed: applications.filter((app) => app.status === "Completed").length,
   }
 
   const domainStats = {
@@ -170,19 +165,33 @@ export default function AdminDashboard() {
   }
 
   const barChartData = {
-    labels: ["Applied", "In Review", "Selected", "Rejected"],
+    labels: ["Applied", "In Review", "Selected", "Rejected", "In Training", "Completed"],
     datasets: [
       {
         label: "Applications",
-        data: [stats.applied, stats.inReview, stats.selected, stats.rejected],
-        backgroundColor: ["#3B82F6", "#F59E0B", "#10B981", "#EF4444"],
-        borderRadius: 8,
-        borderSkipped: false,
+        data: [stats.applied, stats.inReview, stats.selected, stats.rejected, stats.inTraining, stats.completed],
+        backgroundColor: [
+          "rgba(59, 130, 246, 0.8)",
+          "rgba(245, 158, 11, 0.8)",
+          "rgba(34, 197, 94, 0.8)",
+          "rgba(239, 68, 68, 0.8)",
+          "rgba(147, 51, 234, 0.8)",
+          "rgba(107, 114, 128, 0.8)",
+        ],
+        borderColor: [
+          "rgb(59, 130, 246)",
+          "rgb(245, 158, 11)",
+          "rgb(34, 197, 94)",
+          "rgb(239, 68, 68)",
+          "rgb(147, 51, 234)",
+          "rgb(107, 114, 128)",
+        ],
+        borderWidth: 2,
       },
     ],
   }
 
-  const barChartOptions : ChartOptions<"bar"> = {
+  const barChartOptions: ChartOptions<"bar"> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -230,7 +239,7 @@ export default function AdminDashboard() {
     },
   }
 
-    const pieChartOptions : ChartOptions <"pie"> = {
+  const pieChartOptions: ChartOptions<"pie"> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -241,7 +250,7 @@ export default function AdminDashboard() {
           usePointStyle: true,
           font: {
             size: 12,
-            weight: 500 ,
+            weight: 500,
           },
           color: "#000000",
         },
@@ -270,27 +279,27 @@ export default function AdminDashboard() {
       changeType: "increase",
     },
     {
-      title: "In Review",
-      value: stats.inReview,
-      icon: Clock,
-      gradient: "from-orange-500 to-red-500",
-      bgGradient: "from-orange-500/10 to-red-500/10",
-      change: "+5%",
+      title: "In Training",
+      value: stats.inTraining,
+      icon: GraduationCap,
+      gradient: "from-purple-500 to-violet-500",
+      bgGradient: "from-purple-500/10 to-violet-500/10",
+      change: "+15%",
       changeType: "increase",
     },
     {
-      title: "Selected",
-      value: stats.selected,
-      icon: UserCheck,
-      gradient: "from-green-500 to-emerald-500",
-      bgGradient: "from-green-500/10 to-emerald-500/10",
-      change: "+8%",
+      title: "Completed",
+      value: stats.completed,
+      icon: Award,
+      gradient: "from-gray-500 to-slate-500",
+      bgGradient: "from-gray-500/10 to-slate-500/10",
+      change: "+10%",
       changeType: "increase",
     },
     {
       title: "Success Rate",
       value: stats.total > 0 ? `${Math.round((stats.selected / stats.total) * 100)}%` : "0%",
-      icon: Award,
+      icon: TrendingUp,
       gradient: "from-pink-500 to-rose-500",
       bgGradient: "from-pink-500/10 to-rose-500/10",
       change: "+3%",
@@ -313,6 +322,11 @@ export default function AdminDashboard() {
         return "bg-gray-100 text-gray-800 border-gray-200"
     }
   }
+
+  // Filter applications by selected domain
+  const filteredApplications = !selectedDomain
+    ? applications
+    : applications.filter(app => app.domain === selectedDomain)
 
   return (
     <AdminLayout>
@@ -421,7 +435,7 @@ export default function AdminDashboard() {
                 recentApplications.map((app) => (
                   <div
                     key={app.id}
-                    className="bg-white/50 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-4 lg:p-6 hover:bg-white/70 transition-all duration-300"
+                    className="bg-gray-50 border border-gray-200 rounded-2xl p-4 lg:p-6 hover:bg-gray-100 transition-all duration-300"
                   >
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
@@ -439,7 +453,10 @@ export default function AdminDashboard() {
                             <Mail className="h-3 w-3 flex-shrink-0" />
                             {app.email}
                           </span>
-                          <span className="flex-shrink-0">Applied: {app.dateApplied}</span>
+                          <span className="flex items-center gap-1">
+                            <Phone className="h-3 w-3 flex-shrink-0" />
+                            {app.phone}
+                          </span>
                         </div>
                         {app.resume && (
                           <div className="mt-2">
@@ -460,22 +477,21 @@ export default function AdminDashboard() {
                           <>
                             <Button
                               onClick={() => updateApplicationStatus(app.id, "In Review")}
-                              className="btn btn-primary bg-blue-600 hover:bg-blue-700 text-xs"
+                              className="bg-blue-500 hover:bg-blue-600 text-white text-xs"
                             >
                               <Clock className="h-3 w-3 mr-1" />
                               Review
                             </Button>
                             <Button
-                              variant="default"
-                              size="sm"
                               onClick={() => updateApplicationStatus(app.id, "Selected")}
+                              className="bg-green-500 hover:bg-green-600 text-white text-xs"
                             >
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Accept
                             </Button>
                             <Button
                               onClick={() => updateApplicationStatus(app.id, "Rejected")}
-                              className="btn btn-danger text-xs"
+                              className="bg-red-500 hover:bg-red-600 text-white text-xs"
                             >
                               <XCircle className="h-3 w-3 mr-1" />
                               Reject
@@ -485,7 +501,7 @@ export default function AdminDashboard() {
 
                         <Link href={`/admin/student/${app.id}`}>
                           <Button
-                            className="btn btn-outline bg-white/50 border-gray-200/50 text-black hover:bg-gray-100/50 text-xs"
+                            className="bg-purple-500 hover:bg-purple-600 text-white text-xs"
                           >
                             <Eye className="h-3 w-3 mr-1" />
                             View
@@ -508,18 +524,17 @@ export default function AdminDashboard() {
               "from-blue-500 to-cyan-500",
               "from-green-500 to-emerald-500",
               "from-orange-500 to-red-500",
-            ]
+            ];
             const bgGradients = [
               "from-purple-500/10 to-pink-500/10",
               "from-blue-500/10 to-cyan-500/10",
               "from-green-500/10 to-emerald-500/10",
               "from-orange-500/10 to-red-500/10",
-            ]
-
+            ];
             return (
               <Card
                 key={domain}
-                className="group relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200/50 hover:border-gray-300/60 transition-all duration-500 hover:scale-105"
+                className={`group relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200/50 hover:border-gray-300/60 transition-all duration-500 hover:scale-105`}
               >
                 <div
                   className={`absolute inset-0 bg-gradient-to-br ${bgGradients[index]} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
@@ -543,7 +558,7 @@ export default function AdminDashboard() {
                   </div>
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
 

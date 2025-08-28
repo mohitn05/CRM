@@ -1,6 +1,6 @@
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Mail, Phone } from "lucide-react"
+import Link from "next/link"
 
 export default function LandingPage() {
   return (
@@ -59,28 +59,28 @@ export default function LandingPage() {
       <div className="absolute inset-0 z-0 overflow-hidden">
         {/* Floating circles with pulse */}
         <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-green-300/15 rounded-full blur-lg animate-bounce" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-emerald-100/20 rounded-full blur-2xl animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-green-200/12 rounded-full blur-xl animate-bounce" style={{animationDelay: '0.5s'}}></div>
-        <div className="absolute top-1/2 left-1/2 w-36 h-36 bg-emerald-300/8 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-green-300/15 rounded-full blur-lg animate-bounce" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-emerald-100/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-green-200/12 rounded-full blur-xl animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+        <div className="absolute top-1/2 left-1/2 w-36 h-36 bg-emerald-300/8 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
 
         {/* Moving geometric shapes with random paths */}
-        <div className="absolute top-16 -left-16 w-16 h-16 bg-emerald-400/20 rotate-45 animate-spin" style={{animation: 'moveRandom1 20s linear infinite'}}></div>
-        <div className="absolute top-32 -left-20 w-12 h-12 bg-green-500/15 rounded-full" style={{animation: 'moveRandom2 25s linear infinite', animationDelay: '3s'}}></div>
-        <div className="absolute top-48 -left-12 w-8 h-8 bg-emerald-300/25" style={{animation: 'moveRandom3 18s linear infinite', animationDelay: '6s'}}></div>
+        <div className="absolute top-16 -left-16 w-16 h-16 bg-emerald-400/20 rotate-45 animate-spin" style={{ animation: 'moveRandom1 20s linear infinite' }}></div>
+        <div className="absolute top-32 -left-20 w-12 h-12 bg-green-500/15 rounded-full" style={{ animation: 'moveRandom2 25s linear infinite', animationDelay: '3s' }}></div>
+        <div className="absolute top-48 -left-12 w-8 h-8 bg-emerald-300/25" style={{ animation: 'moveRandom3 18s linear infinite', animationDelay: '6s' }}></div>
 
-        <div className="absolute bottom-16 -right-16 w-20 h-20 bg-green-400/18 rotate-45" style={{animation: 'moveRandom4 22s linear infinite'}}></div>
-        <div className="absolute bottom-32 -right-24 w-14 h-14 bg-emerald-500/12 rounded-full" style={{animation: 'moveRandom5 28s linear infinite', animationDelay: '4s'}}></div>
-        <div className="absolute bottom-48 -right-10 w-10 h-10 bg-green-300/20" style={{animation: 'moveRandom6 16s linear infinite', animationDelay: '7s'}}></div>
+        <div className="absolute bottom-16 -right-16 w-20 h-20 bg-green-400/18 rotate-45" style={{ animation: 'moveRandom4 22s linear infinite' }}></div>
+        <div className="absolute bottom-32 -right-24 w-14 h-14 bg-emerald-500/12 rounded-full" style={{ animation: 'moveRandom5 28s linear infinite', animationDelay: '4s' }}></div>
+        <div className="absolute bottom-48 -right-10 w-10 h-10 bg-green-300/20" style={{ animation: 'moveRandom6 16s linear infinite', animationDelay: '7s' }}></div>
 
         {/* Diagonal moving shapes with random paths */}
-        <div className="absolute -top-8 left-1/4 w-6 h-6 bg-emerald-600/15 rotate-45" style={{animation: 'moveRandom7 30s linear infinite'}}></div>
-        <div className="absolute -top-12 left-1/2 w-8 h-8 bg-green-400/20 rounded-full" style={{animation: 'moveRandom8 35s linear infinite', animationDelay: '5s'}}></div>
-        <div className="absolute -top-6 right-1/4 w-4 h-4 bg-emerald-500/25" style={{animation: 'moveRandom1 25s linear infinite', animationDelay: '8s'}}></div>
+        <div className="absolute -top-8 left-1/4 w-6 h-6 bg-emerald-600/15 rotate-45" style={{ animation: 'moveRandom7 30s linear infinite' }}></div>
+        <div className="absolute -top-12 left-1/2 w-8 h-8 bg-green-400/20 rounded-full" style={{ animation: 'moveRandom8 35s linear infinite', animationDelay: '5s' }}></div>
+        <div className="absolute -top-6 right-1/4 w-4 h-4 bg-emerald-500/25" style={{ animation: 'moveRandom1 25s linear infinite', animationDelay: '8s' }}></div>
 
         {/* Floating triangles with random movement */}
-        <div className="absolute top-1/3 -left-8 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[14px] border-l-transparent border-r-transparent border-b-emerald-400/20" style={{animation: 'moveRandom2 24s linear infinite', animationDelay: '2s'}}></div>
-        <div className="absolute top-2/3 -right-8 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[18px] border-l-transparent border-r-transparent border-b-green-500/15" style={{animation: 'moveRandom3 26s linear infinite', animationDelay: '9s'}}></div>
+        <div className="absolute top-1/3 -left-8 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[14px] border-l-transparent border-r-transparent border-b-emerald-400/20" style={{ animation: 'moveRandom2 24s linear infinite', animationDelay: '2s' }}></div>
+        <div className="absolute top-2/3 -right-8 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[18px] border-l-transparent border-r-transparent border-b-green-500/15" style={{ animation: 'moveRandom3 26s linear infinite', animationDelay: '9s' }}></div>
       </div>
 
       {/* NEW: Floating Geometric Shapes for the wave background - Also z-0 */}
@@ -182,7 +182,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div> 
+          </div>
         </div>
       </footer>
     </div>

@@ -2,7 +2,6 @@
 
 import type React from "react"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,21 +11,22 @@ import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import {
   ArrowLeft,
-  CheckCircle,
-  Sparkles,
-  Send,
-  User,
-  Mail,
-  Phone,
   Building2,
-  Upload,
-  FileText,
-  Lock,
+  CheckCircle,
   Eye,
   EyeOff,
+  FileText,
   GraduationCap,
+  Lock,
+  Mail,
+  Phone,
+  Send,
+  Sparkles,
+  Upload,
+  User,
 } from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
 
 export default function ApplyPage() {
   type FormDataType = {
@@ -73,7 +73,7 @@ export default function ApplyPage() {
     console.log("✅ Frontend email validation bypassed for:", formData.email)
 
     // Validate Phone number format : should be 10 digits
-    if(!/^\d{10}$/.test(formData.phone)) {
+    if (!/^\d{10}$/.test(formData.phone)) {
       toast({
         title: "Invalid Phone Number",
         description: "Phone number must be 10 digits long.",
@@ -125,9 +125,9 @@ export default function ApplyPage() {
     formpayload.append("password", formData.password)
     formpayload.append("resume", formData.resume!)
 
-    console.log("Submitting application with data:",formData)
+    console.log("Submitting application with data:", formData)
 
-    try{
+    try {
       const response = await fetch("http://localhost:5000/api/apply", {
         method: "POST",
         body: formpayload,
@@ -139,7 +139,7 @@ export default function ApplyPage() {
         setIsSubmitted(true)
         toast({
           title: "Success",
-        description: "Your application has been submitted successfully!",
+          description: "Your application has been submitted successfully!",
         })
       } else {
         const err = await response.json()
@@ -155,14 +155,14 @@ export default function ApplyPage() {
         description: "Could not connect to server",
         variant: "destructive",
       })
-    }finally {
+    } finally {
       setIsLoading(false)
     }
   }
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ 
-      ...prev, 
+    setFormData((prev) => ({
+      ...prev,
       [field]: value,
       // Clear custom domain if switching away from "Others"
       ...(field === "domain" && value !== "Others" ? { customDomain: "" } : {})
@@ -379,21 +379,7 @@ export default function ApplyPage() {
                       <SelectItem value="Others">🚀 Others</SelectItem>
                     </SelectContent>
                   </Select>
-                  
-                  {/* Custom domain input - shows only when "Others" is selected */}
-                  {formData.domain === "Others" && (
-                    <div className="mt-3">
-                      <Input
-                        id="customDomain"
-                        type="text"
-                        placeholder="Enter your custom domain (e.g., Marketing, Design, etc.)"
-                        value={formData.customDomain}
-                        onChange={(e) => handleInputChange("customDomain", e.target.value)}
-                        required
-                        className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-orange-400 focus:ring-orange-400/20 h-12 rounded-xl"
-                      />
-                    </div>
-                  )}
+
                 </div>
 
                 <div className="space-y-3">

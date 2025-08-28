@@ -27,7 +27,7 @@ def create_app():
     migrate.init_app(app, db, directory="migrations")
 
     # Enable logging for debugging purposes
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO) 
     logging.info(f"Database path: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
     # Enable CORS for frontend API access
