@@ -397,7 +397,7 @@ export default function StudentDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Information Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0 overflow-x-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Full Name Card */}
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <User className="h-5 w-5 text-gray-600" />
@@ -580,7 +580,7 @@ export default function StudentDetailPage() {
           </div>
 
           {/* Status and Actions */}
-          <div className="space-y-6 min-w-0">
+          <div className="space-y-6">
             {/* Application Status */}
             <Card className="bg-white border border-gray-200 shadow-sm">
               <CardHeader className="pb-3">

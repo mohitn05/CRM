@@ -18,4 +18,16 @@ export default function RootLayout({
       <body>{children} <Toaster /> </body>
     </html>
   )
+  return (
+    <html lang="en">
+      <body>
+        <div className="min-h-screen bg-gray-50">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            {children}
+          </div>
+        </div>
+        <Toaster />
+      </body>
+    </html>
+  )
 }

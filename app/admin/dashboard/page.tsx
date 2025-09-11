@@ -1,14 +1,11 @@
 "use client"
 
 import { AdminLayout } from "@/components/admin-layout"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
 import type { ScriptableContext } from "chart.js"
 import { ArcElement, BarElement, CategoryScale, Chart, ChartOptions, Legend, LinearScale, Tooltip } from "chart.js"
-import { Award, CheckCircle, Clock, Download, Eye, FileText, GraduationCap, Mail, Phone, Target, TrendingUp, Users, XCircle, Zap } from "lucide-react"
-import Link from "next/link"
+import { Award, ClipboardListIcon, GraduationCap, Target, TrendingUp, Users, Zap } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Bar, Pie } from "react-chartjs-2"
@@ -401,7 +398,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 min-w-0 overflow-x-auto z-10 w-full" style={{ maxWidth: '100vw' }}>
+        <div className="grid grid-clos-1 sm:grid-cols2 lg:grid-cols-4 gap-4 mb-8">
           {statCards.map((stat, index) => (
             <Card
               key={stat.title + index}
@@ -436,140 +433,67 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Applications with Quick Actions */}
-        <Card className="bg-white/80 backdrop-blur-xl border border-gray-200/50 shadow-2xl overflow-x-auto z-10">
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl">
-                  <Users className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-black text-xl font-bold">Recent Applications</CardTitle>
-                  <CardDescription className="text-gray-700">
-                    Latest submissions requiring your attention ({recentApplications.length} total)
-                  </CardDescription>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={loadApplications}
-                  className="btn btn-outline bg-white/50 border-gray-200/50 text-black hover:bg-blue-50"
-                >
-                  Refresh
-                </Button>
-                <Link href="/admin/students">
-                  <Button className="btn btn-outline bg-white/50 border-gray-200/50 text-black hover:bg-blue-50">
-                    View All
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentApplications.length === 0 ? (
-                <div className="text-center py-8 text-gray-700">
-                  <p className="text-lg font-medium mb-2">No applications found</p>
-                  <p className="text-sm">Students can apply through the application form.</p>
-                  <Button
-                    onClick={loadApplications}
-                    className="btn btn-outline mt-4 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                  >
-                    Refresh Data
-                  </Button>
-                </div>
-              ) : (
-                recentApplications.map((app) => (
-                  <div
-                    key={app.id}
-                    className="bg-gray-50 border border-gray-200 rounded-2xl p-4 lg:p-6 hover:bg-gray-100 transition-all duration-300"
-                  >
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
-                          <h3 className="font-semibold text-black text-lg truncate">{app.name}</h3>
-                          <div className="flex flex-wrap gap-2">
-                            <Badge className={getStatusColor(app.status)}>{app.status}</Badge>
-                            <Badge variant="outline" className="text-gray-700 border-gray-300">
-                              {(() => {
-                                if (app.domain === "Frontend") return "Frontend Developer";
-                                if (app.domain === "Backend") return "Backend Developer";
-                                if (app.domain === "Database") return "Database Management";
-                                return app.domain;
-                              })()}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-2 text-gray-700 text-sm">
-                          <span className="flex items-center gap-1 truncate">
-                            <Mail className="h-3 w-3 flex-shrink-0" />
-                            {app.email}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Phone className="h-3 w-3 flex-shrink-0" />
-                            {app.phone}
-                          </span>
-                        </div>
-                        {app.resume && (
-                          <div className="mt-2">
-                            <Button
-                              onClick={() => downloadResume(app.resumeName || "resume.pdf")}
-                              className="btn btn-outline bg-white/50 border-gray-200/50 text-gray-700 hover:bg-gray-100/50 text-xs"
-                            >
-                              <FileText className="h-3 w-3 mr-1" />
-                              <Download className="h-3 w-3 mr-1" />
-                              Resume
-                            </Button>
-                          </div>
-                        )}
-                      </div>
+        <section className="mb-8">
+          {/* header */}
+          <div className="flex items-center mb-4">
+            <ClipboardListIcon className="h-6 w-6 text-purple-600" />
+            <h3 className="ml-2 text-lg font-semibold">Recent Applications</h3>
+            <span className="ml-auto text-gray-500">
+              Latest submissions requiring your attention ({recentApplications.length} total)
+            </span>
+          </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        {(app.status === "Applied" || app.status === "Under Review") && (
-                          <>
-                            <Button
-                              onClick={() => updateApplicationStatus(app.id, "In Review")}
-                              className="bg-blue-500 hover:bg-blue-600 text-white text-xs"
-                            >
-                              <Clock className="h-3 w-3 mr-1" />
-                              Review
-                            </Button>
-                            <Button
-                              onClick={() => updateApplicationStatus(app.id, "Selected")}
-                              className="bg-blue-500 hover:bg-blue-600 text-white text-xs"
-                            >
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Accept
-                            </Button>
-                            <Button
-                              onClick={() => updateApplicationStatus(app.id, "Rejected")}
-                              className="bg-red-500 hover:bg-red-600 text-white text-xs"
-                            >
-                              <XCircle className="h-3 w-3 mr-1" />
-                              Reject
-                            </Button>
-                          </>
-                        )}
-
-                        <Link href={`/admin/student/${app.id}`}>
-                          <Button
-                            className="bg-purple-500 hover:bg-purple-600 text-white text-xs"
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            View
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
+          {/* white card wrapper */}
+          <div className="bg-white shadow rounded-lg">
+            {/* make the table scroll on narrow screens */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-100 text-left text-sm text-gray-600">
+                  <tr>
+                    <th className="px-4 py-2">Name</th>
+                    <th className="px-4 py-2">Role</th>
+                    <th className="px-4 py-2">Email</th>
+                    <th className="px-4 py-2">Phone</th>
+                    <th className="px-4 py-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentApplications.map((app) => (
+                    <tr key={app.id} className="border-t">
+                      <td className="px-4 py-3">{app.name}</td>
+                      <td className="px-4 py-3 text-gray-500">{app.domain}</td>
+                      <td className="px-4 py-3">{app.email}</td>
+                      <td className="px-4 py-3">{app.phone}</td>
+                      <td className="px-4 py-3 space-x-2">
+                        <button
+                          onClick={() => updateApplicationStatus(app.id, "In Review")}
+                          className="px-3 py-1 bg-blue-600 text-white rounded"
+                        >
+                          Review
+                        </button>
+                        <button
+                          onClick={() => updateApplicationStatus(app.id, "Selected")}
+                          className="px-3 py-1 bg-green-500 text-white rounded"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => updateApplicationStatus(app.id, "Rejected")}
+                          className="px-3 py-1 bg-red-500 text-white rounded"
+                        >
+                          Reject
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
         {/* Domain Distribution Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 min-w-0 overflow-x-auto z-10 w-full" style={{ maxWidth: '100vw' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {Object.entries(domainStats).map(([domain, count], index) => {
             // 8 unique gradients for 8 domains
             const gradients = [
@@ -629,7 +553,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 min-w-0 overflow-x-auto z-0 w-full" style={{ maxWidth: '100vw' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           <Card className="bg-white/80 backdrop-blur-xl border border-gray-200/50 shadow-2xl">
             <CardHeader>
               <div className="flex items-center gap-3">

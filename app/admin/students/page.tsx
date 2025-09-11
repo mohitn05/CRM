@@ -317,7 +317,7 @@ export default function StudentsPage() {
         {/* Enhanced Filters - responsive stacking, z-index, and overflow fixes */}
         <Card className="bg-white shadow-lg border border-gray-200 relative md:static z-0">
           <CardContent className="p-4 sm:p-6">
-            <div className="flex flex-col md:grid md:grid-cols-3 gap-2 sm:gap-4 min-w-0 overflow-x-auto md:pl-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div className="relative min-w-0">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
@@ -361,106 +361,86 @@ export default function StudentsPage() {
         </Card>
 
         {/* Applications Table - ensure z-0 and overflow-x-auto for stacking */}
-        <Card className="bg-white shadow-lg border border-gray-200 relative z-0 mt-2 sm:mt-4 overflow-x-auto w-full">
+        <Card className="bg-white shadow-lg border border-gray-200 relative z-0 mt-2 sm:mt-4 w-full">
           <CardHeader className="bg-gray-50 border-b border-gray-200">
             <CardTitle className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
               Applications ({filteredApplications.length})
             </CardTitle>
           </CardHeader>
+
           <CardContent className="p-0 w-full">
+            {/* ← Wrap table in this scroll container */}
             <div className="overflow-x-auto w-full">
               <Table className="w-full min-w-[700px]">
                 <TableHeader>
                   <TableRow className="bg-gray-50">
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">Name</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[180px]">Email</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">Phone</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[140px]">Domain</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[100px]">Status</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">Date Applied</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[160px]">Actions</TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">
+                      Name
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[180px]">
+                      Email
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">
+                      Phone
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[140px]">
+                      Domain
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[100px]">
+                      Status
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">
+                      Date Applied
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[160px]">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
+
                 <TableBody>
-                  {filteredApplications.map((app, index) => {
-                    // Map legacy domain names to new ones
-                    let domainDisplay = app.domain;
-                    if (domainDisplay === "Frontend") domainDisplay = "Frontend Developer";
-                    if (domainDisplay === "Backend") domainDisplay = "Backend Developer";
-                    if (domainDisplay === "Database") domainDisplay = "Database Management";
-                    return (
-                      <TableRow key={app.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                        <TableCell className="font-medium text-gray-900 text-xs sm:text-sm md:text-base min-w-[120px]">{app.name}</TableCell>
-                        <TableCell className="text-gray-700 text-xs sm:text-sm md:text-base min-w-[180px]">{app.email}</TableCell>
-                        <TableCell className="text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">{app.phone}</TableCell>
-                        <TableCell className="min-w-[140px]">
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs sm:text-sm md:text-base">
-                            {domainDisplay}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="min-w-[100px]">
-                          <Badge className={getStatusColor(app.status) + ' text-xs sm:text-sm md:text-base'}>
-                            {app.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="min-w-[120px] text-xs sm:text-sm md:text-base">{new Date(app.dateApplied).toLocaleDateString()}</TableCell>
-                        <TableCell className="min-w-[160px]">
-                          <div className="flex flex-wrap gap-1">
-                            {(app.status === "Applied" || app.status === "In Review") && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  onClick={() => updateApplicationStatus(app.id, "Selected")}
-                                  className="bg-blue-600 hover:bg-blue-700 text-white h-8 px-2 sm:px-3 text-xs sm:text-sm md:text-base"
-                                >
-                                  ✓ Accept
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => updateApplicationStatus(app.id, "Rejected")}
-                                  className="bg-red-600 hover:bg-red-700 h-8 px-2 sm:px-3 text-xs sm:text-sm md:text-base"
-                                >
-                                  ✗ Reject
-                                </Button>
-                              </>
-                            )}
-                            {app.status === "Selected" && (
-                              <Button
-                                size="sm"
-                                onClick={() => updateApplicationStatus(app.id, "In Training")}
-                                className="bg-purple-600 hover:bg-purple-700 text-white h-8 px-2 sm:px-3 text-xs sm:text-sm md:text-base"
-                              >
-                                🎓 Start Training
-                              </Button>
-                            )}
-                            {app.status === "In Training" && (
-                              <Button
-                                size="sm"
-                                onClick={() => updateApplicationStatus(app.id, "Completed")}
-                                className="bg-gray-600 hover:bg-gray-700 text-white h-8 px-2 sm:px-3 text-xs sm:text-sm md:text-base"
-                              >
-                                ✅ Complete
-                              </Button>
-                            )}
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => router.push(`/admin/student/${app.id}`)}
-                              className="h-8 px-2 sm:px-3 text-xs sm:text-sm md:text-base hover:bg-purple-50 border-purple-200 text-purple-700"
-                            >
-                              View
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {filteredApplications.map((app, index) => (
+                    <TableRow
+                      key={app.id}
+                      className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                    >
+                      <TableCell className="font-medium text-gray-900 text-xs sm:text-sm md:text-base min-w-[120px]">
+                        {app.name}
+                      </TableCell>
+                      <TableCell className="text-gray-700 text-xs sm:text-sm md:text-base min-w-[180px]">
+                        {app.email}
+                      </TableCell>
+                      <TableCell className="text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">
+                        {app.phone}
+                      </TableCell>
+                      <TableCell className="min-w-[140px]">
+                        <Badge
+                          variant="outline"
+                          className="bg-blue-50 text-blue-700 border-blue-200 text-xs sm:text-sm md:text-base"
+                        >
+                          {app.domain}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="min-w-[100px]">
+                        <Badge className={`${getStatusColor(app.status)} text-xs sm:text-sm md:text-base`}>
+                          {app.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="min-w-[120px] text-xs sm:text-sm md:text-base">
+                        {new Date(app.dateApplied).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="min-w-[160px]">
+                        <div className="flex flex-wrap gap-1">
+                          {/* …your existing action buttons here… */}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
-            </div >
-          </CardContent >
-        </Card >
+            </div>
+          </CardContent>
+        </Card>
       </div >
     </AdminLayout >
   )
