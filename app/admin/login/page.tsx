@@ -48,18 +48,18 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-emerald-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-green-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
         <div className="mb-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-emerald-700 bg-white/80 hover:bg-white hover:text-emerald-800 transition-all duration-300 font-medium px-6 py-3 rounded-full shadow-lg hover:shadow-xl backdrop-blur-sm border border-emerald-200/50"
+            className="inline-flex items-center gap-2 text-blue-700 bg-white/80 hover:bg-white hover:text-purple-800 transition-all duration-300 font-medium px-6 py-3 rounded-full shadow-lg hover:shadow-xl backdrop-blur-sm border border-blue-200/50"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Home
@@ -70,11 +70,11 @@ export default function AdminLoginPage() {
           <CardHeader className="text-center pb-8">
             {/* Admin icon */}
             <div className="relative mb-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
                 <Building2 className="h-10 w-10 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center animate-pulse">
-                <Shield className="h-3 w-3 text-green-800" />
+                <Shield className="h-3 w-3 text-purple-800" />
               </div>
             </div>
 
@@ -88,7 +88,7 @@ export default function AdminLoginPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-3">
                 <Label htmlFor="username" className="text-gray-700 font-semibold flex items-center gap-2">
-                  <User className="h-4 w-4 text-emerald-600" />
+                  <User className="h-4 w-4 text-blue-600" />
                   Username
                 </Label>
                 <Input
@@ -98,13 +98,13 @@ export default function AdminLoginPage() {
                   value={credentials.username}
                   onChange={(e) => setCredentials((prev) => ({ ...prev, username: e.target.value }))}
                   required
-                  className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-emerald-400 focus:ring-emerald-400/20 h-12 rounded-xl"
+                  className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-12 rounded-xl"
                 />
               </div>
 
               <div className="space-y-3">
                 <Label htmlFor="password" className="text-gray-700 font-semibold flex items-center gap-2">
-                  <Lock className="h-4 w-4 text-green-600" />
+                  <Lock className="h-4 w-4 text-blue-600" />
                   Password
                 </Label>
                 <div className="relative">
@@ -115,7 +115,7 @@ export default function AdminLoginPage() {
                     value={credentials.password}
                     onChange={(e) => setCredentials((prev) => ({ ...prev, password: e.target.value }))}
                     required
-                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-green-400 focus:ring-green-400/20 h-12 rounded-xl pr-12"
+                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-12 rounded-xl pr-12"
                   />
                   <button
                     type="button"
@@ -129,7 +129,7 @@ export default function AdminLoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group relative overflow-hidden"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group relative overflow-hidden"
                 disabled={isLoading}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>

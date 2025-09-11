@@ -8,8 +8,10 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { getDomainOptions } from "@/lib/domains"
 import {
   ArrowLeft,
   Briefcase,
@@ -20,9 +22,8 @@ import {
   Mail,
   MessageSquare,
   Phone,
-  Save,
-  Trash2,
-  User,
+  Save, Sparkles, Trash2,
+  User
 } from "lucide-react"
 import Link from "next/link"
 
@@ -87,9 +88,16 @@ export default function StudentDetailPage() {
   }, [router, params.id, toast])
 
   const handleSave = async () => {
-    if (!editData) return
+    if (!editData) return;
 
-    setIsLoading(true)
+    // // Custom domain logic
+    // if (editData.domain === "Others" && customDomain.trim()) {
+    //   addCustomDomain(customDomain.trim());
+    //   setDomainOptions(getDomainOptions());
+    //   editData.domain = customDomain.trim();
+    // }
+
+    setIsLoading(true);
 
     try {
       const response = await fetch(`http://localhost:5000/api/students/${editData.id}`, {
@@ -104,36 +112,36 @@ export default function StudentDetailPage() {
           domain: editData.domain,
           status: editData.status,
         }),
-      })
+      });
 
       if (response.ok) {
-        const result = await response.json()
-        setApplication(result.student)
-        setEditData(result.student)
-        setIsEditing(false)
+        const result = await response.json();
+        setApplication(result.student);
+        setEditData(result.student);
+        setIsEditing(false);
 
         toast({
           title: "Application Updated ✅",
           description: "Student application has been updated successfully.",
-        })
+        });
       } else {
-        const error = await response.json()
+        const error = await response.json();
         toast({
           title: "Update Failed",
           description: error.message || "Failed to update student data",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error updating student:", error)
+      console.error("Error updating student:", error);
       toast({
         title: "Update Failed",
         description: "Failed to connect to server",
         variant: "destructive",
-      })
+      });
     }
 
-    setIsLoading(false)
+    setIsLoading(false);
   }
 
   const updateStatus = async (newStatus: string) => {
@@ -264,7 +272,7 @@ export default function StudentDetailPage() {
       case "In Review":
         return "bg-yellow-100 text-yellow-800"
       case "Selected":
-        return "bg-green-100 text-green-800"
+        return "bg-blue-100 text-blue-800"
       case "Rejected":
         return "bg-red-100 text-red-800"
       case "In Training":
@@ -314,25 +322,8 @@ export default function StudentDetailPage() {
   }
 
   // Add this before your return statement
-  const fixedDomains = [
-    { value: "Frontend", label: "Frontend Development" },
-    { value: "Backend", label: "Backend Development" },
-    { value: "Database", label: "Database Management" },
-  ];
-
-  // If the intern's domain is not in the fixed list, add it as a custom option
-  const domainOptions = (() => {
-    if (
-      application &&
-      !fixedDomains.some((d) => d.value === application?.domain)
-    ) {
-      return [
-        ...fixedDomains,
-        { value: application?.domain, label: application?.domain },
-      ];
-    }
-    return fixedDomains;
-  })();
+  const [domainOptions, setDomainOptions] = useState(getDomainOptions())
+  const [customDomain, setCustomDomain] = useState("")
 
   if (!application) {
     return (
@@ -346,15 +337,15 @@ export default function StudentDetailPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6 p-4 lg:p-6">
-        <div className="flex items-center justify-between">
-          <div className="bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm">
-            <Link href="/admin/dashboard" className="flex items-center gap-2 text-purple-700 hover:text-purple-900 font-medium">
+      <div className="space-y-6 p-4 lg:p-6 w-full min-w-0">
+        <div className="flex flex-wrap items-center justify-between min-w-0 gap-2">
+          <div className="bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm min-w-0">
+            <Link href="/admin/dashboard" className="flex items-center gap-2 text-purple-700 hover:text-purple-900 font-medium min-w-0">
               <ArrowLeft className="h-4 w-4" />
               Back to Dashboard
             </Link>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap min-w-0">
             {isEditing ? (
               <>
                 <Button
@@ -367,7 +358,7 @@ export default function StudentDetailPage() {
                 <Button
                   onClick={handleSave}
                   disabled={isLoading}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Save className="h-4 w-4" />
                   {isLoading ? "Saving..." : "Save Changes"}
@@ -392,10 +383,10 @@ export default function StudentDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0 overflow-x-auto z-10">
           {/* Main Information */}
-          <div className="lg:col-span-2">
-            <Card className="bg-white border-2 border-gray-300 shadow-sm">
+          <div className="lg:col-span-2 min-w-0">
+            <Card className="bg-white border-2 border-gray-300 shadow-sm min-w-0">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-gray-900 text-xl font-semibold">Application Information</CardTitle>
@@ -406,7 +397,7 @@ export default function StudentDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Information Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0 overflow-x-auto">
                   {/* Full Name Card */}
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <User className="h-5 w-5 text-gray-600" />
@@ -470,24 +461,54 @@ export default function StudentDetailPage() {
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-600 mb-1">Domain</p>
                       {isEditing ? (
-                        <Select
-                          value={editData?.domain || ""}
-                          onValueChange={(value) => setEditData((prev) => (prev ? { ...prev, domain: value } : null))}
-                        >
-                          <SelectTrigger className="bg-white border-gray-300 text-gray-900">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white border-gray-300">
-                            {domainOptions.map((domain) => (
-                              <SelectItem key={domain.value} value={domain.value}>
-                                {domain.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <>
+                          <Select
+                            value={editData?.domain || ""}
+                            onValueChange={(value) => {
+                              setEditData((prev) => (prev ? { ...prev, domain: value } : null));
+                              if (value !== "Others") setCustomDomain("");
+                              setDomainOptions(getDomainOptions());
+                            }}
+                          >
+                            <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-gray-300">
+                              {domainOptions
+                                .filter((domain: { value: string }) => domain.value !== "Database")
+                                .map((domain: { value: string; label: string }) => (
+                                  <SelectItem key={domain.value} value={domain.value}>
+                                    {domain.label}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                          {editData?.domain === "Others" && (
+                            <div className="mt-2">
+                              <Label htmlFor="customDomain" className="text-gray-700 font-semibold flex items-center gap-2">
+                                <Sparkles className="h-4 w-4 text-purple-600" />
+                                Custom Domain *
+                              </Label>
+                              <Input
+                                id="customDomain"
+                                type="text"
+                                placeholder="Enter custom domain"
+                                value={customDomain}
+                                onChange={(e) => setCustomDomain(e.target.value)}
+                                required
+                                className="bg-white border-gray-300 text-gray-900"
+                              />
+                            </div>
+                          )}
+                        </>
                       ) : (
-                        <Badge variant="outline" className="text-green-600 border-green-300 bg-green-50 hover:bg-green-200">
-                          {application.domain}
+                        <Badge variant="outline" className="text-blue-600 border-blue-300 bg-blue-50 hover:bg-blue-200">
+                          {(() => {
+                            if (application.domain === "Frontend") return "Frontend Developer";
+                            if (application.domain === "Backend") return "Backend Developer";
+                            if (application.domain === "Database") return "Database Management";
+                            return application.domain;
+                          })()}
                         </Badge>
                       )}
                     </div>
@@ -540,7 +561,7 @@ export default function StudentDetailPage() {
                             size="sm"
                             variant="outline"
                             onClick={downloadResume}
-                            className="bg-green-500/10 border-green-500/20 text-green-600 hover:bg-green-500/20 flex-1"
+                            className="bg-blue-500/10 border-blue-500/20 text-blue-600 hover:bg-blue-500/20 flex-1"
                           >
                             <Download className="h-3 w-3 mr-1" />
                             Download
@@ -559,7 +580,7 @@ export default function StudentDetailPage() {
           </div>
 
           {/* Status and Actions */}
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0">
             {/* Application Status */}
             <Card className="bg-white border border-gray-200 shadow-sm">
               <CardHeader className="pb-3">
@@ -711,7 +732,7 @@ export default function StudentDetailPage() {
                     <Button
                       onClick={() => updateStatus("Selected")}
                       disabled={isLoading}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white text-sm"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm"
                     >
                       {isLoading ? "Processing..." : "✓ Accept & Notify"}
                     </Button>

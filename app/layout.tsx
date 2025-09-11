@@ -1,12 +1,11 @@
-import type { Metadata } from 'next'
-import type { ReactNode } from 'react'
-import { Toaster }  from "@/components/ui/toaster";
-import './globals.css'
+import { Toaster } from "@/components/ui/toaster";
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Internship CRM Portal',
+  description: 'Created with love for interns',
 }
 
 export default function RootLayout({
@@ -16,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children} <Toaster/> </body>
+      <body>{children} <Toaster /> </body>
     </html>
   )
 }

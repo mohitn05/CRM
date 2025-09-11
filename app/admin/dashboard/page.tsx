@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
+import type { ScriptableContext } from "chart.js"
 import { ArcElement, BarElement, CategoryScale, Chart, ChartOptions, Legend, LinearScale, Tooltip } from "chart.js"
 import { Award, CheckCircle, Clock, Download, Eye, FileText, GraduationCap, Mail, Phone, Target, TrendingUp, Users, XCircle, Zap } from "lucide-react"
 import Link from "next/link"
@@ -35,6 +36,24 @@ const sendEmailNotification = async (email: string, name: string, status: string
 export default function DashboardPage() {
   const router = useRouter()
   const [applications, setApplications] = useState<Application[]>([])
+
+  // Helper to normalize domain names
+  const normalizeDomain = (domain: string) => {
+    if (domain === "Frontend" || domain === "Frontend Developer") return "Frontend Developer";
+    if (domain === "Backend" || domain === "Backend Developer") return "Backend Developer";
+    if (domain === "Database" || domain === "Database Management") return "Database Management";
+    if (domain === "Web Developer") return "Web Developer";
+    if (domain === "Android Developer") return "Android Developer";
+    if (domain === "Full Stack Developer") return "Full Stack Developer";
+    if (domain === "UI/UX Designer") return "UI/UX Designer";
+    if (domain === "Digital Marketing") return "Digital Marketing";
+    return domain;
+  };
+
+  // Debug: Log applications state whenever it changes
+  useEffect(() => {
+    console.log('Applications loaded for dashboard:', applications);
+  }, [applications]);
   const [recentApplications, setRecentApplications] = useState<Application[]>([])
   const [selectedDomain, setSelectedDomain] = useState<string>("")
   const [domains, setDomains] = useState<string[]>([])
@@ -61,18 +80,10 @@ export default function DashboardPage() {
         .slice(0, 10)
       setRecentApplications(recent)
 
-      // Improved domain extraction: handles custom domains, trims, and preserves original casing
-      const domainMap: { [key: string]: string } = {}
-      data.forEach((app: Application) => {
-        if (app.domain && app.domain.trim()) {
-          const key = app.domain.trim().toLowerCase()
-          if (!domainMap[key]) {
-            domainMap[key] = app.domain.trim()
-          }
-        }
-      })
-      const uniqueDomains = Object.values(domainMap)
-      setDomains(uniqueDomains)
+      // Only use fixed domains
+      const fixedDomains = ["Frontend Developer", "Backend Developer", "Database Management", "Web Developer", "Android Developer", "Full Stack Developer", "UI/UX Designer", "Digital Marketing"];
+      const foundDomains = Array.from(new Set(data.map((app: Application) => app.domain).filter((d: string) => fixedDomains.includes(d)))) as string[];
+      setDomains(foundDomains)
     } catch (error) {
       toast({
         title: "Fetch Error",
@@ -144,11 +155,39 @@ export default function DashboardPage() {
     completed: applications.filter((app) => app.status === "Completed").length,
   }
 
+  // Normalize all application domains before stats
+  const normalizedApplications = applications.map(app => ({ ...app, domain: normalizeDomain(app.domain) }));
   const domainStats = {
-    Frontend: applications.filter((app) => app.domain === "Frontend").length,
-    Backend: applications.filter((app) => app.domain === "Backend").length,
-    Database: applications.filter((app) => app.domain === "Database").length,
-    Others: applications.filter((app) => app.domain === "Others").length,
+    "Frontend Developer": normalizedApplications.filter((app) => app.domain === "Frontend Developer").length,
+    "Backend Developer": normalizedApplications.filter((app) => app.domain === "Backend Developer").length,
+    "Database Management": normalizedApplications.filter((app) => app.domain === "Database Management").length,
+    "Web Developer": normalizedApplications.filter((app) => app.domain === "Web Developer").length,
+    "Android Developer": normalizedApplications.filter((app) => app.domain === "Android Developer").length,
+    "Full Stack Developer": normalizedApplications.filter((app) => app.domain === "Full Stack Developer").length,
+    "UI/UX Designer": normalizedApplications.filter((app) => app.domain === "UI/UX Designer").length,
+    "Digital Marketing": normalizedApplications.filter((app) => app.domain === "Digital Marketing").length,
+  };
+
+  // Gradient color stops for each domain
+  const pieGradients = [
+    ["#6366F1", "#A5B4FC"], // Frontend Developer: Indigo to light indigo
+    ["#06B6D4", "#67E8F9"], // Backend Developer: Cyan to light cyan
+    ["#10B981", "#6EE7B7"], // Database Management: Emerald to light green
+    ["#F59E0B", "#FDE68A"], // Web Developer: Amber to light yellow
+    ["#EF4444", "#FCA5A5"], // Android Developer: Red to light red
+    ["#8B5CF6", "#C4B5FD"], // Full Stack Developer: Purple to light purple
+    ["#EC4899", "#F9A8D4"], // UI/UX Designer: Pink to light pink
+    ["#22C55E", "#86EFAC"], // Digital Marketing: Green to light green
+  ];
+
+  // Helper to create canvas gradients for Chart.js
+  function getPieGradients(ctx: CanvasRenderingContext2D, area: { left: number; top: number; right: number; bottom: number }) {
+    return pieGradients.map(([start, end]) => {
+      const gradient = ctx.createLinearGradient(area.left, area.top, area.right, area.bottom);
+      gradient.addColorStop(0, start);
+      gradient.addColorStop(1, end);
+      return gradient;
+    });
   }
 
   const pieChartData = {
@@ -156,7 +195,14 @@ export default function DashboardPage() {
     datasets: [
       {
         data: Object.values(domainStats),
-        backgroundColor: ["#8B5CF6", "#06B6D4", "#10B981", "#F59E0B"],
+        backgroundColor: (ctx: ScriptableContext<any>) => {
+          const chart = ctx.chart;
+          const canvasCtx = chart.ctx as CanvasRenderingContext2D;
+          const chartArea = chart.chartArea;
+          if (!chartArea) return pieGradients[ctx.dataIndex][0]; // fallback for initial render
+          const gradients = getPieGradients(canvasCtx, chartArea);
+          return gradients[ctx.dataIndex];
+        },
         borderWidth: 0,
         hoverBorderWidth: 4,
         hoverBorderColor: "#ffffff",
@@ -315,7 +361,7 @@ export default function DashboardPage() {
       case "Under Review":
         return "bg-yellow-100 text-yellow-800 border-yellow-200"
       case "Selected":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-blue-100 text-blue-800 border-blue-200"
       case "Rejected":
         return "bg-red-100 text-red-800 border-red-200"
       default:
@@ -330,17 +376,18 @@ export default function DashboardPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6 p-4 lg:p-6">
+      <div className="space-y-1 p-1 w-full min-w-0" style={{ maxWidth: '100vw' }}>
         {/* Header */}
-        <div className="relative">
+        <div className="relative z-10">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-3xl blur-xl"></div>
-          <div className="relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 lg:p-8">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-4 sm:p-6 lg:p-8 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 min-w-0">
               <div>
                 <h1 className="text-3xl lg:text-4xl font-black text-black mb-2">Analytics Dashboard</h1>
                 <p className="text-gray-700 text-base lg:text-lg">Real-time insights into your internship program</p>
               </div>
               <div className="flex items-center gap-4">
+                {/* Use adminId=1 or similar for admin notifications */}
                 <div className="text-right">
                   <div className="text-2xl font-bold text-black">{stats.total}</div>
                   <div className="text-gray-700 text-sm">Total Applications</div>
@@ -354,10 +401,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 min-w-0 overflow-x-auto z-10 w-full" style={{ maxWidth: '100vw' }}>
           {statCards.map((stat, index) => (
             <Card
-              key={index}
+              key={stat.title + index}
               className="group relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200/50 hover:border-gray-300/60 transition-all duration-500 hover:scale-105"
             >
               <div
@@ -378,7 +425,7 @@ export default function DashboardPage() {
                   <div className="text-2xl lg:text-3xl font-black text-black group-hover:scale-110 transition-transform duration-300">
                     {stat.value}
                   </div>
-                  <div className="flex items-center gap-1 text-green-600 text-sm font-semibold">
+                  <div className="flex items-center gap-1 text-blue-600 text-sm font-semibold">
                     <TrendingUp className="h-3 w-3" />
                     {stat.change}
                   </div>
@@ -389,11 +436,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Applications with Quick Actions */}
-        <Card className="bg-white/80 backdrop-blur-xl border border-gray-200/50 shadow-2xl">
+        <Card className="bg-white/80 backdrop-blur-xl border border-gray-200/50 shadow-2xl overflow-x-auto z-10">
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl">
                   <Users className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -406,12 +453,12 @@ export default function DashboardPage() {
               <div className="flex gap-2">
                 <Button
                   onClick={loadApplications}
-                  className="btn btn-outline bg-white/50 border-gray-200/50 text-black hover:bg-gray-100/50"
+                  className="btn btn-outline bg-white/50 border-gray-200/50 text-black hover:bg-blue-50"
                 >
                   Refresh
                 </Button>
                 <Link href="/admin/students">
-                  <Button className="btn btn-outline bg-white/50 border-gray-200/50 text-black hover:bg-gray-100/50">
+                  <Button className="btn btn-outline bg-white/50 border-gray-200/50 text-black hover:bg-blue-50">
                     View All
                   </Button>
                 </Link>
@@ -426,7 +473,7 @@ export default function DashboardPage() {
                   <p className="text-sm">Students can apply through the application form.</p>
                   <Button
                     onClick={loadApplications}
-                    className="btn btn-outline mt-4 bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                    className="btn btn-outline mt-4 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
                   >
                     Refresh Data
                   </Button>
@@ -444,7 +491,12 @@ export default function DashboardPage() {
                           <div className="flex flex-wrap gap-2">
                             <Badge className={getStatusColor(app.status)}>{app.status}</Badge>
                             <Badge variant="outline" className="text-gray-700 border-gray-300">
-                              {app.domain}
+                              {(() => {
+                                if (app.domain === "Frontend") return "Frontend Developer";
+                                if (app.domain === "Backend") return "Backend Developer";
+                                if (app.domain === "Database") return "Database Management";
+                                return app.domain;
+                              })()}
                             </Badge>
                           </div>
                         </div>
@@ -484,7 +536,7 @@ export default function DashboardPage() {
                             </Button>
                             <Button
                               onClick={() => updateApplicationStatus(app.id, "Selected")}
-                              className="bg-green-500 hover:bg-green-600 text-white text-xs"
+                              className="bg-blue-500 hover:bg-blue-600 text-white text-xs"
                             >
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Accept
@@ -517,19 +569,28 @@ export default function DashboardPage() {
         </Card>
 
         {/* Domain Distribution Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 min-w-0 overflow-x-auto z-10 w-full" style={{ maxWidth: '100vw' }}>
           {Object.entries(domainStats).map(([domain, count], index) => {
+            // 8 unique gradients for 8 domains
             const gradients = [
-              "from-purple-500 to-pink-500",
-              "from-blue-500 to-cyan-500",
-              "from-green-500 to-emerald-500",
-              "from-orange-500 to-red-500",
+              "from-purple-500 to-pink-500",      // Frontend Developer
+              "from-blue-500 to-cyan-500",        // Backend Developer
+              "from-green-500 to-emerald-400",    // Database Management
+              "from-orange-500 to-yellow-300",    // Web Developer
+              "from-red-500 to-pink-400",         // Android Developer
+              "from-violet-500 to-purple-300",    // Full Stack Developer
+              "from-pink-500 to-fuchsia-400",     // UI/UX Designer
+              "from-green-600 to-lime-400",       // Digital Marketing
             ];
             const bgGradients = [
               "from-purple-500/10 to-pink-500/10",
               "from-blue-500/10 to-cyan-500/10",
-              "from-green-500/10 to-emerald-500/10",
-              "from-orange-500/10 to-red-500/10",
+              "from-green-500/10 to-emerald-400/10",
+              "from-orange-500/10 to-yellow-300/10",
+              "from-red-500/10 to-pink-400/10",
+              "from-violet-500/10 to-purple-300/10",
+              "from-pink-500/10 to-fuchsia-400/10",
+              "from-green-600/10 to-lime-400/10",
             ];
             return (
               <Card
@@ -541,7 +602,12 @@ export default function DashboardPage() {
                 ></div>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
                   <CardTitle className="text-sm font-medium text-black group-hover:text-black transition-colors">
-                    {domain}
+                    {(() => {
+                      if (domain === "Frontend") return "Frontend Developer";
+                      if (domain === "Backend") return "Backend Developer";
+                      if (domain === "Database") return "Database Management";
+                      return domain;
+                    })()}
                   </CardTitle>
                   <div
                     className={`p-2 bg-gradient-to-br ${gradients[index]} rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
@@ -563,7 +629,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 min-w-0 overflow-x-auto z-0 w-full" style={{ maxWidth: '100vw' }}>
           <Card className="bg-white/80 backdrop-blur-xl border border-gray-200/50 shadow-2xl">
             <CardHeader>
               <div className="flex items-center gap-3">
@@ -580,7 +646,14 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="h-64 lg:h-80">
-                <Pie data={pieChartData} options={pieChartOptions} />
+                {Object.values(domainStats).some((count) => count > 0) ? (
+                  <Pie data={pieChartData} options={pieChartOptions} />
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                    <span className="text-lg font-semibold">No domain data available</span>
+                    <span className="text-sm">No applications found for any domain.</span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

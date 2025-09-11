@@ -154,12 +154,12 @@ export default function InternLoginPage() {
 
   if (showForgotPassword) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
         {/* Header */}
         <header className="relative z-20 flex items-center justify-between p-6 bg-white/10 backdrop-blur-md border-b border-white/20">
           <button
             onClick={() => setShowForgotPassword(false)}
-            className="inline-flex items-center gap-2 text-emerald-700 bg-white/80 hover:bg-white hover:text-emerald-800 transition-all duration-300 font-medium px-6 py-3 rounded-full shadow-lg hover:shadow-xl backdrop-blur-sm border border-emerald-200/50"
+            className="inline-flex items-center gap-2 text-indigo-700 bg-white/80 hover:bg-white hover:text-purple-800 transition-all duration-300 font-medium px-6 py-3 rounded-full shadow-lg hover:shadow-xl backdrop-blur-sm border border-indigo-200/50"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Login
@@ -167,8 +167,8 @@ export default function InternLoginPage() {
         </header>
 
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -left-40 w-80 h-80 bg-emerald-200/20 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-green-200/15 rounded-full blur-3xl"></div>
+          <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-200/15 rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative z-10 container mx-auto px-4 py-8 flex items-center justify-center min-h-[calc(100vh-100px)]">
@@ -197,7 +197,7 @@ export default function InternLoginPage() {
                         value={forgotPasswordData.email}
                         onChange={(e) => setForgotPasswordData((prev) => ({ ...prev, email: e.target.value }))}
                         required
-                        className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-emerald-400 focus:ring-emerald-400/20 h-12"
+                        className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-indigo-400 focus:ring-indigo-400/20 h-12"
                       />
                     </div>
                   )}
@@ -215,7 +215,7 @@ export default function InternLoginPage() {
                         value={forgotPasswordData.otp}
                         onChange={(e) => setForgotPasswordData((prev) => ({ ...prev, otp: e.target.value }))}
                         required
-                        className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-emerald-400 focus:ring-emerald-400/20 h-12"
+                        className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-indigo-400 focus:ring-indigo-400/20 h-12"
                       />
                       <p className="text-sm text-gray-600">Check your email for the code.</p>
                     </div>
@@ -233,7 +233,7 @@ export default function InternLoginPage() {
                           type="password"
                           placeholder="Enter new password"
                           required
-                          className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-emerald-400 focus:ring-emerald-400/20 h-12"
+                          className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-indigo-400 focus:ring-indigo-400/20 h-12"
                         />
                       </div>
                       <div className="space-y-2">
@@ -249,7 +249,7 @@ export default function InternLoginPage() {
                           type="password"
                           placeholder="Confirm new password"
                           required
-                          className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-emerald-400 focus:ring-emerald-400/20 h-12"
+                          className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-indigo-400 focus:ring-indigo-400/20 h-12"
                         />
                       </div>
                     </>
@@ -258,7 +258,7 @@ export default function InternLoginPage() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold py-3 h-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 h-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     {isLoading
                       ? "Processing..."
@@ -278,12 +278,12 @@ export default function InternLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
       {/* Header */}
       <header className="relative z-20 flex items-center justify-between p-6 bg-white/10 backdrop-blur-md border-b border-white/20">
         <Link
           href="/"
-          className="flex items-center gap-2 text-white bg-emerald-600 hover:bg-emerald-700 transition-colors font-medium px-6 py-2 rounded-full"
+          className="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition-colors font-medium px-6 py-2 rounded-full"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
@@ -291,15 +291,15 @@ export default function InternLoginPage() {
 
         <div className="flex items-center gap-4">
           <Link href="/apply">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6">Register</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6">Register</Button>
           </Link>
         </div>
       </header>
 
       {/* Background Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-emerald-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-green-200/15 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-200/15 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 flex items-center justify-center min-h-[calc(100vh-100px)]">
@@ -311,7 +311,7 @@ export default function InternLoginPage() {
 
           <Card className="bg-white/20 backdrop-blur-md border border-white/30 shadow-xl">
             <CardHeader className="text-center pb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
                 <User className="w-8 h-8 text-white" />
               </div>
               <CardTitle className="text-2xl font-bold text-gray-800">Intern Login</CardTitle>
@@ -330,7 +330,7 @@ export default function InternLoginPage() {
                     value={credentials.emailOrPhone}
                     onChange={(e) => setCredentials((prev) => ({ ...prev, emailOrPhone: e.target.value }))}
                     required
-                    className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-emerald-400 focus:ring-emerald-400/20 h-12"
+                    className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-blue-400 focus:ring-blue-400/20 h-12"
                   />
                 </div>
 
@@ -347,7 +347,7 @@ export default function InternLoginPage() {
                       value={credentials.password}
                       onChange={(e) => setCredentials((prev) => ({ ...prev, password: e.target.value }))}
                       required
-                      className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-emerald-400 focus:ring-emerald-400/20 h-12 pr-12"
+                      className="bg-white/50 backdrop-blur-sm border-white/40 focus:border-blue-400 focus:ring-blue-400/20 h-12 pr-12"
                     />
                     <button
                       type="button"
@@ -363,7 +363,7 @@ export default function InternLoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowForgotPassword(true)}
-                    className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                   >
                     Forgot Password?
                   </button>
@@ -372,7 +372,7 @@ export default function InternLoginPage() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold py-3 h-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 h-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   {isLoading ? "Signing In..." : "Sign In"}
                 </Button>
@@ -380,7 +380,7 @@ export default function InternLoginPage() {
                 <div className="text-center">
                   <p className="text-gray-600 text-sm">
                     Don't have an account?{" "}
-                    <Link href="/apply" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                    <Link href="/apply" className="text-blue-600 hover:text-blue-700 font-medium">
                       Register here
                     </Link>
                   </p>

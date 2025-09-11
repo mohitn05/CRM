@@ -1,32 +1,33 @@
 "use client"
+import { getDomainOptions } from "@/lib/domains"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { NotificationBell } from "@/components/notification-bell"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
-import { NotificationBell } from "@/components/notification-bell"
 import {
-  User,
-  Mail,
-  Phone,
   Building2,
   Calendar,
-  Clock,
   CheckCircle,
-  XCircle,
+  Clock,
   Edit,
-  Save,
-  X,
-  LogOut,
   FileText,
+  LogOut,
+  Mail,
+  Phone,
+  Save,
   Sparkles,
   Trash2,
+  User,
+  X,
+  XCircle,
 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 interface InternAccount {
   id: number
@@ -40,19 +41,14 @@ interface InternAccount {
 }
 
 const domainDisplayNames: { [key: string]: string } = {
-  Frontend: "Frontend Development",
-  Backend: "Backend Development",
-  Database: "Database Management",
-  Others: "Others",
-  Technology: "Technology",
-  Marketing: "Marketing",
-  Design: "Design",
-  Finance: "Finance",
-  Operations: "Operations",
-  HR: "Human Resources",
+  "Frontend Developer": "Frontend Developer",
+  "Backend Developer": "Backend Developer",
+  "Database Management": "Database Management",
+  Others: "Others"
 }
 
 export default function InternDashboard() {
+  const [domainOptions, setDomainOptions] = useState(getDomainOptions())
   const [internData, setInternData] = useState<InternAccount | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState<InternAccount | null>(null)
@@ -106,8 +102,21 @@ export default function InternDashboard() {
   }, [router])
 
   const handleSave = async () => {
-    if (!editData || !internData) return
-    setIsLoading(true)
+    if (!editData || !internData) return;
+
+    // Custom domain logic removed
+    if (editData.domain === "Others") {
+      editData.domain = "Others"; // Set to default or handle as needed
+    }
+
+    setIsLoading(true);
+
+    // Detect changed fields
+    const changedFields: string[] = [];
+    if (editData.name !== internData.name) changedFields.push("name");
+    if (editData.email !== internData.email) changedFields.push("email");
+    if (editData.phone !== internData.phone) changedFields.push("phone");
+    if (editData.domain !== internData.domain) changedFields.push("domain");
 
     try {
       const response = await fetch(`http://localhost:5000/api/students/${editData.id}`, {
@@ -120,12 +129,11 @@ export default function InternDashboard() {
           email: editData.email,
           phone: editData.phone,
           domain: editData.domain,
-          // Don't send status - intern can't change their own status
         }),
-      })
+      });
 
       if (response.ok) {
-        const result = await response.json()
+        const result = await response.json();
         const updatedInternData = {
           id: result.student.id,
           name: result.student.name,
@@ -133,15 +141,56 @@ export default function InternDashboard() {
           phone: result.student.phone,
           domain: result.student.domain,
           applicationId: result.student.id,
-          status: result.student.status, // Keep the status from server
+          status: result.student.status,
           dateRegistered: result.student.dateApplied
-        }
+        };
 
-        setInternData(updatedInternData)
-        setEditData(updatedInternData)
-        localStorage.setItem("internAuth", JSON.stringify(updatedInternData))
+        setInternData(updatedInternData);
+        setEditData(updatedInternData);
+        localStorage.setItem("internAuth", JSON.stringify(updatedInternData));
 
         setIsEditing(false)
+
+        // Notify admin of changes
+        if (changedFields.length > 0) {
+          try {
+            let details = [];
+            if (changedFields.includes("name")) {
+              details.push(`Name changed to: ${editData.name}`);
+            }
+            if (changedFields.includes("email")) {
+              details.push(`Email changed to: ${editData.email}`);
+            }
+            if (changedFields.includes("phone")) {
+              details.push(`Phone changed to: ${editData.phone}`);
+            }
+            if (changedFields.includes("domain")) {
+              details.push(`Domain changed from ${internData.domain} to ${editData.domain}`);
+            }
+            const notifyRes = await fetch("http://localhost:5000/api/admin/1/notifications", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                title: `Intern Profile Updated`,
+                message: `Name: ${editData.name}\nEmail: ${editData.email}\n${details.join("\n")}`,
+                type: "profile_edit"
+              })
+            });
+            if (!notifyRes.ok) {
+              toast({
+                title: "Notification Failed",
+                description: "Failed to notify admin. Server error.",
+                variant: "destructive",
+              });
+            }
+          } catch (err) {
+            toast({
+              title: "Notification Failed",
+              description: "Failed to connect to server for admin notification.",
+              variant: "destructive",
+            });
+          }
+        }
 
         toast({
           title: "Profile Updated! ✅",
@@ -193,6 +242,32 @@ export default function InternDashboard() {
       })
 
       if (response.ok) {
+        // Notify admin of deletion
+        try {
+          const notifyRes = await fetch("http://localhost:5000/api/admin/1/notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: `Intern Application Deleted`,
+              message: `Name: ${internData.name}\nEmail: ${internData.email}\nApplication deleted by intern`,
+              type: "profile_delete"
+            })
+          });
+          if (!notifyRes.ok) {
+            toast({
+              title: "Notification Failed",
+              description: "Failed to notify admin. Server error.",
+              variant: "destructive",
+            });
+          }
+        } catch (err) {
+          toast({
+            title: "Notification Failed",
+            description: "Failed to connect to server for admin notification.",
+            variant: "destructive",
+          });
+        }
+
         localStorage.removeItem("internAuth")
         toast({
           title: "Application Deleted ✅",
@@ -272,7 +347,7 @@ export default function InternDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your dashboard...</p>
         </div>
       </div>
@@ -280,9 +355,9 @@ export default function InternDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 sm:p-6 md:p-8 w-full min-w-0">
       {/* Header */}
-      <header className="flex items-center justify-between mb-8">
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4 flex-wrap min-w-0">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Welcome, {internData.name}!</h1>
           <p className="text-gray-600">Interns Dashboard</p>
@@ -303,27 +378,41 @@ export default function InternDashboard() {
       </header>
 
       {/* Grid Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 min-w-0 overflow-x-auto z-10">
         {/* Profile Card */}
-        <Card className="lg:col-span-2 p-6 shadow-sm bg-white border border-gray-200">
-          <CardHeader className="p-0 mb-6">
+        <Card className="lg:col-span-2 p-4 sm:p-6 shadow-sm bg-white border border-gray-200 min-w-0">
+          <CardHeader className="p-0 mb-4 sm:mb-6">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+              <CardTitle className="text-xl sm:text-2xl font-semibold text-gray-900 flex items-center gap-2">
                 <User className="w-6 h-6 text-gray-700" />
                 Profile Information
               </CardTitle>
               {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)} className="btn btn-muted text-blue-600">
+                <Button
+                  onClick={() => {
+                    if (internData.status === "Applied") {
+                      setIsEditing(true);
+                    } else {
+                      toast({
+                        title: "🚫 Edit Unavailable",
+                        description: "You cannot edit your information right now. If you need to update your details, please contact support or email us at mohitnarnaware.ams@gmail.com.",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                  className={`btn btn-muted text-blue-600${internData.status !== "Applied" ? " opacity-50 cursor-not-allowed" : ""}`}
+                  tabIndex={0}
+                >
                   <Edit className="w-4 h-4 mr-2" />
                   Edit
                 </Button>
               ) : (
                 <div className="flex gap-2">
-                  <Button onClick={() => { setIsEditing(false); setEditData(internData) }} className = "btn btn-outline">
+                  <Button onClick={() => { setIsEditing(false); setEditData(internData) }} className="btn btn-outline">
                     <X className="w-4 h-4 mr-2" />
                     Cancel
                   </Button>
-                  <Button onClick={handleSave} disabled={isLoading} className="btn btn-primary bg-emerald-600 hover:bg-emerald-700">
+                  <Button onClick={handleSave} disabled={isLoading || internData.status !== "Applied"} className="btn btn-primary bg-blue-600 hover:bg-blue-700">
                     <Save className="w-4 h-4 mr-2" />
                     {isLoading ? "Saving..." : "Save"}
                   </Button>
@@ -333,13 +422,13 @@ export default function InternDashboard() {
           </CardHeader>
 
           <CardContent className="p-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 min-w-0 overflow-x-auto">
               {[
                 { label: "Full Name", value: internData.name, icon: <User />, key: "name" },
                 { label: "Email Address", value: internData.email, icon: <Mail />, key: "email" },
                 { label: "Phone Number", value: internData.phone, icon: <Phone />, key: "phone" },
               ].map(({ label, value, icon, key }) => (
-                <div key={key} className="bg-gray-100 p-5 rounded-lg border border-gray-200">
+                <div key={key} className="bg-gray-100 p-3 sm:p-5 rounded-lg border border-gray-200">
                   <Label className="flex items-center gap-2 text-gray-700 mb-2 text-base font-medium">{icon}<span>{label}</span></Label>
                   {isEditing ? (
                     <Input
@@ -348,6 +437,7 @@ export default function InternDashboard() {
                       onChange={(e) => setEditData(prev => prev ? { ...prev, [key]: e.target.value } : null)}
                       maxLength={key === "phone" ? 10 : undefined}
                       className="text-base"
+                      disabled={internData.status !== "Applied"}
                     />
                   ) : (
                     <p className="text-gray-900 font-semibold text-base">{value}</p>
@@ -361,18 +451,32 @@ export default function InternDashboard() {
                   <Building2 className="w-4 h-4" /> Domain
                 </Label>
                 {isEditing ? (
-                  <Select value={editData?.domain || ""} onValueChange={(v) => setEditData((p) => p ? { ...p, domain: v } : null)}>
-                    <SelectTrigger className="text-base">
+                  <Select
+                    value={editData?.domain || ""}
+                    onValueChange={(value) => {
+                      setEditData((p) => p ? { ...p, domain: value } : null);
+                      setDomainOptions(getDomainOptions());
+                    }}
+                    disabled={internData.status !== "Applied"}
+                  >
+                    <SelectTrigger className="bg-white text-black border-gray-300 text-base">
                       <SelectValue placeholder="Select Domain" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {Object.keys(domainDisplayNames).map((val) => (
-                        <SelectItem key={val} value={val}>{domainDisplayNames[val]}</SelectItem>
+                    <SelectContent className="bg-white text-black border-gray-300">
+                      {domainOptions.map((d: { value: string; label: string }) => (
+                        <SelectItem key={d.value} value={d.value} className="bg-white text-black hover:bg-gray-100">{d.label.replace(/^[^ ]+ /, "")}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 ) : (
-                  <Badge className="text-base px-3 py-1">{domainDisplayNames[internData.domain] || internData.domain}</Badge>
+                  <Badge className="text-base px-3 py-1">
+                    {(() => {
+                      const domain = editData?.domain || internData.domain;
+                      if (domain === "Frontend") return "Frontend Developer";
+                      if (domain === "Backend") return "Backend Developer";
+                      return domain;
+                    })()}
+                  </Badge>
                 )}
               </div>
 
@@ -382,9 +486,9 @@ export default function InternDashboard() {
                   <Calendar className="w-4 h-4" /> Registration Date
                 </Label>
                 <p className="text-gray-900 font-semibold text-base">
-                  {internData.dateRegistered && !isNaN (new Date(internData.dateRegistered).getTime())
-                  ? new Date(internData.dateRegistered).toLocaleDateString()
-                  : "Not Available"}
+                  {internData.dateRegistered && !isNaN(new Date(internData.dateRegistered).getTime())
+                    ? new Date(internData.dateRegistered).toLocaleDateString()
+                    : "Not Available"}
                 </p>
               </div>
             </div>
@@ -392,7 +496,7 @@ export default function InternDashboard() {
         </Card>
 
         {/* Right Column */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 min-w-0">
           {/* Status */}
           <Card className="p-6 shadow-sm bg-white border border-gray-200">
             <CardHeader className="p-0 mb-4">
@@ -411,7 +515,7 @@ export default function InternDashboard() {
                 {internData.status === "Applied" && (
                   <div className="space-y-2">
                     <div className="flex justify-center">
-                      <div className="text-5xl animate-pulse" style={{animationDuration: '2s'}}>
+                      <div className="text-5xl animate-pulse" style={{ animationDuration: '2s' }}>
                         📝
                       </div>
                     </div>
@@ -429,7 +533,7 @@ export default function InternDashboard() {
                 {internData.status === "Selected" && (
                   <div className="space-y-2">
                     <div className="flex justify-center">
-                      <div className="text-5xl animate-bounce" style={{animationDuration: '1s'}}>
+                      <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
                         😊
                       </div>
                     </div>
@@ -447,7 +551,7 @@ export default function InternDashboard() {
                 {internData.status === "Rejected" && (
                   <div className="space-y-2">
                     <div className="flex justify-center">
-                      <div className="text-5xl animate-bounce" style={{animationDuration: '1s'}}>
+                      <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
                         😢
                       </div>
                     </div>
@@ -465,7 +569,7 @@ export default function InternDashboard() {
                 {(internData.status === "In Review" || internData.status === "Under Review") && (
                   <div className="space-y-2">
                     <div className="flex justify-center">
-                      <div className="text-5xl animate-spin" style={{animationDuration: '2s'}}>
+                      <div className="text-5xl animate-spin" style={{ animationDuration: '2s' }}>
                         ⏳
                       </div>
                     </div>
@@ -482,7 +586,7 @@ export default function InternDashboard() {
                 {internData.status === "In Training" && (
                   <div className="space-y-2">
                     <div className="flex justify-center">
-                      <div className="text-5xl animate-bounce" style={{animationDuration: '1.5s'}}>
+                      <div className="text-5xl animate-bounce" style={{ animationDuration: '1.5s' }}>
                         🎓
                       </div>
                     </div>
@@ -500,13 +604,13 @@ export default function InternDashboard() {
                 {internData.status === "Completed" && (
                   <div className="space-y-2">
                     <div className="flex justify-center">
-                      <div className="text-5xl animate-bounce" style={{animationDuration: '1s'}}>
+                      <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
                         🏆
                       </div>
                     </div>
                     <div className="text-center space-y-1">
                       <p className="text-sm text-gray-600">Congratulations!</p>
-                      <div className="flex items-center justify-center text-green-600">
+                      <div className="flex items-center justify-center text-blue-600">
                         <span className="text-sm font-medium">Internship completed successfully</span>
                       </div>
                       <p className="text-xs text-gray-500">Well done!</p>
@@ -532,19 +636,19 @@ export default function InternDashboard() {
             </CardHeader>
             <CardContent className="p-0 space-y-2">
               <Card className="p-4 bg-gray-100 border border-gray-200 hover:bg-gray-200 transition-colors cursor-pointer">
-                <div className="flex items-center gap-2" onClick={() => window.open("mailto:contact@internshipcrm.com")}>
+                <div className="flex items-center gap-2" onClick={() => window.open("https://mail.google.com/mail/u/0/#inbox?compose=DmwnWtDsVNbMNKTNwzTxmkpwGdhvfstmFcPTmJdfNPCsQjKpWZStJStKgcJrcFvsfVQcJBfwjhlq")}>
                   <Mail className="w-5 h-5 text-blue-600" />
                   <span className="text-base font-medium text-gray-700">Contact Support</span>
                 </div>
               </Card>
-              
+
               <Card className="p-4 bg-gray-100 border border-gray-200 hover:bg-gray-200 transition-colors cursor-pointer">
-                <div className="flex items-center gap-2" onClick={() => window.open("tel:+15551234567")}>
-                  <Phone className="w-5 h-5 text-green-600" />
-                  <span className="text-base font-medium text-gray-700">Call Support</span>
+                <div className="flex items-center gap-2" onClick={() => window.open("tel:9359463350")}>
+                  <Phone className="w-5 h-5 text-blue-600" />
+                  <span className="text-base font-medium text-gray-700">Call Support :- +91 9359463350</span>
                 </div>
               </Card>
-              
+
               <Card className="p-4 bg-red-50 border border-red-200 hover:bg-red-100 transition-colors cursor-pointer">
                 <div className="flex items-center gap-2" onClick={deleteApplication}>
                   <Trash2 className="w-5 h-5 text-red-600" />

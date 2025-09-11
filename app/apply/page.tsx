@@ -1,5 +1,6 @@
 "use client"
 
+import { getDomainOptions } from "@/lib/domains"
 import type React from "react"
 
 import { Button } from "@/components/ui/button"
@@ -34,7 +35,6 @@ export default function ApplyPage() {
     email: string
     phone: string
     domain: string
-    customDomain: string
     password: string
     confirmPassword: string
     resume: File | null
@@ -44,11 +44,11 @@ export default function ApplyPage() {
     email: "",
     phone: "",
     domain: "",
-    customDomain: "",
     password: "",
     confirmPassword: "",
     resume: null as File | null,
   })
+  const [domainOptions, setDomainOptions] = useState(getDomainOptions())
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -56,6 +56,16 @@ export default function ApplyPage() {
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    // Validate full name: only letters and spaces allowed
+    if (!/^[A-Za-z ]+$/.test(formData.name.trim())) {
+      toast({
+        title: "Invalid Name",
+        description: "Full name should only contain letters and spaces. No digits or special characters allowed.",
+        variant: "destructive",
+      })
+      return
+    }
     e.preventDefault()
 
     // Temporarily disable frontend email validation
@@ -102,16 +112,6 @@ export default function ApplyPage() {
       return
     }
 
-    // Validation for custom domain
-    if (formData.domain === "Others" && !formData.customDomain.trim()) {
-      toast({
-        title: "Custom Domain Required",
-        description: "Please enter your custom domain.",
-        variant: "destructive",
-      })
-      setIsLoading(false)
-      return
-    }
 
     setIsLoading(true)
 
@@ -121,7 +121,7 @@ export default function ApplyPage() {
     formpayload.append("email", formData.email)
     formpayload.append("phone", formData.phone)
     // Send custom domain if "Others" is selected, otherwise send the selected domain
-    formpayload.append("domain", formData.domain === "Others" ? formData.customDomain : formData.domain)
+    formpayload.append("domain", formData.domain)
     formpayload.append("password", formData.password)
     formpayload.append("resume", formData.resume!)
 
@@ -164,9 +164,11 @@ export default function ApplyPage() {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
-      // Clear custom domain if switching away from "Others"
       ...(field === "domain" && value !== "Others" ? { customDomain: "" } : {})
     }))
+    if (field === "domain" && value !== "Others") {
+      setDomainOptions(getDomainOptions())
+    }
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -186,7 +188,7 @@ export default function ApplyPage() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
         {/* Animated background */}
         <div className="absolute inset-0 opacity-20">
           <div
@@ -202,7 +204,7 @@ export default function ApplyPage() {
           <CardContent className="pt-12 text-center relative">
             {/* Success animation */}
             <div className="relative mb-8">
-              <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-full mx-auto flex items-center justify-center shadow-2xl animate-bounce">
+              <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full mx-auto flex items-center justify-center shadow-2xl animate-bounce">
                 <CheckCircle className="h-12 w-12 text-white" />
               </div>
               <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse">
@@ -214,14 +216,14 @@ export default function ApplyPage() {
             <p className="text-gray-700 mb-8 text-lg leading-relaxed">
               🎉 Congratulations! Your application has been successfully submitted.
               <br />
-              <span className="text-emerald-600">We'll review it and get back to you within 48 hours.</span>
+              <span className="text-blue-600">We'll review it and get back to you within 48 hours.</span>
             </p>
 
             <div className="bg-white/20 backdrop-blur-sm border border-white/20 rounded-2xl p-6 mb-8">
               <h3 className="text-gray-800 font-semibold mb-3">What happens next?</h3>
               <div className="space-y-2 text-gray-700 text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                   <span>Application review (24-48 hours)</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -237,7 +239,7 @@ export default function ApplyPage() {
 
             <div className="space-y-3">
               <Link href="/">
-                <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-black-800 font-semibold py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-black-800 font-semibold py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
                   Back to Home
                 </Button>
               </Link>
@@ -257,12 +259,12 @@ export default function ApplyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-mint-50 to-green-50 relative overflow-hidden page-transition">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden page-transition w-full min-w-0">
       {/* Header */}
-      <header className="relative z-20 flex items-center justify-between p-6 bg-white/10 backdrop-blur-md border-b border-white/20">
+      <header className="relative z-20 flex items-center justify-between p-6 bg-white/10 backdrop-blur-md border-b border-white/20 flex-wrap min-w-0">
         <Link
           href="/"
-          className="flex items-center gap-2 text-white bg-emerald-600 hover:bg-emerald-700 transition-colors font-medium px-6 py-2 rounded-full"
+          className="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition-colors font-medium px-6 py-2 rounded-full"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
@@ -274,7 +276,7 @@ export default function ApplyPage() {
 
         <div className="flex items-center gap-4">
           <Link href="/intern/login">
-            <Button variant="outline" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6">
+            <Button variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6">
               Login
             </Button>
           </Link>
@@ -283,14 +285,14 @@ export default function ApplyPage() {
 
       {/* Background Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-emerald-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-green-200/15 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-200/15 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 container mx-auto max-w-4xl py-8 px-4">
+      <div className="relative z-10 container mx-auto max-w-4xl py-8 px-4 min-w-0 overflow-x-auto">
         {/* Welcome Section */}
         <div className="text-center mb-12">
-          <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-xl">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-xl">
             <GraduationCap className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-5xl font-bold text-gray-800 mb-4">Ready to Start Your Journey?</h2>
@@ -300,7 +302,7 @@ export default function ApplyPage() {
         </div>
 
         {/* Application Form */}
-        <Card className="bg-white/30 backdrop-blur-2xl border border-white/30 shadow-2xl">
+        <Card className="bg-white/30 backdrop-blur-2xl border border-white/30 shadow-2xl min-w-0">
           <CardHeader className="text-center pb-8">
             <CardTitle className="text-3xl font-bold text-gray-800 mb-2">Join Our Internship Program</CardTitle>
             <CardDescription className="text-gray-600 text-lg">
@@ -309,10 +311,10 @@ export default function ApplyPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className={cn("space-y-8", isLoading && "opacity-50 pointer-events-none")}>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-2 gap-6 min-w-0 overflow-x-auto">
                 <div className="space-y-3">
                   <Label htmlFor="name" className="text-gray-700 font-semibold flex items-center gap-2">
-                    <User className="h-4 w-4 text-emerald-600" />
+                    <User className="h-4 w-4 text-blue-600" />
                     Full Name *
                   </Label>
                   <Input
@@ -322,7 +324,7 @@ export default function ApplyPage() {
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     required
-                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-emerald-400 focus:ring-emerald-400/20 h-12 rounded-xl"
+                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-12 rounded-xl"
                   />
                 </div>
 
@@ -344,7 +346,7 @@ export default function ApplyPage() {
 
                 <div className="space-y-3">
                   <Label htmlFor="phone" className="text-gray-700 font-semibold flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-green-600" />
+                    <Phone className="h-4 w-4 text-blue-600" />
                     Phone Number *
                   </Label>
                   <Input
@@ -355,7 +357,7 @@ export default function ApplyPage() {
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     maxLength={10}
                     required
-                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-green-400 focus:ring-green-400/20 h-12 rounded-xl"
+                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-12 rounded-xl"
                   />
                 </div>
 
@@ -369,14 +371,13 @@ export default function ApplyPage() {
                     onValueChange={(value) => handleInputChange("domain", value)}
                     required
                   >
-                    <SelectTrigger className="bg-white/10 border-emerald-500/20 text-gray-800 h-12 rounded-xl">
+                    <SelectTrigger className="bg-white/10 border-blue-500/20 text-gray-800 h-12 rounded-xl">
                       <SelectValue placeholder="Select your domain" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-grey-500">
-                      <SelectItem value="Frontend">🎨 Frontend Development</SelectItem>
-                      <SelectItem value="Backend">⚙ Backend Development</SelectItem>
-                      <SelectItem value="Database">🗄 Database Management</SelectItem>
-                      <SelectItem value="Others">🚀 Others</SelectItem>
+                      {domainOptions.map((d: { value: string; label: string }) => (
+                        <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
 
@@ -446,7 +447,7 @@ export default function ApplyPage() {
                     accept=".pdf,.doc,.docx"
                     onChange={handleFileChange}
                     required
-                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 file:bg-gradient-to-r file:from-emerald-500 file:to-green-500 file:text-white file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 focus:border-cyan-400 focus:ring-cyan-400/20 h-12 rounded-xl"
+                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 file:bg-gradient-to-r file:from-blue-500 file:to-indigo-500 file:text-white file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 focus:border-indigo-400 focus:ring-indigo-400/20 h-12 rounded-xl"
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <Upload className="h-5 w-5 text-cyan-600" />
@@ -464,7 +465,7 @@ export default function ApplyPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold py-6 text-xl rounded-2xl shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 group relative overflow-hidden"
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-6 text-xl rounded-2xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 group relative overflow-hidden"
                 disabled={isLoading}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
@@ -484,7 +485,7 @@ export default function ApplyPage() {
               <div className="text-center">
                 <p className="text-gray-600 text-sm">
                   Already have an account?{" "}
-                  <Link href="/intern/login" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                  <Link href="/intern/login" className="text-blue-600 hover:text-indigo-700 font-medium">
                     Login here
                   </Link>
                 </p>

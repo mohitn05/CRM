@@ -83,7 +83,8 @@ def reset_password():
     student = StudentApplication.query.filter_by(email=email).first()
     if not student:
         return jsonify({"message": "No account found"}), 404
-    student.password = new_password  # Should hash in production
+    from werkzeug.security import generate_password_hash
+    student.password = generate_password_hash(new_password)  # Hash password before saving
     db.session.delete(req)
     db.session.commit()
     return jsonify({"message": "Password reset successful"}), 200

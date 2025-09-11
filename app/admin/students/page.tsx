@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/hooks/use-toast"
-import { Download, Eye, Search } from "lucide-react"
+import { Download, Search } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -261,7 +261,7 @@ export default function StudentsPage() {
       case "In Review":
         return "bg-yellow-100 text-yellow-800"
       case "Selected":
-        return "bg-green-100 text-green-800"
+        return "bg-blue-100 text-blue-800"
       case "Rejected":
         return "bg-red-100 text-red-800"
       case "In Training":
@@ -300,187 +300,168 @@ export default function StudentsPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6 p-4 lg:p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="w-full min-w-0 md:pl-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
           <div>
             <h1 className="text-3xl text-black font-bold">
               Student Applications
             </h1>
             <p className="text-gray-600">Manage and track internship applications</p>
           </div>
-          <Button onClick={exportToCSV} className="bg-green-600 hover:bg-green-700 text-white">
+          <Button onClick={exportToCSV} className="bg-blue-600 hover:bg-blue-700 text-white">
             <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
         </div>
 
-        {/* Enhanced Filters */}
-        <Card className="bg-white shadow-lg border border-gray-200 relative z-50">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
+        {/* Enhanced Filters - responsive stacking, z-index, and overflow fixes */}
+        <Card className="bg-white shadow-lg border border-gray-200 relative md:static z-0">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col md:grid md:grid-cols-3 gap-2 sm:gap-4 min-w-0 overflow-x-auto md:pl-0">
+              <div className="relative min-w-0">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   placeholder="Search by name or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 min-w-0"
                 />
               </div>
-              <Select value={domainFilter} onValueChange={setDomainFilter}>
-                <SelectTrigger className="border-gray-300 focus:border-blue-500">
-                  <SelectValue placeholder="All Domains" />
-                </SelectTrigger>
-                <SelectContent className="z-[9999] bg-white border shadow-lg">
-                  <SelectItem value="all">All Domains</SelectItem>
-                  <SelectItem value="Backend">Backend Developer</SelectItem>
-                  <SelectItem value="Database">Database Management</SelectItem>
-                  <SelectItem value="Frontend">Frontend Developer</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="border-gray-300 focus:border-blue-500">
-                  <SelectValue placeholder="All Statuses" />
-                </SelectTrigger>
-                <SelectContent className="z-[9999] bg-white border shadow-lg">
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="Applied">Applied</SelectItem>
-                  <SelectItem value="In Review">In Review</SelectItem>
-                  <SelectItem value="Selected">Selected</SelectItem>
-                  <SelectItem value="Rejected">Rejected</SelectItem>
-                  <SelectItem value="In Training">In Training</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="min-w-0">
+                <Select value={domainFilter} onValueChange={setDomainFilter}>
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500 min-w-0">
+                    <SelectValue placeholder="All Domains" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[9999] bg-white border shadow-lg">
+                    <SelectItem value="all">All Domains</SelectItem>
+                    {require("@/lib/domains").getDomainOptions().map((d: { value: string; label: string }) => (
+                      <SelectItem key={d.value} value={d.value}>{d.label.replace(/^[^ ]+ /, "")}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="min-w-0">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500 min-w-0">
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[9999] bg-white border shadow-lg">
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="Applied">Applied</SelectItem>
+                    <SelectItem value="In Review">In Review</SelectItem>
+                    <SelectItem value="Selected">Selected</SelectItem>
+                    <SelectItem value="Rejected">Rejected</SelectItem>
+                    <SelectItem value="In Training">In Training</SelectItem>
+                    <SelectItem value="Completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Applications Table */}
-        <Card className="bg-white shadow-lg border border-gray-200 relative z-10 mt-4">
+        {/* Applications Table - ensure z-0 and overflow-x-auto for stacking */}
+        <Card className="bg-white shadow-lg border border-gray-200 relative z-0 mt-2 sm:mt-4 overflow-x-auto w-full">
           <CardHeader className="bg-gray-50 border-b border-gray-200">
-            <CardTitle className="text-xl font-semibold text-gray-800">
+            <CardTitle className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
               Applications ({filteredApplications.length})
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
+          <CardContent className="p-0 w-full">
+            <div className="overflow-x-auto w-full">
+              <Table className="w-full min-w-[700px]">
                 <TableHeader>
                   <TableRow className="bg-gray-50">
-                    <TableHead className="font-semibold text-gray-700">Name</TableHead>
-                    <TableHead className="font-semibold text-gray-700">Email</TableHead>
-                    <TableHead className="font-semibold text-gray-700">Phone</TableHead>
-                    <TableHead className="font-semibold text-gray-700">Domain</TableHead>
-                    <TableHead className="font-semibold text-gray-700">Status</TableHead>
-                    <TableHead className="font-semibold text-gray-700">Resume</TableHead>
-                    <TableHead className="font-semibold text-gray-700">Date Applied</TableHead>
-                    <TableHead className="font-semibold text-gray-700">Actions</TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">Name</TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[180px]">Email</TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">Phone</TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[140px]">Domain</TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[100px]">Status</TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">Date Applied</TableHead>
+                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[160px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredApplications.map((app, index) => (
-                    <TableRow key={app.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <TableCell className="font-medium text-gray-900">{app.name}</TableCell>
-                      <TableCell className="text-gray-700">{app.email}</TableCell>
-                      <TableCell className="text-gray-700">{app.phone}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                          {app.domain}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(app.status)}>
-                          {app.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {app.resume ? (
-                            <>
+                  {filteredApplications.map((app, index) => {
+                    // Map legacy domain names to new ones
+                    let domainDisplay = app.domain;
+                    if (domainDisplay === "Frontend") domainDisplay = "Frontend Developer";
+                    if (domainDisplay === "Backend") domainDisplay = "Backend Developer";
+                    if (domainDisplay === "Database") domainDisplay = "Database Management";
+                    return (
+                      <TableRow key={app.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                        <TableCell className="font-medium text-gray-900 text-xs sm:text-sm md:text-base min-w-[120px]">{app.name}</TableCell>
+                        <TableCell className="text-gray-700 text-xs sm:text-sm md:text-base min-w-[180px]">{app.email}</TableCell>
+                        <TableCell className="text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">{app.phone}</TableCell>
+                        <TableCell className="min-w-[140px]">
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs sm:text-sm md:text-base">
+                            {domainDisplay}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="min-w-[100px]">
+                          <Badge className={getStatusColor(app.status) + ' text-xs sm:text-sm md:text-base'}>
+                            {app.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="min-w-[120px] text-xs sm:text-sm md:text-base">{new Date(app.dateApplied).toLocaleDateString()}</TableCell>
+                        <TableCell className="min-w-[160px]">
+                          <div className="flex flex-wrap gap-1">
+                            {(app.status === "Applied" || app.status === "In Review") && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={() => updateApplicationStatus(app.id, "Selected")}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white h-8 px-2 sm:px-3 text-xs sm:text-sm md:text-base"
+                                >
+                                  ✓ Accept
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => updateApplicationStatus(app.id, "Rejected")}
+                                  className="bg-red-600 hover:bg-red-700 h-8 px-2 sm:px-3 text-xs sm:text-sm md:text-base"
+                                >
+                                  ✗ Reject
+                                </Button>
+                              </>
+                            )}
+                            {app.status === "Selected" && (
                               <Button
                                 size="sm"
-                                variant="outline"
-                                onClick={() => viewResume(app.resume!)}
-                                className="h-8 w-8 p-0 hover:bg-blue-50"
+                                onClick={() => updateApplicationStatus(app.id, "In Training")}
+                                className="bg-purple-600 hover:bg-purple-700 text-white h-8 px-2 sm:px-3 text-xs sm:text-sm md:text-base"
                               >
-                                <Eye className="h-3 w-3" />
+                                🎓 Start Training
                               </Button>
+                            )}
+                            {app.status === "In Training" && (
                               <Button
                                 size="sm"
-                                variant="outline"
-                                onClick={() => downloadResume(app.resumeName || "resume.pdf")}
-                                className="h-8 w-8 p-0 hover:bg-green-50"
+                                onClick={() => updateApplicationStatus(app.id, "Completed")}
+                                className="bg-gray-600 hover:bg-gray-700 text-white h-8 px-2 sm:px-3 text-xs sm:text-sm md:text-base"
                               >
-                                <Download className="h-3 w-3" />
+                                ✅ Complete
                               </Button>
-                            </>
-                          ) : (
-                            <span className="text-gray-400 text-sm">No Resume</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600">
-                        {new Date(app.dateApplied).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {(app.status === "Applied" || app.status === "In Review") && (
-                            <>
-                              <Button
-                                size="sm"
-                                onClick={() => updateApplicationStatus(app.id, "Selected")}
-                                className="bg-green-600 hover:bg-green-700 text-white h-8 px-3 text-xs"
-                              >
-                                ✓ Accept
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => updateApplicationStatus(app.id, "Rejected")}
-                                className="bg-red-600 hover:bg-red-700 h-8 px-3 text-xs"
-                              >
-                                ✗ Reject
-                              </Button>
-                            </>
-                          )}
-                          {app.status === "Selected" && (
+                            )}
                             <Button
                               size="sm"
-                              onClick={() => updateApplicationStatus(app.id, "In Training")}
-                              className="bg-purple-600 hover:bg-purple-700 text-white h-8 px-3 text-xs"
+                              variant="outline"
+                              onClick={() => router.push(`/admin/student/${app.id}`)}
+                              className="h-8 px-2 sm:px-3 text-xs sm:text-sm md:text-base hover:bg-purple-50 border-purple-200 text-purple-700"
                             >
-                              🎓 Start Training
+                              View
                             </Button>
-                          )}
-                          {app.status === "In Training" && (
-                            <Button
-                              size="sm"
-                              onClick={() => updateApplicationStatus(app.id, "Completed")}
-                              className="bg-gray-600 hover:bg-gray-700 text-white h-8 px-3 text-xs"
-                            >
-                              ✅ Complete
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => router.push(`/admin/student/${app.id}`)}
-                            className="h-8 px-3 text-xs hover:bg-purple-50 border-purple-200 text-purple-700"
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            View
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </AdminLayout>
+            </div >
+          </CardContent >
+        </Card >
+      </div >
+    </AdminLayout >
   )
 }

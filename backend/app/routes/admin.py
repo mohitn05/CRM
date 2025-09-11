@@ -1,7 +1,6 @@
+
 import os
-
 from flask import Blueprint, jsonify, request
-
 from app.controllers.notifications import send_notification
 from app.db import db
 from app.models.student import StudentApplication
@@ -11,8 +10,59 @@ from app.services.email_sender import (
     send_rejection_email,
 )
 from app.services.notification_service import NotificationService
-
+from app.services.admin_notification_service import AdminNotificationService
 admin_bp = Blueprint("admin", __name__)
+
+@admin_bp.route("/students/<int:student_id>/notifications", methods=["DELETE"])
+def delete_all_student_notifications(student_id):
+    from app.models.notification import Notification
+    try:
+        Notification.query.filter_by(student_id=student_id).delete()
+        db.session.commit()
+        return jsonify({"message": "All notifications deleted"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Failed to delete notifications", "error": str(e)}), 500
+
+
+@admin_bp.route("/admin/<int:admin_id>/notifications", methods=["DELETE"])
+def delete_all_admin_notifications(admin_id):
+    from app.models.admin_notification import AdminNotification
+    try:
+        AdminNotification.query.filter_by(admin_id=admin_id).delete()
+        db.session.commit()
+        return jsonify({"message": "All notifications deleted"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Failed to delete notifications", "error": str(e)}), 500
+
+
+@admin_bp.route("/admin/<int:admin_id>/notifications", methods=["POST"])
+def create_admin_notification(admin_id):
+    data = request.json
+    title = data.get("title")
+    message = data.get("message")
+    type = data.get("type")
+    notification = AdminNotificationService.create_notification(title, message, type, admin_id)
+    return jsonify(notification.to_dict()), 201
+
+@admin_bp.route("/admin/<int:admin_id>/notifications", methods=["GET"])
+def get_admin_notifications(admin_id):
+    unread_only = request.args.get("unread_only", "false").lower() == "true"
+    notifications = AdminNotificationService.get_notifications(admin_id, unread_only)
+    return jsonify([n.to_dict() for n in notifications]), 200
+
+@admin_bp.route("/admin/notifications/<int:notification_id>/read", methods=["PUT"])
+def mark_admin_notification_read(notification_id):
+    notification = AdminNotificationService.mark_notification_as_read(notification_id)
+    if notification:
+        return jsonify(notification.to_dict()), 200
+    return jsonify({"message": "Notification not found"}), 404
+
+@admin_bp.route("/admin/<int:admin_id>/notifications/read-all", methods=["PUT"])
+def mark_all_admin_notifications_read(admin_id):
+    count = AdminNotificationService.mark_all_as_read(admin_id)
+    return jsonify({"message": f"Marked {count} notifications as read"}), 200
 
 
 @admin_bp.route("/admin/applications", methods=["GET"])
@@ -105,6 +155,7 @@ def student_detail(id):
             )
 
         return (
+
             jsonify(
                 {
                     "message": "Student updated successfully",
@@ -169,11 +220,22 @@ def get_student_notifications(student_id):
 def mark_notification_read(notification_id):
     """Mark a notification as read"""
     try:
+        # Try marking student notification as read
         notification = NotificationService.mark_notification_as_read(notification_id)
         if notification:
             return jsonify({"message": "Notification marked as read"}), 200
+
+        # Try marking admin notification as read
+        from app.models.admin_notification import AdminNotification
+        admin_notification = AdminNotification.query.get(notification_id)
+        if admin_notification:
+            admin_notification.is_read = True
+            db.session.commit()
+            return jsonify({"message": "Admin notification marked as read"}), 200
+
         return jsonify({"message": "Notification not found"}), 404
     except Exception as e:
+        db.session.rollback()
         return (
             jsonify({"message": "Failed to update notification", "error": str(e)}),
             500,
