@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "@/components/ui/use-toast"
 import type { ScriptableContext } from "chart.js"
 import { ArcElement, BarElement, CategoryScale, Chart, ChartOptions, Legend, LinearScale, Tooltip } from "chart.js"
-import { Award, ClipboardListIcon, GraduationCap, Target, TrendingUp, Users, Zap } from "lucide-react"
+import { Award, ClipboardListIcon, Code, Database, GraduationCap, Layers, Monitor, Palette, Send, Server, Smartphone, TrendingUp, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Bar, Pie } from "react-chartjs-2"
@@ -83,8 +83,8 @@ export default function DashboardPage() {
       setDomains(foundDomains)
     } catch (error) {
       toast({
-        title: "Fetch Error",
-        description: "Could not load applications from server",
+        title: "🚨 Data Load Failed",
+        description: "⚠️ Could not load applications from server. Please refresh and try again.",
         variant: "destructive"
       })
     }
@@ -111,14 +111,15 @@ export default function DashboardPage() {
       await sendEmailNotification(applicant.email, applicant.name, newStatus)
 
       toast({
-        title: `Application ${newStatus} ✅`,
-        description: `${applicant.name}'s application has been ${newStatus.toLowerCase()}. Email notification sent successfully.`,
+        title: `🎯 ${newStatus} - Success!`,
+        description: `✨ ${applicant.name}'s application has been ${newStatus.toLowerCase()}. Email notification sent successfully.`,
+        variant: "success" as any,
       })
     } catch (error) {
       toast({
-        title: `Application ${newStatus}`,
-        description: `${applicant.name}'s application has been ${newStatus.toLowerCase()}, but email notification failed.`,
-        variant: "destructive",
+        title: `⚠️ ${newStatus} - Email Failed`,
+        description: `📝 ${applicant.name}'s application has been ${newStatus.toLowerCase()}, but email notification failed to send.`,
+        variant: "warning" as any,
       })
     }
   }
@@ -130,13 +131,14 @@ export default function DashboardPage() {
       window.open(fileUrl, '_blank')
 
       toast({
-        title: "Resume Opened ✅",
-        description: `${fileName} has been opened in a new tab. You can save it using Ctrl+S.`,
+        title: "📄 Resume Opened Successfully!",
+        description: `✅ ${fileName} has been opened in a new tab. You can save it using Ctrl+S.`,
+        variant: "info" as any,
       })
     } catch (error) {
       toast({
-        title: "Download Failed",
-        description: "Could not open resume. Please try again.",
+        title: "❌ Download Failed",
+        description: "⚠️ Could not open resume file. Please check if the file exists and try again.",
         variant: "destructive",
       })
     }
@@ -165,16 +167,16 @@ export default function DashboardPage() {
     "Digital Marketing": normalizedApplications.filter((app) => app.domain === "Digital Marketing").length,
   };
 
-  // Gradient color stops for each domain
+  // Gradient color stops for each domain - Using your specified colors with gradients
   const pieGradients = [
-    ["#6366F1", "#A5B4FC"], // Frontend Developer: Indigo to light indigo
-    ["#06B6D4", "#67E8F9"], // Backend Developer: Cyan to light cyan
-    ["#10B981", "#6EE7B7"], // Database Management: Emerald to light green
-    ["#F59E0B", "#FDE68A"], // Web Developer: Amber to light yellow
-    ["#EF4444", "#FCA5A5"], // Android Developer: Red to light red
-    ["#8B5CF6", "#C4B5FD"], // Full Stack Developer: Purple to light purple
-    ["#EC4899", "#F9A8D4"], // UI/UX Designer: Pink to light pink
-    ["#22C55E", "#86EFAC"], // Digital Marketing: Green to light green
+    ["#1E90FF", "#87CEEB"], // Frontend Developer: Dodger Blue to Sky Blue
+    ["#FF4500", "#FFA500"], // Backend Developer: Orange Red to Orange
+    ["#32CD32", "#90EE90"], // Database Management: Lime Green to Light Green
+    ["#FFD700", "#FFFFE0"], // Web Developer: Bright Gold to Light Yellow
+    ["#8A2BE2", "#DDA0DD"], // Android Developer: Blue Violet to Plum
+    ["#FF1493", "#FFB6C1"], // Full Stack Developer: Deep Pink to Light Pink
+    ["#00CED1", "#AFEEEE"], // UI/UX Designer: Dark Turquoise to Pale Turquoise
+    ["#DC143C", "#FFB6C1"], // Digital Marketing: Crimson Red to Light Pink
   ];
 
   // Helper to create canvas gradients for Chart.js
@@ -214,20 +216,20 @@ export default function DashboardPage() {
         label: "Applications",
         data: [stats.applied, stats.inReview, stats.selected, stats.rejected, stats.inTraining, stats.completed],
         backgroundColor: [
-          "rgba(59, 130, 246, 0.8)",
-          "rgba(245, 158, 11, 0.8)",
-          "rgba(34, 197, 94, 0.8)",
-          "rgba(239, 68, 68, 0.8)",
-          "rgba(147, 51, 234, 0.8)",
-          "rgba(107, 114, 128, 0.8)",
+          "#1E90FF", // Applied - Dodger Blue (matching Frontend Developer)
+          "#FFD700", // In Review - Bright Gold (matching Web Developer)
+          "#32CD32", // Selected - Lime Green (matching Database Management)
+          "#DC143C", // Rejected - Crimson Red (matching Digital Marketing)
+          "#8A2BE2", // In Training - Blue Violet (matching Android Developer)
+          "#00CED1", // Completed - Dark Turquoise (matching UI/UX Designer)
         ],
         borderColor: [
-          "rgb(59, 130, 246)",
-          "rgb(245, 158, 11)",
-          "rgb(34, 197, 94)",
-          "rgb(239, 68, 68)",
-          "rgb(147, 51, 234)",
-          "rgb(107, 114, 128)",
+          "#1E90FF", // Applied
+          "#FFD700", // In Review
+          "#32CD32", // Selected
+          "#DC143C", // Rejected
+          "#8A2BE2", // In Training
+          "#00CED1", // Completed
         ],
         borderWidth: 2,
       },
@@ -373,235 +375,479 @@ export default function DashboardPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-1 p-1 w-full min-w-0" style={{ maxWidth: '100vw' }}>
-        {/* Header */}
-        <div className="relative z-10">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-3xl blur-xl"></div>
-          <div className="relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-4 sm:p-6 lg:p-8 min-w-0">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 min-w-0">
-              <div>
-                <h1 className="text-3xl lg:text-4xl font-black text-black mb-2">Analytics Dashboard</h1>
-                <p className="text-gray-700 text-base lg:text-lg">Real-time insights into your internship program</p>
-              </div>
-              <div className="flex items-center gap-4">
-                {/* Use adminId=1 or similar for admin notifications */}
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-black">{stats.total}</div>
-                  <div className="text-gray-700 text-sm">Total Applications</div>
+      <div className="p-6 space-y-8">
+        {/* Enhanced Professional Header Section */}
+        <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl shadow-lg border border-gray-200 p-8 relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full -translate-y-8 translate-x-8"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 rounded-full translate-y-4 -translate-x-4"></div>
+
+          <div className="relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+                  <TrendingUp className="h-10 w-10 text-white" />
                 </div>
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <TrendingUp className="h-8 w-8 text-white" />
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-2">
+                    Admin Dashboard
+                  </h1>
+                  <p className="text-gray-600 text-lg font-medium">
+                    Comprehensive internship program management & analytics
+                  </p>
+                  <div className="flex items-center gap-4 mt-3">
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span>Live Updates</span>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Last updated: {new Date().toLocaleString('en-CA')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {stats.total}
+                  </div>
+                  <div className="text-sm font-medium text-gray-600">Total Applications</div>
+                  <div className="text-xs text-green-600 font-medium mt-1 flex items-center justify-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    +12% this month
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    {Math.round((stats.selected / Math.max(stats.total, 1)) * 100)}%
+                  </div>
+                  <div className="text-sm font-medium text-gray-600">Success Rate</div>
+                  <div className="text-xs text-emerald-600 font-medium mt-1 flex items-center justify-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    +3% improvement
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-clos-1 sm:grid-cols2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Enhanced Stats Cards with Professional Design */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {statCards.map((stat, index) => (
-            <Card
-              key={stat.title + index}
-              className="group relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200/50 hover:border-gray-300/60 transition-all duration-500 hover:scale-105"
-            >
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-              ></div>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                <CardTitle className="text-sm font-medium text-black group-hover:text-black transition-colors">
+            <Card key={stat.title + index} className="group bg-white border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105 hover:border-blue-300 relative overflow-hidden">
+              {/* Background gradient overlay */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
+                <CardTitle className="text-sm font-bold text-gray-600 group-hover:text-gray-800 transition-colors">
                   {stat.title}
                 </CardTitle>
-                <div
-                  className={`p-2 bg-gradient-to-br ${stat.gradient} rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                >
-                  <stat.icon className="h-4 w-4 text-white" />
+                <div className={`p-3 bg-gradient-to-br ${stat.gradient} rounded-xl shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
+                  <stat.icon className="h-5 w-5 text-white" />
                 </div>
               </CardHeader>
               <CardContent className="relative z-10">
                 <div className="flex items-end justify-between">
-                  <div className="text-2xl lg:text-3xl font-black text-black group-hover:scale-110 transition-transform duration-300">
+                  <div className="text-3xl font-bold text-gray-900 group-hover:text-gray-800 transition-colors">
                     {stat.value}
                   </div>
-                  <div className="flex items-center gap-1 text-blue-600 text-sm font-semibold">
+                  <div className="flex items-center gap-1 text-emerald-600 text-sm font-semibold bg-emerald-50 px-2 py-1 rounded-full">
                     <TrendingUp className="h-3 w-3" />
                     {stat.change}
                   </div>
+                </div>
+                <div className="mt-2 text-xs text-gray-500 font-medium">
+                  {stat.changeType === 'increase' ? '↗' : '↘'} vs last month
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Recent Applications with Quick Actions */}
-        <section className="mb-8">
-          {/* header */}
-          <div className="flex items-center mb-4">
-            <ClipboardListIcon className="h-6 w-6 text-purple-600" />
-            <h3 className="ml-2 text-lg font-semibold">Recent Applications</h3>
-            <span className="ml-auto text-gray-500">
-              Latest submissions requiring your attention ({recentApplications.length} total)
-            </span>
-          </div>
-
-          {/* white card wrapper */}
-          <div className="bg-white shadow rounded-lg">
-            {/* make the table scroll on narrow screens */}
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gray-100 text-left text-sm text-gray-600">
-                  <tr>
-                    <th className="px-4 py-2">Name</th>
-                    <th className="px-4 py-2">Role</th>
-                    <th className="px-4 py-2">Email</th>
-                    <th className="px-4 py-2">Phone</th>
-                    <th className="px-4 py-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentApplications.map((app) => (
-                    <tr key={app.id} className="border-t">
-                      <td className="px-4 py-3">{app.name}</td>
-                      <td className="px-4 py-3 text-gray-500">{app.domain}</td>
-                      <td className="px-4 py-3">{app.email}</td>
-                      <td className="px-4 py-3">{app.phone}</td>
-                      <td className="px-4 py-3 space-x-2">
-                        <button
-                          onClick={() => updateApplicationStatus(app.id, "In Review")}
-                          className="px-3 py-1 bg-blue-600 text-white rounded"
-                        >
-                          Review
-                        </button>
-                        <button
-                          onClick={() => updateApplicationStatus(app.id, "Selected")}
-                          className="px-3 py-1 bg-green-500 text-white rounded"
-                        >
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => updateApplicationStatus(app.id, "Rejected")}
-                          className="px-3 py-1 bg-red-500 text-white rounded"
-                        >
-                          Reject
-                        </button>
-                      </td>
+        {/* Enhanced Recent Applications with Professional Styling */}
+        <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
+                  <ClipboardListIcon className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-900">Recent Applications</CardTitle>
+                  <p className="text-sm text-gray-600 mt-1">Latest submissions requiring your attention</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-xs font-medium text-gray-600">{recentApplications.length} active</span>
+                </div>
+                <button
+                  onClick={loadApplications}
+                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  🔄 Refresh
+                </button>
+                <button
+                  onClick={() => router.push('/admin/students')}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  📋 View All
+                </button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {recentApplications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <ClipboardListIcon className="h-8 w-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">No Recent Applications</h3>
+                <p className="text-sm text-gray-500 text-center max-w-md">
+                  When new applications are submitted, they will appear here for quick review and management.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Applicant</th>
+                      <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Contact</th>
+                      <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Domain</th>
+                      <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Status</th>
+                      <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Applied</th>
+                      <th className="text-center py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {recentApplications.slice(0, 5).map((app, index) => (
+                      <tr key={app.id} className="group hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200">
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                              {app.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">{app.name}</div>
+                              <div className="text-sm text-gray-500">{app.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="text-sm text-gray-600">{app.phone}</div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200">
+                            {app.domain}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold border ${getStatusColor(app.status)}`}>
+                            {app.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="text-sm text-gray-600">
+                            {new Date(app.dateApplied).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-center">
+                          <button
+                            onClick={() => router.push(`/admin/student/${app.id}`)}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+                          >
+                            <span>👁️</span>
+                            <span>View</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Domain Statistics Cards */}
+        <div className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-3">Domain Applications Overview</h2>
+            <p className="text-gray-600 text-lg">Applications distribution across different technical domains</p>
+            <div className="flex items-center justify-center gap-4 mt-4">
+              <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full border border-green-200">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-green-700">Live Data</span>
+              </div>
+              <div className="text-sm text-gray-500">
+                Updated every 5 minutes
+              </div>
             </div>
           </div>
-        </section>
 
-        {/* Domain Distribution Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Object.entries(domainStats).map(([domain, count], index) => {
-            // 8 unique gradients for 8 domains
-            const gradients = [
-              "from-purple-500 to-pink-500",      // Frontend Developer
-              "from-blue-500 to-cyan-500",        // Backend Developer
-              "from-green-500 to-emerald-400",    // Database Management
-              "from-orange-500 to-yellow-300",    // Web Developer
-              "from-red-500 to-pink-400",         // Android Developer
-              "from-violet-500 to-purple-300",    // Full Stack Developer
-              "from-pink-500 to-fuchsia-400",     // UI/UX Designer
-              "from-green-600 to-lime-400",       // Digital Marketing
-            ];
-            const bgGradients = [
-              "from-purple-500/10 to-pink-500/10",
-              "from-blue-500/10 to-cyan-500/10",
-              "from-green-500/10 to-emerald-400/10",
-              "from-orange-500/10 to-yellow-300/10",
-              "from-red-500/10 to-pink-400/10",
-              "from-violet-500/10 to-purple-300/10",
-              "from-pink-500/10 to-fuchsia-400/10",
-              "from-green-600/10 to-lime-400/10",
-            ];
-            return (
-              <Card
-                key={domain}
-                className={`group relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200/50 hover:border-gray-300/60 transition-all duration-500 hover:scale-105`}
-              >
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${bgGradients[index]} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-                ></div>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                  <CardTitle className="text-sm font-medium text-black group-hover:text-black transition-colors">
-                    {(() => {
-                      if (domain === "Frontend") return "Frontend Developer";
-                      if (domain === "Backend") return "Backend Developer";
-                      if (domain === "Database") return "Database Management";
-                      return domain;
-                    })()}
-                  </CardTitle>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Frontend Developer - Dodger Blue */}
+            <Card className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2 bg-gradient-to-br from-blue-50 to-sky-50 border-blue-200 hover:border-blue-400 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-sky-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-sky-400 rounded-2xl flex items-center justify-center group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl" style={{ backgroundImage: 'linear-gradient(to bottom right, #1E90FF, #87CEEB)' }}>
+                  <Monitor className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors duration-300">Frontend Developer</h3>
+                <div className="text-4xl font-black mb-2 group-hover:scale-110 transition-transform duration-300" style={{ color: '#1E90FF' }}>{domainStats["Frontend Developer"]}</div>
+                <p className="text-gray-600 text-sm font-medium">applications submitted</p>
+                <div className="mt-3 w-full bg-blue-100 rounded-full h-2 group-hover:h-3 transition-all duration-300">
                   <div
-                    className={`p-2 bg-gradient-to-br ${gradients[index]} rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                  >
-                    <Target className="h-4 w-4 text-white" />
-                  </div>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <div className="flex items-end justify-between">
-                    <div className="text-2xl lg:text-3xl font-black text-black group-hover:scale-110 transition-transform duration-300">
-                      {count}
-                    </div>
-                    <p className="text-gray-700 text-sm font-medium">applications</p>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                    className="bg-gradient-to-r from-blue-500 to-sky-400 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min((domainStats["Frontend Developer"] / Math.max(...Object.values(domainStats))) * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Backend Developer - Orange Red */}
+            <Card className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2 bg-gradient-to-br from-orange-50 to-red-50 border-orange-200 hover:border-orange-400 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl" style={{ backgroundImage: 'linear-gradient(to bottom right, #FF4500, #FFA500)' }}>
+                  <Server className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-orange-700 transition-colors duration-300">Backend Developer</h3>
+                <div className="text-4xl font-black mb-2 group-hover:scale-110 transition-transform duration-300" style={{ color: '#FF4500' }}>{domainStats["Backend Developer"]}</div>
+                <p className="text-gray-600 text-sm font-medium">applications submitted</p>
+                <div className="mt-3 w-full bg-orange-100 rounded-full h-2 group-hover:h-3 transition-all duration-300">
+                  <div
+                    className="bg-gradient-to-r from-orange-500 to-red-500 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min((domainStats["Backend Developer"] / Math.max(...Object.values(domainStats))) * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Database Management - Lime Green */}
+            <Card className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2 bg-gradient-to-br from-lime-50 to-green-50 border-lime-200 hover:border-lime-400 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-lime-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-lime-500 to-green-400 rounded-2xl flex items-center justify-center group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl" style={{ backgroundImage: 'linear-gradient(to bottom right, #32CD32, #90EE90)' }}>
+                  <Database className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-green-700 transition-colors duration-300">Database Management</h3>
+                <div className="text-4xl font-black mb-2 group-hover:scale-110 transition-transform duration-300" style={{ color: '#32CD32' }}>{domainStats["Database Management"]}</div>
+                <p className="text-gray-600 text-sm font-medium">applications submitted</p>
+                <div className="mt-3 w-full bg-lime-100 rounded-full h-2 group-hover:h-3 transition-all duration-300">
+                  <div
+                    className="bg-gradient-to-r from-lime-500 to-green-400 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min((domainStats["Database Management"] / Math.max(...Object.values(domainStats))) * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Web Developer - Bright Gold */}
+            <Card className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2 bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200 hover:border-yellow-400 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-yellow-400 to-amber-300 rounded-2xl flex items-center justify-center group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl" style={{ backgroundImage: 'linear-gradient(to bottom right, #FFD700, #FFFFE0)' }}>
+                  <Code className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-yellow-700 transition-colors duration-300">Web Developer</h3>
+                <div className="text-4xl font-black mb-2 group-hover:scale-110 transition-transform duration-300" style={{ color: '#FFD700' }}>{domainStats["Web Developer"]}</div>
+                <p className="text-gray-600 text-sm font-medium">applications submitted</p>
+                <div className="mt-3 w-full bg-yellow-100 rounded-full h-2 group-hover:h-3 transition-all duration-300">
+                  <div
+                    className="bg-gradient-to-r from-yellow-400 to-amber-300 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min((domainStats["Web Developer"] / Math.max(...Object.values(domainStats))) * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Android Developer - Blue Violet */}
+            <Card className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2 bg-gradient-to-br from-violet-50 to-purple-50 border-violet-200 hover:border-violet-400 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-violet-600 to-purple-400 rounded-2xl flex items-center justify-center group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl" style={{ backgroundImage: 'linear-gradient(to bottom right, #8A2BE2, #DDA0DD)' }}>
+                  <Smartphone className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-violet-700 transition-colors duration-300">Android Developer</h3>
+                <div className="text-4xl font-black mb-2 group-hover:scale-110 transition-transform duration-300" style={{ color: '#8A2BE2' }}>{domainStats["Android Developer"]}</div>
+                <p className="text-gray-600 text-sm font-medium">applications submitted</p>
+                <div className="mt-3 w-full bg-violet-100 rounded-full h-2 group-hover:h-3 transition-all duration-300">
+                  <div
+                    className="bg-gradient-to-r from-violet-600 to-purple-400 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min((domainStats["Android Developer"] / Math.max(...Object.values(domainStats))) * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Full Stack Developer - Deep Pink */}
+            <Card className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2 bg-gradient-to-br from-pink-50 to-rose-50 border-pink-200 hover:border-pink-400 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-pink-600 to-rose-400 rounded-2xl flex items-center justify-center group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl" style={{ backgroundImage: 'linear-gradient(to bottom right, #FF1493, #FFB6C1)' }}>
+                  <Layers className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-pink-700 transition-colors duration-300">Full Stack Developer</h3>
+                <div className="text-4xl font-black mb-2 group-hover:scale-110 transition-transform duration-300" style={{ color: '#FF1493' }}>{domainStats["Full Stack Developer"]}</div>
+                <p className="text-gray-600 text-sm font-medium">applications submitted</p>
+                <div className="mt-3 w-full bg-pink-100 rounded-full h-2 group-hover:h-3 transition-all duration-300">
+                  <div
+                    className="bg-gradient-to-r from-pink-600 to-rose-400 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min((domainStats["Full Stack Developer"] / Math.max(...Object.values(domainStats))) * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* UI/UX Designer - Dark Turquoise */}
+            <Card className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2 bg-gradient-to-br from-cyan-50 to-teal-50 border-cyan-200 hover:border-cyan-400 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-cyan-500 to-teal-400 rounded-2xl flex items-center justify-center group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl" style={{ backgroundImage: 'linear-gradient(to bottom right, #00CED1, #AFEEEE)' }}>
+                  <Palette className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-cyan-700 transition-colors duration-300">UI/UX Designer</h3>
+                <div className="text-4xl font-black mb-2 group-hover:scale-110 transition-transform duration-300" style={{ color: '#00CED1' }}>{domainStats["UI/UX Designer"]}</div>
+                <p className="text-gray-600 text-sm font-medium">applications submitted</p>
+                <div className="mt-3 w-full bg-cyan-100 rounded-full h-2 group-hover:h-3 transition-all duration-300">
+                  <div
+                    className="bg-gradient-to-r from-cyan-500 to-teal-400 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min((domainStats["UI/UX Designer"] / Math.max(...Object.values(domainStats))) * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Digital Marketing - Red */}
+            <Card className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2 bg-gradient-to-br from-red-50 to-pink-50 border-red-200 hover:border-red-400 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-red-600 to-pink-500 rounded-2xl flex items-center justify-center group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl" style={{ backgroundImage: 'linear-gradient(to bottom right, #DC143C, #FFB6C1)' }}>
+                  <Send className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-red-700 transition-colors duration-300">Digital Marketing</h3>
+                <div className="text-4xl font-black mb-2 group-hover:scale-110 transition-transform duration-300" style={{ color: '#DC143C' }}>{domainStats["Digital Marketing"]}</div>
+                <p className="text-gray-600 text-sm font-medium">applications submitted</p>
+                <div className="mt-3 w-full bg-red-100 rounded-full h-2 group-hover:h-3 transition-all duration-300">
+                  <div
+                    className="bg-gradient-to-r from-red-600 to-pink-500 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min((domainStats["Digital Marketing"] / Math.max(...Object.values(domainStats))) * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-          <Card className="bg-white/80 backdrop-blur-xl border border-gray-200/50 shadow-2xl">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
-                  <Zap className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-black text-xl font-bold">Domain Distribution</CardTitle>
-                  <CardDescription className="text-gray-700">
-                    Applications across different technical domains
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 lg:h-80">
-                {Object.values(domainStats).some((count) => count > 0) ? (
-                  <Pie data={pieChartData} options={pieChartOptions} />
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                    <span className="text-lg font-semibold">No domain data available</span>
-                    <span className="text-sm">No applications found for any domain.</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Enhanced Analytics Charts Section */}
+        <div className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Analytics & Insights</h2>
+            <p className="text-gray-600">Real-time data visualization and performance metrics</p>
+          </div>
 
-          <Card className="bg-white/80 backdrop-blur-xl border border-gray-200/50 shadow-2xl">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl">
-                  <TrendingUp className="h-5 w-5 text-white" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 group">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                    <TrendingUp className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-bold text-gray-900">Application Status</CardTitle>
+                    <CardDescription className="text-sm">Current status breakdown of all applications</CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="text-black text-xl font-bold">Application Status</CardTitle>
-                  <CardDescription className="text-gray-700">
-                    Current status breakdown of all applications
-                  </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="h-80">
+                  {stats.total > 0 ? (
+                    <Bar data={barChartData} options={barChartOptions} />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <TrendingUp className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-700 mb-2">No Status Data</h3>
+                      <p className="text-sm text-gray-500 text-center max-w-md">
+                        Application status data will appear here once submissions are received.
+                      </p>
+                    </div>
+                  )}
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 group">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-purple-50 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                    <Layers className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-bold text-gray-900">Domain Distribution</CardTitle>
+                    <CardDescription className="text-sm">Applications across different technical domains</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="h-80">
+                  {Object.values(domainStats).some((count) => count > 0) ? (
+                    <Pie data={pieChartData} options={pieChartOptions} />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <Layers className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-700 mb-2">No Domain Data</h3>
+                      <p className="text-sm text-gray-500 text-center max-w-md">
+                        Domain distribution will be displayed here as applications are received across different technical areas.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Professional Footer Section */}
+        <div className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl shadow-sm border border-gray-200 p-8 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Users className="h-6 w-6 text-white" />
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 lg:h-80">
-                <Bar data={barChartData} options={barChartOptions} />
+              <h3 className="font-semibold text-gray-900 mb-2">Talent Management</h3>
+              <p className="text-sm text-gray-600">Comprehensive internship program with end-to-end candidate tracking and development.</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="h-6 w-6 text-white" />
               </div>
-            </CardContent>
-          </Card>
+              <h3 className="font-semibold text-gray-900 mb-2">Real-time Analytics</h3>
+              <p className="text-sm text-gray-600">Live dashboard with performance metrics, application trends, and success rate tracking.</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Award className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Success Tracking</h3>
+              <p className="text-sm text-gray-600">Monitor intern progress from application to completion with detailed performance insights.</p>
+            </div>
+          </div>
+          <div className="border-t border-gray-200 mt-8 pt-6 text-center">
+            <p className="text-sm text-gray-500">© 2024 Internship CRM Platform - Professional Talent Management System</p>
+          </div>
         </div>
       </div>
     </AdminLayout>

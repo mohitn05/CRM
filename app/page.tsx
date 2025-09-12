@@ -1,11 +1,13 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Mail, Phone } from "lucide-react"
+import { ArrowRight, GraduationCap, Mail, Phone, User } from "lucide-react"
 import Link from "next/link"
 
 export default function LandingPage() {
   return (
     // The main container with blue gradient background
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden p-4 sm:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
       {/* Enhanced Geometric Wave Background SVG - Lowest Z-index (z-0) */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <svg
@@ -146,17 +148,62 @@ export default function LandingPage() {
         <div className="absolute bottom-20 left-1/4 w-6 h-6 bg-blue-100 rotate-45"></div>
       </div>
 
-      {/* Header - Z-index increased to z-30 to be on top of all backgrounds */}
-      <header className="relative z-30 flex items-center justify-end p-6">
-        <div className="flex items-center gap-4">
-          <Link href="/intern/login">
-            <Button variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6">
-              Login
-            </Button>
-          </Link>
-          <Link href="/apply">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6">Register</Button>
-          </Link>
+      {/* Enhanced Professional Header with Company Branding */}
+      <header className="relative z-30 bg-white/10 backdrop-blur-xl border-b border-white/20 shadow-lg">
+        <div className="w-full px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Company Logo & Brand */}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl transform hover:scale-110 transition-transform duration-300">
+                  <GraduationCap className="w-7 h-7 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-800 via-blue-700 to-purple-700 bg-clip-text text-transparent">
+                  InternPro CRM
+                </h2>
+                <p className="text-sm text-gray-600 font-medium">Professional Internship Management</p>
+              </div>
+            </div>
+
+            {/* Navigation & Action Buttons */}
+            <div className="flex items-center gap-6">
+              {/* Professional Navigation Menu */}
+              <nav className="hidden md:flex items-center gap-8">
+                <a href="#contact" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 relative group">
+                  Contact
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+                </a>
+              </nav>
+
+              {/* Enhanced Action Buttons */}
+              <div className="flex items-center gap-3">
+                <Link href="/intern/login">
+                  <Button
+                    variant="outline"
+                    className="group relative overflow-hidden bg-white/20 backdrop-blur-md hover:bg-white/30 text-gray-700 hover:text-blue-700 border border-white/40 hover:border-blue-400/60 rounded-2xl px-6 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                    <div className="relative flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      <span>Login</span>
+                    </div>
+                  </Button>
+                </Link>
+                <Link href="/apply">
+                  <Button className="group relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white rounded-2xl px-8 py-3 font-bold shadow-xl hover:shadow-2xl hover:shadow-blue-500/30 transition-all duration-500 transform hover:scale-105 border border-white/20">
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                    <div className="relative flex items-center gap-2">
+                      <GraduationCap className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+                      <span>Apply Now</span>
+                    </div>
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -182,62 +229,164 @@ export default function LandingPage() {
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-indigo-300/15 to-transparent rounded-full transform translate-x-40 translate-y-40"></div>
       </div>
 
-      {/* Main Content - Z-index increased to z-20 to be on top of all backgrounds */}
-      <div className="relative z-20 flex flex-col items-center justify-center min-h-[calc(100vh-200px)] px-4 text-center">
-        {/* Main Heading */}
-        <h1 className="text-5xl md:text-7xl font-serif font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6 leading-tight">
-          Internship CRM Portal
-        </h1>
-        {/* Subheading */}
-        <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed font-light">
-          Transform your internship program with our Internship CRM solution. Streamline applications, track progress,
-          and scale your talent pipeline.
-        </p>
-        {/* CTA Button */}
-        <Link href="/apply">
-          <Button className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105">
-            Get Started
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-          </Button>
-        </Link>
-        {/* Stats or Features */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          {[
-            { number: "500+", label: "Applications Processed" },
-            { number: "95%", label: "Success Rate" },
-            { number: "24/7", label: "System Uptime" },
-          ].map((stat, index) => (
-            <div key={index} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg">
-              <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                {stat.number}
+      {/* Enhanced Professional Hero Section */}
+      <div className="relative z-20 flex flex-col items-center justify-center min-h-[calc(100vh-200px)] px-6 text-center">
+        {/* Enhanced Main Heading with Professional Typography */}
+        <div className="max-w-5xl mx-auto mb-8">
+          <h1 className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6 leading-tight tracking-tight">
+            Professional
+          </h1>
+          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent mb-8 leading-tight">
+            Internship CRM Platform
+          </h1>
+        </div>
+
+        {/* Enhanced Value Proposition */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <p className="text-xl md:text-2xl text-gray-700 leading-relaxed font-medium mb-6">
+            Transform your internship program with enterprise-grade CRM technology.
+          </p>
+          <p className="text-lg md:text-xl text-gray-600 leading-relaxed font-light">
+            Streamline applications, automate workflows, track progress, and scale your talent pipeline with advanced analytics and reporting.
+          </p>
+        </div>
+
+        {/* Professional CTA Section */}
+        <div className="flex justify-center mb-16">
+          <Link href="/apply">
+            <Button className="group relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white px-12 py-6 text-xl font-bold rounded-3xl shadow-2xl hover:shadow-3xl hover:shadow-blue-500/30 transition-all duration-700 transform hover:scale-110 border-2 border-white/20">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1200"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative flex items-center gap-3">
+                <GraduationCap className="w-7 h-7 group-hover:rotate-12 transition-transform duration-500" />
+                <span>Start Your Journey</span>
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-2 group-hover:scale-110 transition-all duration-500" />
               </div>
-              <div className="text-gray-600 text-sm font-medium">{stat.label}</div>
-            </div>
-          ))}
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-500 -z-10"></div>
+            </Button>
+          </Link>
+        </div>
+        {/* Professional Stats & Achievements Section */}
+        <div className="w-full max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { number: "500+", label: "Applications Processed", icon: <GraduationCap className="w-8 h-8" />, color: "from-blue-500 to-indigo-600" },
+              { number: "98.5%", label: "Success Rate", icon: <User className="w-8 h-8" />, color: "from-green-500 to-emerald-600" },
+              { number: "24/7", label: "System Uptime", icon: <ArrowRight className="w-8 h-8" />, color: "from-purple-500 to-pink-600" },
+            ].map((stat, index) => (
+              <div key={index} className="group relative">
+                <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:bg-white/30">
+                  <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-3xl" style={{ background: `linear-gradient(135deg, var(--tw-gradient-stops))` }}></div>
+
+                  {/* Icon */}
+                  <div className="relative mb-6">
+                    <div className={`inline-flex p-4 bg-gradient-to-r ${stat.color} rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      {stat.icon}
+                    </div>
+                  </div>
+
+                  {/* Number */}
+                  <div className={`text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                    {stat.number}
+                  </div>
+
+                  {/* Label */}
+                  <div className="text-gray-700 font-semibold text-lg leading-tight">
+                    {stat.label}
+                  </div>
+
+                  {/* Animated Progress Bar */}
+                  <div className="mt-4 h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full bg-gradient-to-r ${stat.color} rounded-full transform translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-1000`}
+                      style={{ animationDelay: `${index * 0.2}s` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+
         </div>
       </div>
-      {/* Footer - Z-index increased to z-30 to be on top of all backgrounds */}
-      <footer className="relative z-30 bg-white/10 backdrop-blur-md border-t border-white/20 py-6">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Copyright */}
-            <div className="text-center md:text-left">
-              <p className="text-gray-600 text-sm">
-                © {new Date().getFullYear()} Internship CRM Portal. All rights reserved.
-              </p>
-            </div>
-            {/* Contact Info */}
-            <div className="text-center md:text-right">
-              <div className="space-y-1">
-                <div className="flex items-center justify-center md:justify-end gap-2 text-gray-600 text-sm hover:text-blue-600 transition-colors">
-                  <Phone className="w-4 h-4" />
-                  <span>+1 (555) 123-4567</span>
+
+      {/* Spacer Section */}
+      <div className="relative z-20 py-8"></div>
+
+      {/* Enhanced Professional Footer */}
+      <footer className="relative z-30 bg-white/15 backdrop-blur-xl border-t border-white/30 py-6" id="contact">
+        <div className="w-full px-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Main Footer Content - Three Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-4">
+
+              {/* Left Section - Company Info */}
+              <div className="text-center lg:text-left">
+                <div className="flex items-center justify-center lg:justify-start gap-3 mb-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+                    <GraduationCap className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold bg-gradient-to-r from-gray-800 via-blue-700 to-purple-700 bg-clip-text text-transparent">
+                      InternPro CRM
+                    </h3>
+                    <p className="text-xs text-gray-600 font-medium">Professional Internship Management</p>
+                  </div>
                 </div>
-                <div className="flex items-center justify-center md:justify-end gap-2 text-gray-600 text-sm hover:text-blue-600 transition-colors">
-                  <Mail className="w-4 h-4" />
-                  <span>info@aartmultiservices.com</span>
+                <p className="text-gray-700 leading-relaxed font-medium max-w-sm mx-auto lg:mx-0 text-sm">
+                  Empowering organizations with cutting-edge internship management technology.
+                </p>
+              </div>
+
+              {/* Center Section - Empty for elegant spacing */}
+              <div className="hidden lg:block"></div>
+
+              {/* Right Section - Contact Information */}
+              <div className="text-center lg:text-right">
+                <h4 className="text-lg font-bold text-gray-800 mb-3">Contact Us</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-center lg:justify-end gap-2 group cursor-pointer" onClick={() => window.open("tel:+919359463350")}>
+                    <div className="order-2 lg:order-1">
+                      <p className="text-xs text-gray-500 font-medium">Call us directly</p>
+                      <p className="text-gray-700 font-semibold group-hover:text-blue-600 transition-colors duration-300 text-sm">+91 93594 63350</p>
+                    </div>
+                    <div className="order-1 lg:order-2 p-2 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <Phone className="w-4 h-4" />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center lg:justify-end gap-2 group cursor-pointer" onClick={() => window.open("mailto:info@aartmultiservices.com")}>
+                    <div className="order-2 lg:order-1">
+                      <p className="text-xs text-gray-500 font-medium">Email support</p>
+                      <p className="text-gray-700 font-semibold group-hover:text-blue-600 transition-colors duration-300 text-sm">info@aartmultiservices.com</p>
+                    </div>
+                    <div className="order-1 lg:order-2 p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Footer */}
+            <div className="border-t border-white/20 pt-4">
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                {/* Left - Copyright */}
+                <div className="text-center lg:text-left">
+                  <p className="text-gray-600 font-medium">
+                    © {new Date().getFullYear()} InternPro CRM. All rights reserved.
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Powered by AartMultiservices Technology Solutions
+                  </p>
                 </div>
 
+                {/* Right - Legal Links */}
+                <div className="flex items-center gap-4">
+                  <a href="#" className="text-gray-600 hover:text-blue-600 text-xs font-medium transition-colors duration-300 hover:underline">Privacy Policy</a>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 text-xs font-medium transition-colors duration-300 hover:underline">Terms of Service</a>
+                </div>
               </div>
             </div>
           </div>

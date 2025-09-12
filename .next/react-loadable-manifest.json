@@ -1,4 +1,8 @@
 {
+  "app\\apply\\page.tsx -> @/components/ui/card": {
+    "id": "app\\apply\\page.tsx -> @/components/ui/card",
+    "files": []
+  },
   "node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts": {
     "id": "node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts",
     "files": [

@@ -17,13 +17,17 @@ import {
   Briefcase,
   Calendar,
   Download,
+  Edit,
   Eye,
   FileText,
   Mail,
   MessageSquare,
   Phone,
-  Save, Sparkles, Trash2,
-  User
+  Save,
+  Trash2,
+  TrendingUp,
+  User,
+  X
 } from "lucide-react"
 import Link from "next/link"
 
@@ -46,6 +50,11 @@ export default function StudentDetailPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState<Application | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [pendingStatusUpdate, setPendingStatusUpdate] = useState<{
+    status: string
+    message: string
+  } | null>(null)
   const router = useRouter()
   const params = useParams()
   const { toast } = useToast()
@@ -67,8 +76,8 @@ export default function StudentDetailPage() {
           setEditData(studentData)
         } else {
           toast({
-            title: "Error",
-            description: "Failed to load student data",
+            title: "⚠️ Load Error",
+            description: "❌ Failed to load student data. Please try refreshing the page.",
             variant: "destructive",
           })
           router.push("/admin/students")
@@ -76,9 +85,9 @@ export default function StudentDetailPage() {
       } catch (error) {
         console.error("Error fetching student:", error)
         toast({
-          title: "Error",
-          description: "Failed to connect to server",
-          variant: "destructive",
+          title: "🌐 Connection Error",
+          description: "⚠️ Failed to connect to server. Please check your internet connection.",
+          variant: "warning" as any,
         })
         router.push("/admin/students")
       }
@@ -90,12 +99,44 @@ export default function StudentDetailPage() {
   const handleSave = async () => {
     if (!editData) return;
 
-    // // Custom domain logic
-    // if (editData.domain === "Others" && customDomain.trim()) {
-    //   addCustomDomain(customDomain.trim());
-    //   setDomainOptions(getDomainOptions());
-    //   editData.domain = customDomain.trim();
-    // }
+    // Check if status has changed
+    const statusChanged = editData.status !== application?.status;
+
+    if (statusChanged) {
+      // Show confirmation dialog for status change
+      let message = "";
+      switch (editData.status) {
+        case "Selected":
+          message = `Send acceptance email to ${editData.name}?`;
+          break;
+        case "Rejected":
+          message = `Send rejection email to ${editData.name}?`;
+          break;
+        case "In Training":
+          message = `Send training start notification to ${editData.name}?`;
+          break;
+        case "Completed":
+          message = `Send completion congratulations email to ${editData.name}?`;
+          break;
+        case "In Review":
+          message = `Send review notification email to ${editData.name}?`;
+          break;
+        default:
+          message = `Send status update email to ${editData.name}?`;
+      }
+
+      // Store the edit data for later use and show confirmation
+      setPendingStatusUpdate({ status: editData.status, message });
+      setShowConfirmDialog(true);
+      return; // Don't save yet, wait for confirmation
+    }
+
+    // If no status change, save normally without email confirmation
+    await saveChanges();
+  };
+
+  const saveChanges = async () => {
+    if (!editData) return;
 
     setIsLoading(true);
 
@@ -121,80 +162,163 @@ export default function StudentDetailPage() {
         setIsEditing(false);
 
         toast({
-          title: "Application Updated ✅",
-          description: "Student application has been updated successfully.",
+          title: "✅ Application Updated Successfully!",
+          description: "🎉 Student application has been updated and saved to the database.",
+          variant: "success" as any,
         });
       } else {
         const error = await response.json();
         toast({
-          title: "Update Failed",
-          description: error.message || "Failed to update student data",
+          title: "❌ Update Failed",
+          description: "⚠️ " + (error.message || "Failed to update student data. Please try again."),
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Error updating student:", error);
       toast({
-        title: "Update Failed",
-        description: "Failed to connect to server",
-        variant: "destructive",
+        title: "🌐 Update Failed",
+        description: "⚠️ Failed to connect to server. Please check your connection and try again.",
+        variant: "warning" as any,
       });
     }
 
     setIsLoading(false);
-  }
+  };
 
   const updateStatus = async (newStatus: string) => {
     if (!application) return
 
+    // Prepare confirmation message based on status
+    let message = ""
+    switch (newStatus) {
+      case "Selected":
+        message = `Send acceptance email to ${application.name}?`
+        break
+      case "Rejected":
+        message = `Send rejection email to ${application.name}?`
+        break
+      case "In Training":
+        message = `Send training start notification to ${application.name}?`
+        break
+      case "Completed":
+        message = `Send completion congratulations email to ${application.name}?`
+        break
+      default:
+        message = `Send status update email to ${application.name}?`
+    }
+
+    // Show confirmation dialog
+    setPendingStatusUpdate({ status: newStatus, message })
+    setShowConfirmDialog(true)
+  }
+
+  const confirmStatusUpdate = async () => {
+    if (!application || !pendingStatusUpdate) return
+
     setIsLoading(true)
+    setShowConfirmDialog(false)
 
     try {
-      const response = await fetch(`http://localhost:5000/api/students/${application?.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: newStatus,
-        }),
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        setApplication(result.student)
-        setEditData(result.student)
-
-        toast({
-          title: `Application ${newStatus} ✅`,
-          description: `${result.student.name}'s status updated. Email notification sent automatically!`,
+      // Check if we're in edit mode or direct status update mode
+      if (isEditing && editData) {
+        // We're in edit mode - save all changes including status
+        const response = await fetch(`http://localhost:5000/api/students/${editData.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: editData.name,
+            email: editData.email,
+            phone: editData.phone,
+            domain: editData.domain,
+            status: pendingStatusUpdate.status,
+          }),
         })
+
+        if (response.ok) {
+          const result = await response.json()
+          setApplication(result.student)
+          setEditData(result.student)
+          setIsEditing(false) // Exit edit mode
+
+          toast({
+            title: `🎯 Application ${result.student.name} Updated!`,
+            description: `✨ ${result.student.name}'s application updated and email notification sent successfully!`,
+            variant: "success" as any,
+          })
+        } else {
+          const error = await response.json()
+          toast({
+            title: "❌ Update Failed",
+            description: "⚠️ " + (error.message || "Failed to update application. Please try again."),
+            variant: "destructive",
+          })
+        }
       } else {
-        const error = await response.json()
-        toast({
-          title: "Status Update Failed",
-          description: error.message || "Failed to update status",
-          variant: "destructive",
+        // Direct status update mode (not in edit mode)
+        const response = await fetch(`http://localhost:5000/api/students/${application?.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: pendingStatusUpdate.status,
+          }),
         })
+
+        if (response.ok) {
+          const result = await response.json()
+          setApplication(result.student)
+          setEditData(result.student)
+
+          toast({
+            title: `🎉 Status Updated to ${result.student.status}!`,
+            description: `✅ ${result.student.name}'s status updated successfully. Email and notification sent!`,
+            variant: "success" as any,
+          })
+        } else {
+          const error = await response.json()
+          toast({
+            title: "❌ Status Update Failed",
+            description: "⚠️ " + (error.message || "Failed to update status. Please try again."),
+            variant: "destructive",
+          })
+        }
       }
     } catch (error) {
       console.error("Error updating status:", error)
       toast({
-        title: "Status Update Failed",
-        description: "Failed to connect to server",
-        variant: "destructive",
+        title: "🌐 Connection Error",
+        description: "⚠️ Failed to connect to server. Please check your internet connection and try again.",
+        variant: "warning" as any,
       })
     }
 
     setIsLoading(false)
+    setPendingStatusUpdate(null)
+  }
+
+  const cancelStatusUpdate = () => {
+    setShowConfirmDialog(false)
+    setPendingStatusUpdate(null)
+
+    // If we're in edit mode and user cancels, revert the status back to original
+    if (isEditing && application && editData) {
+      setEditData({
+        ...editData,
+        status: application.status // Revert status to original
+      })
+    }
   }
 
   const downloadResume = async () => {
     if (!application?.id || !application?.resumeName) {
       toast({
-        title: "Download Failed",
-        description: "No resume file available for this student.",
-        variant: "destructive",
+        title: "❌ Download Failed",
+        description: "⚠️ No resume file available for this student or file not found.",
+        variant: "warning" as any,
       })
       return
     }
@@ -222,8 +346,9 @@ export default function StudentDetailPage() {
         window.URL.revokeObjectURL(url)
 
         toast({
-          title: "Resume Downloaded ✅",
-          description: `${application.resumeName} has been downloaded successfully.`,
+          title: "📄 Resume Downloaded Successfully!",
+          description: `✅ ${application.resumeName} has been downloaded to your computer.`,
+          variant: "success" as any,
         })
       } else {
         // It's JSON - fallback to opening in new tab
@@ -231,8 +356,9 @@ export default function StudentDetailPage() {
         window.open(fileUrl, '_blank')
 
         toast({
-          title: "Resume Opened ✅",
-          description: `${application.resumeName} has been opened in a new tab.`,
+          title: "👀 Resume Opened in Fallback Mode!",
+          description: `✅ ${application.resumeName} has been opened in a new browser tab.`,
+          variant: "info" as any,
         })
       }
     } catch (error) {
@@ -242,13 +368,14 @@ export default function StudentDetailPage() {
         window.open(fileUrl, '_blank')
 
         toast({
-          title: "Resume Opened ✅",
-          description: `${application.resumeName} has been opened in a new tab.`,
+          title: "👀 Resume Opened Successfully!",
+          description: `✅ ${application.resumeName} has been opened in a new browser tab.`,
+          variant: "info" as any,
         })
       } catch (fallbackError) {
         toast({
-          title: "Download Failed",
-          description: "Could not download or open resume. Please try again.",
+          title: "❌ Download Failed",
+          description: "⚠️ Could not download or open resume. Please check if the file exists and try again.",
           variant: "destructive",
         })
       }
@@ -260,8 +387,9 @@ export default function StudentDetailPage() {
 
     window.open(application.resume, "_blank")
     toast({
-      title: "Resume Opened",
-      description: "Resume opened in new tab.",
+      title: "👀 Resume Opened!",
+      description: "📄 Resume opened in new tab for viewing.",
+      variant: "info" as any,
     })
   }
 
@@ -302,8 +430,9 @@ export default function StudentDetailPage() {
 
       if (response.ok) {
         toast({
-          title: "Application Deleted ✅",
-          description: `${application?.name}'s application has been deleted successfully.`,
+          title: "🗑️ Application Deleted Successfully!",
+          description: `✅ ${application?.name}'s application has been permanently deleted from the system.`,
+          variant: "success" as any,
         })
         router.push('/admin/dashboard')
       } else {
@@ -312,8 +441,8 @@ export default function StudentDetailPage() {
     } catch (error) {
       console.error("Error deleting application:", error)
       toast({
-        title: "Delete Failed",
-        description: "Failed to delete application. Please try again.",
+        title: "❌ Delete Failed",
+        description: "⚠️ Failed to delete application. Please check your connection and try again.",
         variant: "destructive",
       })
     }
@@ -337,270 +466,303 @@ export default function StudentDetailPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6 p-4 lg:p-6 w-full min-w-0">
-        <div className="flex flex-wrap items-center justify-between min-w-0 gap-2">
-          <div className="bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm min-w-0">
-            <Link href="/admin/dashboard" className="flex items-center gap-2 text-purple-700 hover:text-purple-900 font-medium min-w-0">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Link>
-          </div>
-          <div className="flex gap-2 flex-wrap min-w-0">
-            {isEditing ? (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsEditing(false)}
-                  className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSave}
-                  disabled={isLoading}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <Save className="h-4 w-4" />
-                  {isLoading ? "Saving..." : "Save Changes"}
-                </Button>
-              </>
-            ) : (
-              <div className="flex gap-2">
-                <Button onClick={() => setIsEditing(true)} className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50">
-                  Edit Application
-                </Button>
-                <Button
-                  onClick={deleteApplication}
-                  variant="outline"
-                  disabled={isLoading}
-                  className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
+      <div className="space-y-8 p-4 lg:p-6 w-full min-w-0">
+        {/* Enhanced Professional Header Section */}
+        <div className="bg-gradient-to-r from-slate-50 to-purple-50 rounded-2xl shadow-lg border border-gray-200 p-6 relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-full -translate-y-4 translate-x-4"></div>
+
+          <div className="relative z-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-xl">
+                  {application.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <Link href="/admin/dashboard" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium mb-2 transition-colors">
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to Dashboard
+                  </Link>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-blue-800 bg-clip-text text-transparent">
+                    {application.name}'s Application
+                  </h1>
+                  <p className="text-gray-600 font-medium">
+                    Application ID: #{application.id} • {application.domain}
+                  </p>
+                </div>
               </div>
-            )}
+
+              <div className="flex gap-3">
+                {isEditing ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsEditing(false)}
+                      className="border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSave}
+                      disabled={isLoading}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {isLoading ? "Saving..." : "Save Changes"}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      onClick={() => setIsEditing(true)}
+                      variant="outline"
+                      className="border-purple-300 text-purple-600 hover:bg-purple-50 transition-all duration-200 hover:scale-105"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Application
+                    </Button>
+                    <Button
+                      onClick={deleteApplication}
+                      variant="outline"
+                      disabled={isLoading}
+                      className="border-red-300 text-red-600 hover:bg-red-50 transition-all duration-200 hover:scale-105"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0 overflow-x-auto z-10">
-          {/* Main Information */}
-          <div className="lg:col-span-2 min-w-0">
-            <Card className="bg-white border-2 border-gray-300 shadow-sm min-w-0">
-              <CardHeader className="pb-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Enhanced Main Information */}
+          <div className="lg:col-span-2">
+            <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-purple-50 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-gray-900 text-xl font-semibold">Application Information</CardTitle>
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg">
+                      <User className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl font-bold text-gray-900">Application Information</CardTitle>
+                      <p className="text-sm text-gray-600 mt-1">Personal details and application data</p>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
                     {application.name.charAt(0).toUpperCase()}
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Information Cards Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Full Name Card */}
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <User className="h-5 w-5 text-gray-600" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-600 mb-1">Full Name</p>
-                      {isEditing ? (
-                        <Input
-                          id="name"
-                          value={editData?.name || ""}
-                          onChange={(e) => setEditData((prev) => (prev ? { ...prev, name: e.target.value } : null))}
-                          className="bg-white border-gray-300 text-gray-900"
-                        />
-                      ) : (
-                        <p className="text-gray-900 font-semibold">{application.name}</p>
-                      )}
-                    </div>
+              <CardContent className="space-y-8 p-6">
+                {/* Personal Information Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Full Name */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                      <div className="p-1 bg-blue-100 rounded">
+                        <User className="h-4 w-4 text-blue-600" />
+                      </div>
+                      Full Name
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        value={editData?.name || ""}
+                        onChange={(e) => setEditData((prev) => (prev ? { ...prev, name: e.target.value } : null))}
+                        className="border-gray-300 focus:border-purple-500 focus:ring-purple-500 bg-white font-medium"
+                      />
+                    ) : (
+                      <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <p className="text-gray-900 font-semibold text-lg">{application.name}</p>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Email Address Card */}
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <Mail className="h-5 w-5 text-gray-600" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-600 mb-1">Email Address</p>
-                      {isEditing ? (
-                        <Input
-                          id="email"
-                          type="email"
-                          value={editData?.email || ""}
-                          onChange={(e) => setEditData((prev) => (prev ? { ...prev, email: e.target.value } : null))}
-                          className="bg-white border-gray-300 text-gray-900"
-                        />
-                      ) : (
-                        <p className="text-gray-900 font-semibold text-sm break-all">{application.email}</p>
-                      )}
-                    </div>
+                  {/* Email */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                      <div className="p-1 bg-green-100 rounded">
+                        <Mail className="h-4 w-4 text-green-600" />
+                      </div>
+                      Email Address
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        type="email"
+                        value={editData?.email || ""}
+                        onChange={(e) => setEditData((prev) => (prev ? { ...prev, email: e.target.value } : null))}
+                        className="border-gray-300 focus:border-purple-500 focus:ring-purple-500 bg-white font-medium"
+                      />
+                    ) : (
+                      <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <p className="text-gray-900 font-semibold">{application.email}</p>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Phone Number Card */}
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <Phone className="h-5 w-5 text-gray-600" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-600 mb-1">Phone Number</p>
-                      {isEditing ? (
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={editData?.phone || ""}
-                          onChange={(e) => setEditData((prev) => (prev ? { ...prev, phone: e.target.value } : null))}
-                          maxLength={10}
-                          className="bg-white border-gray-300 text-gray-900"
-                        />
-                      ) : (
+                  {/* Phone */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                      <div className="p-1 bg-yellow-100 rounded">
+                        <Phone className="h-4 w-4 text-yellow-600" />
+                      </div>
+                      Phone Number
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        type="tel"
+                        value={editData?.phone || ""}
+                        onChange={(e) => setEditData((prev) => (prev ? { ...prev, phone: e.target.value } : null))}
+                        className="border-gray-300 focus:border-purple-500 focus:ring-purple-500 bg-white font-medium"
+                      />
+                    ) : (
+                      <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                         <p className="text-gray-900 font-semibold">{application.phone}</p>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Domain Card */}
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <Briefcase className="h-5 w-5 text-gray-600" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-600 mb-1">Domain</p>
-                      {isEditing ? (
-                        <>
-                          <Select
-                            value={editData?.domain || ""}
-                            onValueChange={(value) => {
-                              setEditData((prev) => (prev ? { ...prev, domain: value } : null));
-                              if (value !== "Others") setCustomDomain("");
-                              setDomainOptions(getDomainOptions());
-                            }}
-                          >
-                            <SelectTrigger className="bg-white border-gray-300 text-gray-900">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white border-gray-300">
-                              {domainOptions
-                                .filter((domain: { value: string }) => domain.value !== "Database")
-                                .map((domain: { value: string; label: string }) => (
-                                  <SelectItem key={domain.value} value={domain.value}>
-                                    {domain.label}
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-                          {editData?.domain === "Others" && (
-                            <div className="mt-2">
-                              <Label htmlFor="customDomain" className="text-gray-700 font-semibold flex items-center gap-2">
-                                <Sparkles className="h-4 w-4 text-purple-600" />
-                                Custom Domain *
-                              </Label>
-                              <Input
-                                id="customDomain"
-                                type="text"
-                                placeholder="Enter custom domain"
-                                value={customDomain}
-                                onChange={(e) => setCustomDomain(e.target.value)}
-                                required
-                                className="bg-white border-gray-300 text-gray-900"
-                              />
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <Badge variant="outline" className="text-blue-600 border-blue-300 bg-blue-50 hover:bg-blue-200">
-                          {(() => {
-                            if (application.domain === "Frontend") return "Frontend Developer";
-                            if (application.domain === "Backend") return "Backend Developer";
-                            if (application.domain === "Database") return "Database Management";
-                            return application.domain;
-                          })()}
+                  {/* Domain */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                      <div className="p-1 bg-purple-100 rounded">
+                        <Briefcase className="h-4 w-4 text-purple-600" />
+                      </div>
+                      Domain
+                    </Label>
+                    {isEditing ? (
+                      <Select
+                        value={editData?.domain || ""}
+                        onValueChange={(value) => setEditData((prev) => (prev ? { ...prev, domain: value } : null))}
+                      >
+                        <SelectTrigger className="bg-white border-gray-300 focus:border-purple-500 font-medium">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border border-gray-200 shadow-lg">
+                          {domainOptions.map((domain: { value: string; label: string }) => (
+                            <SelectItem key={domain.value} value={domain.value}>
+                              {domain.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <Badge variant="outline" className="text-purple-700 border-purple-300 bg-purple-100 font-semibold text-sm px-3 py-1">
+                          {application.domain}
                         </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Date Applied Card */}
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 md:col-span-2">
-                    <Calendar className="h-5 w-5 text-gray-500" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-black-600 mb-1">Date Applied</p>
-                      <p className="text-gray-900 font-semibold">
-                        {new Date(application.dateApplied).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit'
-                        })}
-                      </p>
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Resume/CV Card - Full Width Below Grid */}
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <FileText className="h-5 w-5 text-gray-600" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-600 mb-1">Resume/CV</p>
-                    {application.resume ? (
-                      <div className="space-y-2">
-                        <p className="text-gray-900 font-semibold text-sm">
-                          {application.resumeName || "Mohit_Resume4.pdf"}
-                        </p>
-                        <p className="text-gray-600 text-xs">
-                          Uploaded on {new Date(application.dateApplied).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit'
-                          })}
-                        </p>
-                        <div className="flex gap-2">
+                {/* Enhanced Date Applied - Fixed hydration issue */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                    <div className="p-1 bg-indigo-100 rounded">
+                      <Calendar className="h-4 w-4 text-indigo-600" />
+                    </div>
+                    Date Applied
+                  </Label>
+                  <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
+                    <p className="text-gray-900 font-bold text-lg">
+                      {/* Fixed date formatting to prevent hydration mismatch */}
+                      {new Date(application.dateApplied).toLocaleDateString('en-CA')} {/* YYYY-MM-DD format */}
+                    </p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {Math.floor((Date.now() - new Date(application.dateApplied).getTime()) / (1000 * 60 * 60 * 24))} days ago
+                    </p>
+                  </div>
+                </div>
+
+                {/* Enhanced Resume Section */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                    <div className="p-1 bg-orange-100 rounded">
+                      <FileText className="h-4 w-4 text-orange-600" />
+                    </div>
+                    Resume/CV
+                  </Label>
+                  {application.resume ? (
+                    <div className="p-6 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl border border-orange-200">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                          <FileText className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-bold text-gray-900 text-lg">
+                            {application.resumeName || "Resume.pdf"}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {/* Fixed date formatting */}
+                            Uploaded on {new Date(application.dateApplied).toLocaleDateString('en-CA')}
+                          </p>
+                        </div>
+                        <div className="flex gap-3">
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={viewResume}
-                            className="bg-blue-500/10 border-blue-500/20 text-blue-600 hover:bg-blue-500/20 flex-1"
+                            className="border-blue-300 text-blue-600 hover:bg-blue-50 transition-all duration-200 hover:scale-105 font-semibold"
                           >
-                            <Eye className="h-3 w-3 mr-1" />
+                            <Eye className="h-4 w-4 mr-2" />
                             View
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={downloadResume}
-                            className="bg-blue-500/10 border-blue-500/20 text-blue-600 hover:bg-blue-500/20 flex-1"
+                            className="border-green-300 text-green-600 hover:bg-green-50 transition-all duration-200 hover:scale-105 font-semibold"
                           >
-                            <Download className="h-3 w-3 mr-1" />
+                            <Download className="h-4 w-4 mr-2" />
                             Download
                           </Button>
                         </div>
                       </div>
-                    ) : (
-                      <p className="text-purple-600 text-sm">No resume uploaded</p>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 text-center">
+                      <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <FileText className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <p className="text-gray-500 font-medium">No resume uploaded</p>
+                    </div>
+                  )}
                 </div>
-
-
               </CardContent>
             </Card>
           </div>
 
-          {/* Status and Actions */}
-          <div className="space-y-6">
+          {/* Enhanced Status and Actions Sidebar */}
+          <div className="space-y-8">
             {/* Application Status */}
-            <Card className="bg-white border border-gray-200 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-gray-900 text-lg font-semibold flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Application Status
-                </CardTitle>
+            <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-bold text-gray-900">Application Status</CardTitle>
+                    <p className="text-sm text-gray-600 mt-1">Current status and actions</p>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Status Display */}
-                <div className="text-center py-4">
+              <CardContent className="space-y-6 p-6">
+                <div className="text-center">
                   {isEditing ? (
                     <Select
                       value={editData?.status || ""}
                       onValueChange={(value) => setEditData((prev) => (prev ? { ...prev, status: value } : null))}
                     >
-                      <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                      <SelectTrigger className="bg-white border-gray-300 focus:border-blue-500">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-white border-gray-300">
+                      <SelectContent className="bg-white border border-gray-200 shadow-lg">
                         <SelectItem value="Applied">Applied</SelectItem>
                         <SelectItem value="In Review">In Review</SelectItem>
                         <SelectItem value="Selected">Selected</SelectItem>
@@ -610,180 +772,278 @@ export default function StudentDetailPage() {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       <Badge className={`${getStatusColor(application.status)} text-lg px-4 py-2 font-semibold`}>
                         {application.status}
                       </Badge>
 
-                      {/* Animated Emoji and Message for Selected */}
-                      {application.status === "Selected" && (
-                        <div className="space-y-2">
-                          <div className="flex justify-center">
-                            <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
-                              😊
-                            </div>
-                          </div>
-                          <div className="text-center space-y-1">
-                            <p className="text-sm text-gray-600">This applicant has been selected!</p>
-                            <div className="flex items-center justify-center text-green-600">
-                              <span className="text-sm font-medium">Congratulations!</span>
-                            </div>
-                            <p className="text-xs text-gray-500">This applicant has been selected!</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Animated Emoji and Message for Rejected */}
-                      {application.status === "Rejected" && (
-                        <div className="space-y-2">
-                          <div className="flex justify-center">
-                            <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
-                              😢
-                            </div>
-                          </div>
-                          <div className="text-center space-y-1">
-                            <p className="text-sm text-gray-600">This application was not successful</p>
-                            <div className="flex items-center justify-center text-red-600">
-                              <span className="text-sm font-medium">Better luck next time !!</span>
-                            </div>
-                            <p className="text-xs text-gray-500">Application has been rejected</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Animated Emoji and Message for Applied */}
+                      {/* Status Messages */}
                       {application.status === "Applied" && (
-                        <div className="space-y-2">
-                          <div className="flex justify-center">
-                            <div className="text-5xl animate-pulse" style={{ animationDuration: '2s' }}>
-                              📝
-                            </div>
-                          </div>
-                          <div className="text-center space-y-1">
-                            <p className="text-sm text-gray-600">Application has been submitted</p>
-                            <div className="flex items-center justify-center text-blue-600">
-                              <span className="text-sm font-medium">Waiting for review</span>
-                            </div>
-                            <p className="text-xs text-gray-500">Application is pending</p>
-                          </div>
+                        <div className="text-center">
+                          <div className="text-4xl mb-2">📝</div>
+                          <p className="text-sm text-gray-600">Application submitted and waiting for review</p>
                         </div>
                       )}
 
-                      {/* Animated Emoji for In Training */}
+                      {application.status === "Selected" && (
+                        <div className="text-center">
+                          <div className="text-4xl mb-2">🎉</div>
+                          <p className="text-sm text-green-600 font-medium">Congratulations! Application accepted</p>
+                        </div>
+                      )}
+
+                      {application.status === "Rejected" && (
+                        <div className="text-center">
+                          <div className="text-4xl mb-2">😔</div>
+                          <p className="text-sm text-red-600 font-medium">Application not selected</p>
+                        </div>
+                      )}
+
                       {application.status === "In Training" && (
-                        <div className="space-y-2">
-                          <div className="flex justify-center">
-                            <div className="text-5xl animate-bounce" style={{ animationDuration: '1.5s' }}>
-                              🎓
-                            </div>
-                          </div>
-                          <div className="text-center space-y-1">
-                            <p className="text-sm text-gray-600">Welcome to the team!</p>
-                            <div className="flex items-center justify-center text-purple-600">
-                              <span className="text-sm font-medium">Training has begun</span>
-                            </div>
-                            <p className="text-xs text-gray-500">Keep up the great work</p>
-                          </div>
+                        <div className="text-center">
+                          <div className="text-4xl mb-2">🎓</div>
+                          <p className="text-sm text-purple-600 font-medium">Training in progress</p>
                         </div>
                       )}
 
-                      {/* Animated Emoji for Completed */}
                       {application.status === "Completed" && (
-                        <div className="space-y-2">
-                          <div className="flex justify-center">
-                            <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
-                              🏆
-                            </div>
-                          </div>
-                          <div className="text-center space-y-1">
-                            <p className="text-sm text-gray-600">Congratulations!</p>
-                            <div className="flex items-center justify-center text-green-600">
-                              <span className="text-sm font-medium">Internship completed successfully</span>
-                            </div>
-                            <p className="text-xs text-gray-500">Well done!</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Animated Emoji and Message for In Review */}
-                      {application.status === "In Review" && (
-                        <div className="space-y-2">
-                          <div className="flex justify-center">
-                            <div className="text-5xl animate-spin" style={{ animationDuration: '2s' }}>
-                              ⏳
-                            </div>
-                          </div>
-                          <div className="text-center space-y-1">
-                            <p className="text-sm text-gray-600">Application is under review</p>
-                            <div className="flex items-center justify-center text-yellow-600">
-                              <span className="text-sm font-medium">Please wait for updates</span>
-                            </div>
-                            <p className="text-xs text-gray-500">Review in progress</p>
-                          </div>
+                        <div className="text-center">
+                          <div className="text-4xl mb-2">🏆</div>
+                          <p className="text-sm text-green-600 font-medium">Successfully completed</p>
                         </div>
                       )}
                     </div>
                   )}
                 </div>
 
-                {/* Quick Actions */}
-                {!isEditing && (application.status === "Applied" || application.status === "In Review") && (
-                  <div className="space-y-2">
-                    <Button
-                      onClick={() => updateStatus("Selected")}
-                      disabled={isLoading}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm"
-                    >
-                      {isLoading ? "Processing..." : "✓ Accept & Notify"}
-                    </Button>
-                    <Button
-                      onClick={() => updateStatus("Rejected")}
-                      disabled={isLoading}
-                      variant="destructive"
-                      className="w-full bg-red-600 hover:bg-red-700 text-white text-sm"
-                    >
-                      {isLoading ? "Processing..." : "✗ Reject & Notify"}
-                    </Button>
+                {/* Enhanced Action Buttons */}
+                {!isEditing && (
+                  <div className="space-y-3">
+                    {/* Applied Status - Show Accept and Reject */}
+                    {application.status === "Applied" && (
+                      <div className="space-y-3">
+                        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center animate-pulse">
+                          <div className="text-blue-600 font-bold text-lg mb-2 animate-bounce">📝 APPLIED</div>
+                          <p className="text-blue-700 text-sm font-medium">Application waiting for review</p>
+                        </div>
+                        <Button
+                          onClick={() => updateStatus("Selected")}
+                          disabled={isLoading}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-300 hover:scale-105"
+                        >
+                          {isLoading ? "Processing..." : "✅ Accept"}
+                        </Button>
+                        <Button
+                          onClick={() => updateStatus("Rejected")}
+                          disabled={isLoading}
+                          variant="destructive"
+                          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold transition-all duration-300 hover:scale-105"
+                        >
+                          {isLoading ? "Processing..." : "❌ Reject"}
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* In Review Status - Show Accept and Reject */}
+                    {application.status === "In Review" && (
+                      <div className="space-y-3">
+                        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 text-center animate-pulse">
+                          <div className="text-yellow-600 font-bold text-lg mb-2 animate-bounce">🔍 IN REVIEW</div>
+                          <p className="text-yellow-700 text-sm font-medium">Application under review process</p>
+                        </div>
+                        <Button
+                          onClick={() => updateStatus("Selected")}
+                          disabled={isLoading}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-300 hover:scale-105"
+                        >
+                          {isLoading ? "Processing..." : "✅ Accept"}
+                        </Button>
+                        <Button
+                          onClick={() => updateStatus("Rejected")}
+                          disabled={isLoading}
+                          variant="destructive"
+                          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold transition-all duration-300 hover:scale-105"
+                        >
+                          {isLoading ? "Processing..." : "❌ Reject"}
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Selected Status - Show Selected with animation + Start Training button */}
+                    {application.status === "Selected" && (
+                      <div className="space-y-3">
+                        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 text-center animate-pulse">
+                          <div className="text-green-600 font-bold text-lg mb-2 animate-bounce">🎉 SELECTED!</div>
+                          <p className="text-green-700 text-sm font-medium">Application has been accepted</p>
+                        </div>
+                        <Button
+                          onClick={() => updateStatus("In Training")}
+                          disabled={isLoading}
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
+                        >
+                          {isLoading ? "Starting..." : "🎓 Start Training"}
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* In Training Status - Show In Training + Completed button */}
+                    {application.status === "In Training" && (
+                      <div className="space-y-3">
+                        <div className="bg-purple-50 border-2 border-purple-200 rounded-lg p-4 text-center animate-pulse">
+                          <div className="text-purple-600 font-bold text-lg mb-2 animate-bounce">🎓 IN TRAINING</div>
+                          <p className="text-purple-700 text-sm font-medium">Training is in progress</p>
+                        </div>
+                        <Button
+                          onClick={() => updateStatus("Completed")}
+                          disabled={isLoading}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
+                        >
+                          {isLoading ? "Completing..." : "🏆 Completed"}
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Completed Status - Show Completed (no buttons) */}
+                    {application.status === "Completed" && (
+                      <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 text-center animate-pulse">
+                        <div className="text-green-600 font-bold text-lg mb-2 animate-bounce">🏆 COMPLETED!</div>
+                        <p className="text-green-700 text-sm font-medium">Training successfully completed</p>
+                      </div>
+                    )}
+
+                    {/* Rejected Status - Show Rejected (no buttons) */}
+                    {application.status === "Rejected" && (
+                      <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 text-center animate-pulse">
+                        <div className="text-red-600 font-bold text-lg mb-2 animate-bounce">❌ REJECTED</div>
+                        <p className="text-red-700 text-sm font-medium">Application was not accepted</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Contact Actions */}
-            <Card className="bg-white border border-gray-200 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-gray-900 text-lg font-semibold flex items-center gap-2">
-                  <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                  Contact Actions
-                </CardTitle>
+            {/* Enhanced Contact Actions */}
+            <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-green-50 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg">
+                    <MessageSquare className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-bold text-gray-900">Contact Actions</CardTitle>
+                    <p className="text-sm text-gray-600 mt-1">Reach out to the applicant</p>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-1">
+              <CardContent className="space-y-3 p-6">
                 <button
-                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-purple-200 rounded-lg transition-colors border-b border-gray-100 last:border-b-0"
+                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl transition-all duration-200 hover:scale-105 border border-gray-200 hover:border-blue-300"
                   onClick={() => window.open(`mailto:${application.email}`)}
                 >
-                  <Mail className="h-4 w-4 text-gray-600" />
-                  <span className="text-gray-900 font-medium">Send Email</span>
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Mail className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <span className="text-gray-900 font-semibold block">Send Email</span>
+                    <span className="text-sm text-gray-500">{application.email}</span>
+                  </div>
                 </button>
                 <button
-                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-purple-200 rounded-lg transition-colors border-b border-gray-100 last:border-b-0"
+                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 rounded-xl transition-all duration-200 hover:scale-105 border border-gray-200 hover:border-green-300"
                   onClick={() => window.open(`tel:${application.phone}`)}
                 >
-                  <Phone className="h-4 w-4 text-gray-600" />
-                  <span className="text-gray-900 font-medium">Call Applicant</span>
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Phone className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <span className="text-gray-900 font-semibold block">Call Applicant</span>
+                    <span className="text-sm text-gray-500">{application.phone}</span>
+                  </div>
                 </button>
                 <button
-                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-purple-200 rounded-lg transition-colors"
+                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 rounded-xl transition-all duration-200 hover:scale-105 border border-gray-200 hover:border-purple-300"
                   onClick={() => window.open(`sms:${application.phone}`)}
                 >
-                  <MessageSquare className="h-4 w-4 text-gray-600" />
-                  <span className="text-gray-900 font-medium">Send SMS</span>
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <MessageSquare className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <span className="text-gray-900 font-semibold block">Send SMS</span>
+                    <span className="text-sm text-gray-500">{application.phone}</span>
+                  </div>
                 </button>
               </CardContent>
             </Card>
-          </div >
-        </div >
-      </div >
-    </AdminLayout >
+          </div>
+        </div>
+      </div>
+
+      {/* Email Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <Mail className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Send Email Notification</h3>
+                    <p className="text-sm text-gray-500">Confirm email delivery</p>
+                  </div>
+                </div>
+                <button
+                  onClick={cancelStatusUpdate}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-gray-700 text-base leading-relaxed">
+                  {pendingStatusUpdate?.message}
+                </p>
+                <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-2 text-blue-700 text-sm">
+                    <Mail className="h-4 w-4" />
+                    <span>Email will be sent to: <strong>{application?.email}</strong></span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <Button
+                  onClick={cancelStatusUpdate}
+                  variant="outline"
+                  className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmStatusUpdate}
+                  disabled={isLoading}
+                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg transition-all duration-300 hover:scale-105"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Sending...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      <span>Send Email</span>
+                    </div>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </AdminLayout>
   )
 }

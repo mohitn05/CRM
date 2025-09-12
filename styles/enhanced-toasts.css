@@ -1,0 +1,214 @@
+/* Enhanced Toast Animations and Effects */
+
+/* Floating animation for toasts */
+@keyframes toast-floating {
+
+    0%,
+    100% {
+        transform: translateY(0px) scale(1);
+    }
+
+    50% {
+        transform: translateY(-3px) scale(1.01);
+    }
+}
+
+/* Pulse glow effect for success toasts */
+@keyframes success-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), 0 0 50px rgba(16, 185, 129, 0.2);
+    }
+}
+
+/* Error shake animation */
+@keyframes error-shake {
+
+    0%,
+    100% {
+        transform: translateX(0px);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-3px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(3px);
+    }
+}
+
+/* Warning bounce effect */
+@keyframes warning-bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Info wave effect */
+@keyframes info-wave {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    50% {
+        transform: scale(1.05) rotate(1deg);
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Apply animations to different toast variants */
+[data-radix-toast-viewport] [data-state="open"] {
+    animation: toast-floating 3s ease-in-out infinite;
+}
+
+/* Success variant animations */
+[data-radix-toast-viewport] [data-state="open"][data-variant="success"] {
+    animation: toast-floating 3s ease-in-out infinite, success-glow 2s ease-in-out infinite;
+}
+
+/* Destructive variant animations */
+[data-radix-toast-viewport] [data-state="open"][data-variant="destructive"] {
+    animation: error-shake 0.5s ease-in-out 0s 1, toast-floating 3s ease-in-out 0.5s infinite;
+}
+
+/* Warning variant animations */
+[data-radix-toast-viewport] [data-state="open"][data-variant="warning"] {
+    animation: warning-bounce 1s ease-in-out 0s 1, toast-floating 3s ease-in-out 1s infinite;
+}
+
+/* Info variant animations */
+[data-radix-toast-viewport] [data-state="open"][data-variant="info"] {
+    animation: info-wave 2s ease-in-out infinite;
+}
+
+/* Enhanced hover effects */
+[data-radix-toast-viewport] [data-state="open"]:hover {
+    transform: translateY(-2px) scale(1.02);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Smooth entrance and exit animations */
+[data-radix-toast-viewport] [data-state="open"] {
+    animation-fill-mode: both;
+}
+
+[data-radix-toast-viewport] [data-state="closed"] {
+    animation: slideOutRight 0.5s ease-in-out forwards;
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0%);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Enhanced backdrop blur and glass effect */
+[data-radix-toast-viewport] [data-state="open"] {
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    opacity: 0.92;
+}
+
+/* Progress bar animation for toast duration */
+[data-radix-toast-viewport] [data-state="open"]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0.5) 100%);
+    animation: progress-bar 5s linear forwards;
+    border-radius: 0 0 16px 16px;
+}
+
+@keyframes progress-bar {
+    from {
+        width: 100%;
+        opacity: 0.8;
+    }
+
+    to {
+        width: 0%;
+        opacity: 0;
+    }
+}
+
+/* Enhanced close button animations */
+[data-radix-toast-viewport] button[toast-close] {
+    transition: all 0.3s ease-in-out;
+}
+
+[data-radix-toast-viewport] button[toast-close]:hover {
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+    [data-radix-toast-viewport] [data-state="open"] {
+        animation-duration: 2s;
+        /* Shorter animations on mobile */
+    }
+
+    [data-radix-toast-viewport] [data-state="open"]:hover {
+        transform: none;
+        /* Disable hover effects on mobile */
+    }
+}
+
+/* Dark theme support (if needed) */
+@media (prefers-color-scheme: dark) {
+    [data-radix-toast-viewport] [data-state="open"]::after {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.3) 100%);
+    }
+}
+
+/* Accessibility - Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    [data-radix-toast-viewport] [data-state="open"] {
+        animation: none !important;
+    }
+
+    [data-radix-toast-viewport] [data-state="open"]:hover {
+        transform: none !important;
+    }
+
+    [data-radix-toast-viewport] button[toast-close]:hover {
+        transform: none !important;
+    }
+}

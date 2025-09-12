@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/hooks/use-toast"
-import { Download, Search } from "lucide-react"
+import { ClipboardListIcon, Download, Search, TrendingUp, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -300,39 +300,119 @@ export default function StudentsPage() {
 
   return (
     <AdminLayout>
-      <div className="w-full min-w-0 md:pl-0">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
-          <div>
-            <h1 className="text-3xl text-black font-bold">
-              Student Applications
-            </h1>
-            <p className="text-gray-600">Manage and track internship applications</p>
+      <div className="p-6 space-y-6">
+        {/* Enhanced Professional Header Section */}
+        <div className="bg-gradient-to-r from-slate-50 to-purple-50 rounded-2xl shadow-lg border border-gray-200 p-8 relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-full -translate-y-8 translate-x-8"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 rounded-full translate-y-4 -translate-x-4"></div>
+
+          <div className="relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl">
+                  <Users className="h-10 w-10 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-blue-800 bg-clip-text text-transparent mb-2">
+                    Student Applications
+                  </h1>
+                  <p className="text-gray-600 text-lg font-medium">
+                    Comprehensive internship application management & tracking
+                  </p>
+                  <div className="flex items-center gap-4 mt-3">
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span>Live Updates</span>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {lastUpdated ? `Last updated: ${lastUpdated.toLocaleString()}` : 'Loading...'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    {applications.length}
+                  </div>
+                  <div className="text-sm font-medium text-gray-600">Total Applications</div>
+                  <div className="text-xs text-green-600 font-medium mt-1 flex items-center justify-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    Active tracking
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    {filteredApplications.length}
+                  </div>
+                  <div className="text-sm font-medium text-gray-600">Filtered Results</div>
+                  <div className="text-xs text-blue-600 font-medium mt-1 flex items-center justify-center gap-1">
+                    <Search className="w-3 h-3" />
+                    Current view
+                  </div>
+                </div>
+                <Button
+                  onClick={exportToCSV}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export CSV
+                </Button>
+              </div>
+            </div>
           </div>
-          <Button onClick={exportToCSV} className="bg-blue-600 hover:bg-blue-700 text-white">
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
         </div>
 
-        {/* Enhanced Filters - responsive stacking, z-index, and overflow fixes */}
-        <Card className="bg-white shadow-lg border border-gray-200 relative md:static z-0">
-          <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="relative min-w-0">
+        {/* Enhanced Professional Filters Section */}
+        <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
+                  <Search className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Filter & Search Applications</h3>
+                  <p className="text-sm text-gray-600">Find specific applications using filters below</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200">
+                  <div className={`w-2 h-2 rounded-full animate-pulse ${connectionStatus === 'connected' ? 'bg-green-400' :
+                      connectionStatus === 'disconnected' ? 'bg-red-400' : 'bg-yellow-400'
+                    }`}></div>
+                  <span className="text-xs font-medium text-gray-700">
+                    {connectionStatus === 'connected' ? 'Connected' :
+                      connectionStatus === 'disconnected' ? 'Disconnected' : 'Checking...'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => loadApplications()}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50"
+                >
+                  {isLoading ? '🔄 Loading...' : '🔄 Refresh'}
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   placeholder="Search by name or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 min-w-0"
+                  className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
                 />
               </div>
-              <div className="min-w-0">
+              <div>
                 <Select value={domainFilter} onValueChange={setDomainFilter}>
-                  <SelectTrigger className="border-gray-300 focus:border-blue-500 min-w-0">
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500 bg-white">
                     <SelectValue placeholder="All Domains" />
                   </SelectTrigger>
-                  <SelectContent className="z-[9999] bg-white border shadow-lg">
+                  <SelectContent className="bg-white border shadow-lg">
                     <SelectItem value="all">All Domains</SelectItem>
                     {require("@/lib/domains").getDomainOptions().map((d: { value: string; label: string }) => (
                       <SelectItem key={d.value} value={d.value}>{d.label.replace(/^[^ ]+ /, "")}</SelectItem>
@@ -340,12 +420,12 @@ export default function StudentsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="min-w-0">
+              <div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="border-gray-300 focus:border-blue-500 min-w-0">
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500 bg-white">
                     <SelectValue placeholder="All Statuses" />
                   </SelectTrigger>
-                  <SelectContent className="z-[9999] bg-white border shadow-lg">
+                  <SelectContent className="bg-white border shadow-lg">
                     <SelectItem value="all">All Statuses</SelectItem>
                     <SelectItem value="Applied">Applied</SelectItem>
                     <SelectItem value="In Review">In Review</SelectItem>
@@ -360,88 +440,159 @@ export default function StudentsPage() {
           </CardContent>
         </Card>
 
-        {/* Applications Table - ensure z-0 and overflow-x-auto for stacking */}
-        <Card className="bg-white shadow-lg border border-gray-200 relative z-0 mt-2 sm:mt-4 w-full">
-          <CardHeader className="bg-gray-50 border-b border-gray-200">
-            <CardTitle className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
-              Applications ({filteredApplications.length})
-            </CardTitle>
+        {/* Enhanced Professional Applications Table */}
+        <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-purple-50 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg">
+                  <ClipboardListIcon className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-900">
+                    Applications ({filteredApplications.length})
+                  </CardTitle>
+                  <p className="text-sm text-gray-600 mt-1">Manage and track all internship applications</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                  <span className="text-xs font-medium text-gray-600">{filteredApplications.length} shown</span>
+                </div>
+              </div>
+            </div>
           </CardHeader>
 
-          <CardContent className="p-0 w-full">
-            {/* ← Wrap table in this scroll container */}
-            <div className="overflow-x-auto w-full">
-              <Table className="w-full min-w-[700px]">
-                <TableHeader>
-                  <TableRow className="bg-gray-50">
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">
-                      Name
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[180px]">
-                      Email
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">
-                      Phone
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[140px]">
-                      Domain
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[100px]">
-                      Status
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">
-                      Date Applied
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs sm:text-sm md:text-base min-w-[160px]">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {filteredApplications.map((app, index) => (
-                    <TableRow
-                      key={app.id}
-                      className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                    >
-                      <TableCell className="font-medium text-gray-900 text-xs sm:text-sm md:text-base min-w-[120px]">
-                        {app.name}
-                      </TableCell>
-                      <TableCell className="text-gray-700 text-xs sm:text-sm md:text-base min-w-[180px]">
-                        {app.email}
-                      </TableCell>
-                      <TableCell className="text-gray-700 text-xs sm:text-sm md:text-base min-w-[120px]">
-                        {app.phone}
-                      </TableCell>
-                      <TableCell className="min-w-[140px]">
-                        <Badge
-                          variant="outline"
-                          className="bg-blue-50 text-blue-700 border-blue-200 text-xs sm:text-sm md:text-base"
-                        >
-                          {app.domain}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="min-w-[100px]">
-                        <Badge className={`${getStatusColor(app.status)} text-xs sm:text-sm md:text-base`}>
-                          {app.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="min-w-[120px] text-xs sm:text-sm md:text-base">
-                        {new Date(app.dateApplied).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="min-w-[160px]">
-                        <div className="flex flex-wrap gap-1">
-                          {/* …your existing action buttons here… */}
-                        </div>
-                      </TableCell>
+          <CardContent className="p-0">
+            {filteredApplications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Users className="h-8 w-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">No Applications Found</h3>
+                <p className="text-sm text-gray-500 text-center max-w-md">
+                  {searchTerm || domainFilter !== 'all' || statusFilter !== 'all'
+                    ? 'No applications match your current filters. Try adjusting your search criteria.'
+                    : 'No applications have been submitted yet. Applications will appear here when students apply.'}
+                </p>
+                {(searchTerm || domainFilter !== 'all' || statusFilter !== 'all') && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm('')
+                      setDomainFilter('all')
+                      setStatusFilter('all')
+                    }}
+                    className="mt-4 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow className="bg-gray-50 border-b border-gray-200">
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Applicant</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Contact</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Domain</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Status</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Resume</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Applied</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider text-center">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+
+                  <TableBody className="divide-y divide-gray-100">
+                    {filteredApplications.map((app, index) => (
+                      <TableRow
+                        key={app.id}
+                        className="group hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200"
+                      >
+                        <TableCell className="py-4 px-6">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                              {app.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="font-semibold text-gray-900 group-hover:text-purple-700 transition-colors">{app.name}</div>
+                              <div className="text-sm text-gray-500">{app.email}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-4 px-6">
+                          <div className="text-sm text-gray-600">{app.phone}</div>
+                        </TableCell>
+                        <TableCell className="py-4 px-6">
+                          <Badge
+                            variant="outline"
+                            className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-blue-200 font-semibold"
+                          >
+                            {app.domain}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="py-4 px-6">
+                          <Badge className={`${getStatusColor(app.status)} font-bold border`}>
+                            {app.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="py-4 px-6">
+                          {app.resumeName ? (
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => viewResume(app.resume!)}
+                                className="h-8 px-3 text-xs border-blue-300 text-blue-600 hover:bg-blue-50 transition-all duration-200 hover:scale-105"
+                              >
+                                <Download className="h-3 w-3 mr-1" />
+                                View
+                              </Button>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400 text-sm font-medium">No resume</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="py-4 px-6">
+                          <div className="text-sm text-gray-600 font-medium">
+                            {new Date(app.dateApplied).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-4 px-6 text-center">
+                          <div className="flex gap-2 justify-center">
+                            {app.status === "In Training" && (
+                              <Button
+                                size="sm"
+                                onClick={() => updateApplicationStatus(app.id, "Completed")}
+                                className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-md"
+                              >
+                                ✓ Complete
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => router.push(`/admin/student/${app.id}`)}
+                              className="h-8 px-3 text-xs text-purple-600 border-purple-300 hover:bg-purple-50 transition-all duration-200 hover:scale-105 active:scale-95 font-semibold"
+                            >
+                              👁️ View
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </CardContent>
         </Card>
-      </div >
-    </AdminLayout >
+      </div>
+    </AdminLayout>
   )
 }
