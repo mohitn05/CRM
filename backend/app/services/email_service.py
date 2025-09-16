@@ -85,21 +85,14 @@ def send_email(to_email, subject, body):
 
 
 def send_otp_email(to_email, otp_code):
-    """Send OTP email with formatted template"""
-    subject = "🔐 Password Reset - Verification Code"
-
-    body = f"""
-Hello,
-
-You requested a password reset for your account. Please use the verification code below:
-
-🔑 Verification Code: {otp_code}
-
-⏰ This code will expire in 10 minutes.
-🚫 If you didn't request this, please ignore this email.
-
-Best regards,
-CRM Team
-    """
-
-    return send_email(to_email, subject, body)
+    """Send professional OTP email using the detailed template"""
+    # For now, we need to get the student name from the database
+    from app.models.student import StudentApplication
+    student = StudentApplication.query.filter_by(email=to_email).first()
+    student_name = student.name if student else "User"
+    
+    # Import the detailed OTP function from email_sender
+    from app.services.email_sender import send_otp_email as send_detailed_otp
+    
+    # Use the detailed OTP email function
+    return send_detailed_otp(to_email, student_name, otp_code)

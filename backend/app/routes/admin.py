@@ -1,12 +1,17 @@
 
 import os
+from datetime import datetime
 from flask import Blueprint, jsonify, request
+from werkzeug.utils import secure_filename
 from app.controllers.notifications import send_notification
 from app.db import db
 from app.models.student import StudentApplication
 from app.services.email_sender import (
     send_acceptance_email,
+    send_completed_email,
     send_email,
+    send_in_review_email,
+    send_in_training_email,
     send_rejection_email,
 )
 from app.services.notification_service import NotificationService
@@ -39,7 +44,7 @@ def delete_all_admin_notifications(admin_id):
 
 @admin_bp.route("/admin/<int:admin_id>/notifications", methods=["POST"])
 def create_admin_notification(admin_id):
-    data = request.json
+    data = request.json or {}
     title = data.get("title")
     message = data.get("message")
     type = data.get("type")
@@ -120,7 +125,7 @@ def student_detail(id):
         )
 
     if request.method == "PUT":
-        data = request.json
+        data = request.json or {}
 
         # Track if status changed for notification
         old_status = student.status
@@ -143,7 +148,14 @@ def student_detail(id):
                 send_acceptance_email(student.email, student.name, student.domain)
             elif student.status == "Rejected":
                 send_rejection_email(student.email, student.name, student.domain)
+            elif student.status == "In Review":
+                send_in_review_email(student.email, student.name, student.domain)
+            elif student.status == "In Training":
+                send_in_training_email(student.email, student.name, student.domain)
+            elif student.status == "Completed":
+                send_completed_email(student.email, student.name, student.domain)
             else:
+                # Fallback for any other status
                 send_email(
                     student.email,
                     "Status Updated",
@@ -202,6 +214,9 @@ def student_detail(id):
                 500,
             )
 
+    # Default return for unsupported methods
+    return jsonify({"message": "Method not allowed"}), 405
+
 
 @admin_bp.route("/students/<int:student_id>/notifications", methods=["GET"])
 def get_student_notifications(student_id):
@@ -212,6 +227,37 @@ def get_student_notifications(student_id):
     except Exception as e:
         return (
             jsonify({"message": "Failed to fetch notifications", "error": str(e)}),
+            500,
+        )
+
+
+@admin_bp.route("/students/<int:student_id>/notifications", methods=["POST"])
+def create_student_notification(student_id):
+    """Create a new notification for a student"""
+    try:
+        data = request.json or {}
+        title = data.get("title")
+        message = data.get("message")
+        notification_type = data.get("type", "general")
+        
+        if not title or not message:
+            return jsonify({"message": "Title and message are required"}), 400
+            
+        # Verify student exists
+        student = StudentApplication.query.get_or_404(student_id)
+        
+        # Create the notification
+        notification = NotificationService.create_notification(
+            student_id=student_id,
+            title=title,
+            message=message,
+            notification_type=notification_type
+        )
+        
+        return jsonify(notification.to_dict()), 201
+    except Exception as e:
+        return (
+            jsonify({"message": "Failed to create notification", "error": str(e)}),
             500,
         )
 
@@ -238,6 +284,35 @@ def mark_notification_read(notification_id):
         db.session.rollback()
         return (
             jsonify({"message": "Failed to update notification", "error": str(e)}),
+            500,
+        )
+
+
+@admin_bp.route("/notifications/<int:notification_id>", methods=["DELETE"])
+def delete_notification(notification_id):
+    """Delete a specific notification"""
+    try:
+        # Try deleting student notification
+        from app.models.notification import Notification
+        notification = Notification.query.get(notification_id)
+        if notification:
+            db.session.delete(notification)
+            db.session.commit()
+            return jsonify({"message": "Notification deleted successfully"}), 200
+
+        # Try deleting admin notification
+        from app.models.admin_notification import AdminNotification
+        admin_notification = AdminNotification.query.get(notification_id)
+        if admin_notification:
+            db.session.delete(admin_notification)
+            db.session.commit()
+            return jsonify({"message": "Admin notification deleted successfully"}), 200
+
+        return jsonify({"message": "Notification not found"}), 404
+    except Exception as e:
+        db.session.rollback()
+        return (
+            jsonify({"message": "Failed to delete notification", "error": str(e)}),
             500,
         )
 
@@ -363,3 +438,80 @@ def reject_student(student_id):
         db.session.rollback()
         logging.error(f"Exception in reject_student: {e}")
         return jsonify({"message": "Failed to reject student", "error": str(e)}), 500
+
+
+@admin_bp.route("/students/<int:student_id>/resume", methods=["POST"])
+def upload_resume(student_id):
+    """Upload and replace student's resume file - simplified for Applied status students"""
+    import logging
+    logging.info(f"Resume upload request for student {student_id}")
+    
+    try:
+        # Check if student exists
+        student = StudentApplication.query.get_or_404(student_id)
+        logging.info(f"Student found: {student.name}, Status: {student.status}")
+        
+        # Check if student has Applied status (simplified permission check)
+        if student.status != "Applied":
+            logging.warning(f"Student {student_id} does not have Applied status: {student.status}")
+            return jsonify({"message": "Resume editing is only available for students with 'Applied' status"}), 403
+            
+        # Check if file was uploaded
+        if 'resume' not in request.files:
+            logging.warning("No resume file in request")
+            return jsonify({"message": "No resume file provided"}), 400
+            
+        file = request.files['resume']
+        if file.filename == '':
+            logging.warning("Empty filename")
+            return jsonify({"message": "No file selected"}), 400
+            
+        # Validate file type
+        if not file.filename or not file.filename.lower().endswith('.pdf'):
+            logging.warning(f"Invalid file type: {file.filename}")
+            return jsonify({"message": "Only PDF files are allowed"}), 400
+            
+        # Create secure filename
+        original_filename = secure_filename(file.filename)
+        # Create unique filename with student info
+        name_part = secure_filename(student.name.replace(' ', '_'))
+        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        new_filename = f"{name_part}_resume_{timestamp}.pdf"
+        logging.info(f"New filename: {new_filename}")
+        
+        # Ensure uploads directory exists
+        uploads_dir = os.path.abspath("uploads")
+        if not os.path.exists(uploads_dir):
+            os.makedirs(uploads_dir)
+            
+        # Delete old resume file if it exists
+        if student.resume:
+            old_file_path = os.path.join(uploads_dir, student.resume)
+            if os.path.exists(old_file_path):
+                try:
+                    os.remove(old_file_path)
+                    logging.info(f"Deleted old resume: {student.resume}")
+                except OSError as e:
+                    logging.warning(f"Could not delete old resume file: {e}")
+                    
+        # Save new file
+        new_file_path = os.path.join(uploads_dir, new_filename)
+        file.save(new_file_path)
+        logging.info(f"Saved new resume to: {new_file_path}")
+        
+        # Update database with new resume filename
+        student.resume = new_filename
+        
+        db.session.commit()
+        logging.info(f"Database updated with new resume filename: {new_filename}")
+        
+        return jsonify({
+            "message": "Resume uploaded successfully",
+            "resumeName": new_filename,
+            "resumeUrl": f"http://localhost:5000/uploads/{new_filename}"
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Resume upload failed: {str(e)}")
+        return jsonify({"message": "Failed to upload resume", "error": str(e)}), 500

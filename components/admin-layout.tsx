@@ -309,6 +309,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         className={`
           fixed z-50 h-screen w-64 bg-white/95 backdrop-blur-sm border-r border-gray-200 shadow-xl
           transform transition-all duration-500 ease-in-out
+
           ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
         `}
         onMouseEnter={handleMouseEnterSidebar}

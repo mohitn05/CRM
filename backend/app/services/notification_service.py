@@ -63,6 +63,23 @@ class NotificationService:
         return None
 
     @staticmethod
+    def create_notification(student_id, title, message, notification_type="general"):
+        """Create a generic notification for a student"""
+        notification = Notification(
+            student_id=student_id,
+            title=title,
+            message=message,
+            type=notification_type,
+            is_read=False,
+            created_at=datetime.utcnow(),
+        )
+
+        db.session.add(notification)
+        db.session.commit()
+
+        return notification
+
+    @staticmethod
     def get_student_notifications(student_id, unread_only=False):
         """Get all notifications for a student"""
         query = Notification.query.filter_by(student_id=student_id)

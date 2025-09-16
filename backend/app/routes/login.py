@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy import or_
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app import db
+from app.db import db
 from app.models.password_reset import PasswordResetRequest
 from app.models.student import StudentApplication
 
@@ -68,7 +68,7 @@ def login():
 
 
 # ✉️ OTP Request route
-@login_bp.route("/api/request-otp", methods=["POST"])
+@login_bp.route("/request-otp", methods=["POST"])
 def request_otp():
     data = request.get_json()
     email = data.get("email")
@@ -112,23 +112,21 @@ def request_otp():
     db.session.commit()
 
     # Send OTP via email for both email and phone requests
-    from app.services.email_service import send_email
+    from app.services.email_sender import send_otp_email
 
-    if data.get("email"):
-        subject = "Password Reset OTP"
-        body = f"Hi {user.name},\n\nYour password reset OTP code is: {otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email."
+    # Use the detailed OTP email function
+    student_name = user.name if user else "User"
+    email_sent = send_otp_email(email, student_name, otp)
+    if email_sent:
+        print("📧 OTP Sent via Email:", otp, "to", email)
     else:
-        subject = "Password Reset OTP (Phone Request)"
-        body = f"Hi {user.name},\n\nYour password reset OTP code is: {otp}\n\nThis code will expire in 10 minutes.\n\nNote: You requested OTP via phone number, but we're sending it to your registered email for security.\n\nIf you didn't request this, please ignore this email."
-
-    send_email(email, subject, body)
-    print("📧 OTP Sent via Email:", otp, "to", email)
+        print("❌ Failed to send OTP email to", email)
 
     return jsonify({"message": "OTP sent"}), 200
 
 
 # 🔁 OTP Resend route
-@login_bp.route("/api/resend-otp", methods=["POST"])
+@login_bp.route("/resend-otp", methods=["POST"])
 def resend_otp():
     data = request.get_json()
     email = data.get("email")
@@ -162,19 +160,22 @@ def resend_otp():
     db.session.commit()
 
     # Send resend OTP via email
-    from app.services.email_service import send_email
+    from app.services.email_sender import send_otp_email
 
     user = StudentApplication.query.filter_by(email=email).first()
-    subject = "Password Reset OTP (Resent)"
-    body = f"Hi {user.name},\n\nYour new password reset OTP code is: {otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email."
-    send_email(email, subject, body)
-    print("📧 Resent OTP via Email:", otp, "to", email)
+    # Use the detailed OTP email function for resend as well
+    student_name = user.name if user else "User"
+    email_sent = send_otp_email(email, student_name, otp)
+    if email_sent:
+        print("📧 Resent OTP via Email:", otp, "to", email)
+    else:
+        print("❌ Failed to resend OTP email to", email)
 
     return jsonify({"message": "OTP resent"}), 200
 
 
 # ✅ OTP Verification route
-@login_bp.route("/api/verify-otp", methods=["POST"])
+@login_bp.route("/verify-otp", methods=["POST"])
 def verify_otp():
     data = request.get_json()
     email = data.get("email")
@@ -213,7 +214,7 @@ def verify_otp():
 
 
 # 🔐 Set new password route
-@login_bp.route("/api/set-new-password", methods=["POST"])
+@login_bp.route("/set-new-password", methods=["POST"])
 def set_new_password():
     data = request.get_json()
     email = data.get("email")

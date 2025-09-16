@@ -1,4 +1,4 @@
-// File: d:\Microsoft VS Code\Projects\CRM\app\admin\login\page.tsx
+// File: D:\Microsoft VS Code\Projects\CRM\app\admin\login\page.tsx
 import * as entry from '../../../../../app/admin/login/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

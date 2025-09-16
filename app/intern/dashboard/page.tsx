@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import {
+  Award,
+  BookOpen,
   Building2,
   Calendar,
   CheckCircle,
@@ -21,10 +23,12 @@ import {
   Phone,
   Save,
   Sparkles,
+  Target,
   Trash2,
+  TrendingUp,
   User,
   X,
-  XCircle,
+  XCircle
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -193,24 +197,23 @@ export default function InternDashboard() {
         }
 
         toast({
-          title: "🎉 Profile Updated Successfully!",
-          description: "✨ Your information has been updated and saved to your profile.",
-          variant: "success" as any,
+          title: "Profile Updated! ✅",
+          description: "Your information has been updated successfully.",
         })
       } else {
         const error = await response.json()
         toast({
-          title: "❌ Update Failed",
-          description: "⚠️ " + (error.message || "Failed to update profile. Please try again."),
+          title: "Update Failed",
+          description: error.message || "Failed to update profile",
           variant: "destructive",
         })
       }
     } catch (error) {
       console.error("Error updating profile:", error)
       toast({
-        title: "🌐 Connection Error",
-        description: "⚠️ Failed to connect to server. Please check your internet connection.",
-        variant: "warning" as any,
+        title: "Update Failed",
+        description: "Failed to connect to server",
+        variant: "destructive",
       })
     }
 
@@ -220,9 +223,8 @@ export default function InternDashboard() {
   const handleLogout = () => {
     localStorage.removeItem("internAuth")
     toast({
-      title: "👋 Logged Out Successfully!",
-      description: "✨ Thank you for using our platform! Come back soon.",
-      variant: "info" as any,
+      title: "Logged Out Successfully ✅",
+      description: "Thank you for using our platform!",
     })
     router.push("/")
   }
@@ -345,6 +347,40 @@ export default function InternDashboard() {
     }
   }
 
+  // Educational content based on domain
+  const getDomainLearningPath = (domain: string) => {
+    switch (domain) {
+      case "Frontend Developer":
+        return [
+          { skill: "HTML/CSS Fundamentals", progress: 100 },
+          { skill: "JavaScript Basics", progress: 80 },
+          { skill: "React Framework", progress: 60 },
+          { skill: "State Management", progress: 40 }
+        ];
+      case "Backend Developer":
+        return [
+          { skill: "Server Fundamentals", progress: 100 },
+          { skill: "Database Design", progress: 85 },
+          { skill: "API Development", progress: 70 },
+          { skill: "Authentication", progress: 50 }
+        ];
+      case "Database Management":
+        return [
+          { skill: "SQL Basics", progress: 100 },
+          { skill: "Database Design", progress: 90 },
+          { skill: "Performance Tuning", progress: 65 },
+          { skill: "Backup Strategies", progress: 45 }
+        ];
+      default:
+        return [
+          { skill: "Core Concepts", progress: 100 },
+          { skill: "Intermediate Skills", progress: 75 },
+          { skill: "Advanced Topics", progress: 50 },
+          { skill: "Specialization", progress: 25 }
+        ];
+    }
+  };
+
   if (!internData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -356,91 +392,41 @@ export default function InternDashboard() {
     )
   }
 
+  const learningPath = getDomainLearningPath(internData.domain);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
-      {/* Enhanced Background Elements */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        {/* Animated gradient waves */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-30">
-          <div className="absolute -top-40 -left-40 w-96 h-96 bg-gradient-to-br from-blue-400/20 via-indigo-400/15 to-purple-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0s' }}></div>
-          <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-tl from-purple-400/20 via-pink-400/15 to-blue-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-gradient-to-r from-indigo-300/15 to-blue-300/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 sm:p-6 md:p-8 w-full min-w-0">
+      {/* Header */}
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4 flex-wrap min-w-0">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome, {internData.name}!</h1>
+          <p className="text-gray-600">Intern Dashboard</p>
         </div>
-
-        {/* Floating particles */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-blue-400/30 rounded-full animate-bounce"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${2 + Math.random() * 2}s`
-              }}
-            ></div>
-          ))}
-        </div>
-      </div>
-
-      <div className="relative z-10 p-4 sm:p-6 md:p-8 w-full min-w-0">
-        {/* Enhanced Header */}
-        <header className="relative mb-8">
-          <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-3xl p-8 shadow-2xl">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-              <div className="flex items-center gap-6">
-                {/* Profile Avatar */}
-                <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                    <User className="w-10 h-10 text-white" />
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full border-2 border-white animate-pulse flex items-center justify-center">
-                    <CheckCircle className="w-3 h-3 text-white" />
-                  </div>
-                </div>
-
-                <div>
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 via-blue-700 to-purple-700 bg-clip-text text-transparent mb-2">
-                    Welcome, {internData.name}! 👋
-                  </h1>
-                  <p className="text-lg text-gray-600 font-medium flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-yellow-500 animate-pulse" />
-                    Your Personalized Intern Dashboard
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <NotificationBell studentId={internData.id} />
-                <Button
-                  onClick={handleLogout}
-                  className="group relative overflow-hidden bg-gradient-to-r from-red-500 via-pink-500 to-red-600 hover:from-red-600 hover:via-pink-600 hover:to-red-700 text-white px-8 py-4 rounded-2xl shadow-2xl hover:shadow-3xl hover:shadow-red-500/30 transition-all duration-500 transform hover:scale-105 border-2 border-white/20"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-                  <div className="relative flex items-center gap-3">
-                    <LogOut className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                    <span className="font-bold text-lg">Logout</span>
-                  </div>
-                  <div className="absolute -inset-1 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-500 -z-10"></div>
-                </Button>
-              </div>
+        <div className="flex items-center space-x-4">
+          <NotificationBell studentId={internData.id} />
+          <Button
+            onClick={handleLogout}
+            className="group relative overflow-hidden bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-2.5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-red-400"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-red-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative flex items-center gap-2">
+              <LogOut className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+              <span className="font-semibold">Logout</span>
             </div>
-          </div>
-        </header>
+          </Button>
+        </div>
+      </header>
 
-        {/* Enhanced Grid Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 min-w-0">
-          {/* Enhanced Profile Card */}
-          <Card className="lg:col-span-2 relative overflow-hidden bg-white/30 backdrop-blur-xl border border-white/40 shadow-2xl hover:shadow-3xl transition-all duration-500 rounded-3xl group">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-            <CardHeader className="relative p-8 pb-6">
+      {/* Grid Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
+        {/* Left Column - Profile and Status */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Profile Card */}
+          <Card className="p-6 shadow-sm bg-white border border-gray-200 min-w-0">
+            <CardHeader className="p-0 mb-6">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-blue-700 to-purple-700 bg-clip-text text-transparent flex items-center gap-3">
-                  <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                    <User className="w-8 h-8 text-white" />
-                  </div>
+                <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                  <User className="w-6 h-6 text-gray-700" />
                   Profile Information
                 </CardTitle>
                 {!isEditing ? (
@@ -456,84 +442,56 @@ export default function InternDashboard() {
                         });
                       }
                     }}
-                    className={`group relative overflow-hidden bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-600 text-white px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 ${internData.status !== "Applied" ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`btn btn-muted text-blue-600${internData.status !== "Applied" ? " opacity-50 cursor-not-allowed" : ""}`}
+                    tabIndex={0}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                    <div className="relative flex items-center gap-2">
-                      <Edit className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                      <span className="font-semibold">Edit Profile</span>
-                    </div>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit
                   </Button>
                 ) : (
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={() => { setIsEditing(false); setEditData(internData) }}
-                      className="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 text-white px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                    >
-                      <div className="relative flex items-center gap-2">
-                        <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
-                        <span className="font-semibold">Cancel</span>
-                      </div>
+                  <div className="flex gap-2">
+                    <Button onClick={() => { setIsEditing(false); setEditData(internData) }} className="btn btn-outline">
+                      <X className="w-4 h-4 mr-2" />
+                      Cancel
                     </Button>
-                    <Button
-                      onClick={handleSave}
-                      disabled={isLoading || internData.status !== "Applied"}
-                      className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                      <div className="relative flex items-center gap-2">
-                        <Save className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-                        <span className="font-semibold">{isLoading ? "Saving..." : "Save Changes"}</span>
-                      </div>
+                    <Button onClick={handleSave} disabled={isLoading || internData.status !== "Applied"} className="btn btn-primary bg-blue-600 hover:bg-blue-700">
+                      <Save className="w-4 h-4 mr-2" />
+                      {isLoading ? "Saving..." : "Save"}
                     </Button>
                   </div>
                 )}
               </div>
             </CardHeader>
 
-            <CardContent className="relative p-8 pt-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <CardContent className="p-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
                 {[
-                  { label: "Full Name", value: internData.name, icon: <User className="w-5 h-5" />, key: "name", gradient: "from-blue-500 to-purple-600" },
-                  { label: "Email Address", value: internData.email, icon: <Mail className="w-5 h-5" />, key: "email", gradient: "from-green-500 to-teal-600" },
-                  { label: "Phone Number", value: internData.phone, icon: <Phone className="w-5 h-5" />, key: "phone", gradient: "from-orange-500 to-red-600" },
-                ].map(({ label, value, icon, key, gradient }) => (
-                  <div key={key} className="group relative bg-white/40 backdrop-blur-md border border-white/50 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white/60">
-                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl" style={{ background: `linear-gradient(135deg, var(--tw-gradient-stops))` }}></div>
-
-                    <Label className={`flex items-center gap-3 text-gray-700 mb-4 text-lg font-semibold`}>
-                      <div className={`p-2 bg-gradient-to-r ${gradient} rounded-xl text-white shadow-lg`}>
-                        {icon}
-                      </div>
-                      <span>{label}</span>
-                    </Label>
-
+                  { label: "Full Name", value: internData.name, icon: <User />, key: "name" },
+                  { label: "Email Address", value: internData.email, icon: <Mail />, key: "email" },
+                  { label: "Phone Number", value: internData.phone, icon: <Phone />, key: "phone" },
+                ].map(({ label, value, icon, key }) => (
+                  <div key={key} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <Label className="flex items-center gap-2 text-gray-700 mb-2 text-base font-medium">{icon}<span>{label}</span></Label>
                     {isEditing ? (
                       <Input
                         type={key === "phone" ? "tel" : "text"}
                         value={(editData as any)[key]}
                         onChange={(e) => setEditData(prev => prev ? { ...prev, [key]: e.target.value } : null)}
                         maxLength={key === "phone" ? 10 : undefined}
-                        className="bg-white/70 backdrop-blur-sm border-white/60 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-14 rounded-xl text-lg font-medium shadow-inner"
+                        className="text-base"
                         disabled={internData.status !== "Applied"}
                       />
                     ) : (
-                      <p className="text-gray-900 font-bold text-xl bg-white/30 p-4 rounded-xl backdrop-blur-sm border border-white/40">{value}</p>
+                      <p className="text-gray-900 font-semibold text-base">{value}</p>
                     )}
                   </div>
                 ))}
 
-                {/* Enhanced Domain */}
-                <div className="group relative bg-white/40 backdrop-blur-md border border-white/50 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white/60">
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-
-                  <Label className="flex items-center gap-3 text-gray-700 mb-4 text-lg font-semibold">
-                    <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl text-white shadow-lg">
-                      <Building2 className="w-5 h-5" />
-                    </div>
-                    <span>Domain</span>
+                {/* Domain */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <Label className="flex items-center gap-2 text-gray-700 mb-2 text-base font-medium">
+                    <Building2 className="w-4 h-4" /> Domain
                   </Label>
-
                   {isEditing ? (
                     <Select
                       value={editData?.domain || ""}
@@ -543,34 +501,33 @@ export default function InternDashboard() {
                       }}
                       disabled={internData.status !== "Applied"}
                     >
-                      <SelectTrigger className="bg-white/70 backdrop-blur-sm border-white/60 text-gray-800 h-14 rounded-xl text-lg font-medium shadow-inner">
+                      <SelectTrigger className="bg-white text-black border-gray-300 text-base">
                         <SelectValue placeholder="Select Domain" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white/95 backdrop-blur-xl border-white/60 rounded-2xl shadow-2xl">
+                      <SelectContent className="bg-white text-black border-gray-300">
                         {domainOptions.map((d: { value: string; label: string }) => (
-                          <SelectItem key={d.value} value={d.value} className="bg-transparent text-gray-800 hover:bg-blue-50/80 rounded-xl m-1">{d.value}</SelectItem>
+                          <SelectItem key={d.value} value={d.value} className="bg-white text-black hover:bg-gray-100">{d.label.replace(/^[^ ]+ /, "")}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Badge className="text-lg px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl shadow-lg">
-                      {editData?.domain || internData.domain}
+                    <Badge className="text-base px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+                      {(() => {
+                        const domain = editData?.domain || internData.domain;
+                        if (domain === "Frontend") return "Frontend Developer";
+                        if (domain === "Backend") return "Backend Developer";
+                        return domain;
+                      })()}
                     </Badge>
                   )}
                 </div>
 
-                {/* Enhanced Registration Date */}
-                <div className="group relative bg-white/40 backdrop-blur-md border border-white/50 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white/60">
-                  <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-
-                  <Label className="flex items-center gap-3 text-gray-700 mb-4 text-lg font-semibold">
-                    <div className="p-2 bg-gradient-to-r from-pink-500 to-red-600 rounded-xl text-white shadow-lg">
-                      <Calendar className="w-5 h-5" />
-                    </div>
-                    <span>Registration Date</span>
+                {/* Registration Date */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <Label className="flex items-center gap-2 text-gray-700 mb-2 text-base font-medium">
+                    <Calendar className="w-4 h-4" /> Registration Date
                   </Label>
-
-                  <p className="text-gray-900 font-bold text-xl bg-white/30 p-4 rounded-xl backdrop-blur-sm border border-white/40">
+                  <p className="text-gray-900 font-semibold text-base">
                     {internData.dateRegistered && !isNaN(new Date(internData.dateRegistered).getTime())
                       ? new Date(internData.dateRegistered).toLocaleDateString()
                       : "Not Available"}
@@ -580,252 +537,270 @@ export default function InternDashboard() {
             </CardContent>
           </Card>
 
-          {/* Enhanced Right Column */}
-          <div className="flex flex-col gap-8">
-            {/* Enhanced Status Card */}
-            <Card className="relative overflow-hidden bg-white/30 backdrop-blur-xl border border-white/40 shadow-2xl hover:shadow-3xl transition-all duration-500 rounded-3xl group">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-              <CardHeader className="relative p-8 pb-6">
-                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-blue-700 to-purple-700 bg-clip-text text-transparent flex items-center gap-3">
-                  <div className={`p-3 bg-gradient-to-br ${getStatusIcon(internData.status) ? 'from-green-500 to-emerald-600' : 'from-blue-500 to-indigo-600'} rounded-2xl shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
-                    {getStatusIcon(internData.status) || <Clock className="w-8 h-8 text-white" />}
+          {/* Learning Path */}
+          <Card className="p-6 shadow-sm bg-white border border-gray-200">
+            <CardHeader className="p-0 mb-6">
+              <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                <BookOpen className="w-6 h-6 text-gray-700" />
+                Your Learning Path
+              </CardTitle>
+              <p className="text-gray-600 mt-2">Progress in your {internData.domain} specialization</p>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-6">
+                {learningPath.map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-800">{item.skill}</span>
+                      <span className="text-sm text-gray-600">{item.progress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2.5 rounded-full"
+                        style={{ width: `${item.progress}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  Application Status
-                </CardTitle>
-              </CardHeader>
+                ))}
 
-              <CardContent className="relative p-8 pt-4">
-                <div className="text-center space-y-6">
-                  <div className="relative">
-                    <Badge className={`${getStatusColor(internData.status)} text-xl px-8 py-4 rounded-2xl font-bold shadow-lg transform hover:scale-105 transition-all duration-300`}>
-                      {internData.status}
-                    </Badge>
-                  </div>
-
-                  {/* Enhanced Animated Status Messages */}
-                  {internData.status === "Applied" && (
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-3xl border border-blue-200/50 shadow-inner">
-                      <div className="flex justify-center mb-6">
-                        <div className="relative">
-                          <div className="text-7xl animate-pulse" style={{ animationDuration: '2s' }}>
-                            📝
-                          </div>
-                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full animate-ping"></div>
-                        </div>
-                      </div>
-                      <div className="text-center space-y-3">
-                        <h3 className="text-xl font-bold text-gray-800">Application Submitted! 🚀</h3>
-                        <p className="text-blue-700 font-medium">Your application is in the queue for review</p>
-                        <div className="flex items-center justify-center gap-2 text-blue-600">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                          <span className="ml-2 font-semibold">Processing</span>
-                        </div>
-                        <p className="text-sm text-gray-600">We'll update you within 24-48 hours</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {internData.status === "Selected" && (
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-3xl border border-green-200/50 shadow-inner">
-                      <div className="flex justify-center mb-6">
-                        <div className="relative">
-                          <div className="text-7xl animate-bounce" style={{ animationDuration: '1s' }}>
-                            🎉
-                          </div>
-                          <div className="absolute inset-0 animate-ping">
-                            <div className="text-7xl opacity-30">✨</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-center space-y-3">
-                        <h3 className="text-xl font-bold text-gray-800">Congratulations! 👏</h3>
-                        <p className="text-green-700 font-medium">You've been selected for the internship!</p>
-                        <div className="bg-green-100 p-4 rounded-2xl">
-                          <span className="text-green-800 font-semibold">Check your email for next steps</span>
-                        </div>
-                        <p className="text-sm text-gray-600">Welcome to the team!</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {internData.status === "Rejected" && (
-                    <div className="bg-gradient-to-br from-red-50 to-pink-50 p-8 rounded-3xl border border-red-200/50 shadow-inner">
-                      <div className="flex justify-center mb-6">
-                        <div className="text-7xl animate-bounce" style={{ animationDuration: '1.5s' }}>
-                          💔
-                        </div>
-                      </div>
-                      <div className="text-center space-y-3">
-                        <h3 className="text-xl font-bold text-gray-800">Not This Time</h3>
-                        <p className="text-red-700 font-medium">Your application wasn't successful</p>
-                        <div className="bg-red-100 p-4 rounded-2xl">
-                          <span className="text-red-800 font-semibold">Don't give up! Keep improving</span>
-                        </div>
-                        <p className="text-sm text-gray-600">Apply again when you're ready</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {(internData.status === "In Review" || internData.status === "Under Review") && (
-                    <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-8 rounded-3xl border border-yellow-200/50 shadow-inner">
-                      <div className="flex justify-center mb-6">
-                        <div className="relative">
-                          <div className="text-7xl animate-spin" style={{ animationDuration: '3s' }}>
-                            ⏳
-                          </div>
-                          <div className="absolute inset-0 animate-pulse">
-                            <div className="text-7xl opacity-20">🔍</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-center space-y-3">
-                        <h3 className="text-xl font-bold text-gray-800">Under Review 🔎</h3>
-                        <p className="text-yellow-700 font-medium">Our team is carefully reviewing your application</p>
-                        <div className="bg-yellow-100 p-4 rounded-2xl">
-                          <span className="text-yellow-800 font-semibold">Please be patient with us</span>
-                        </div>
-                        <p className="text-sm text-gray-600">Results coming soon!</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {internData.status === "In Training" && (
-                    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-8 rounded-3xl border border-purple-200/50 shadow-inner">
-                      <div className="flex justify-center mb-6">
-                        <div className="relative">
-                          <div className="text-7xl animate-bounce" style={{ animationDuration: '1.5s' }}>
-                            🎓
-                          </div>
-                          <div className="absolute -top-4 -right-4 text-2xl animate-spin" style={{ animationDuration: '2s' }}>
-                            ✨
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-center space-y-3">
-                        <h3 className="text-xl font-bold text-gray-800">Training in Progress! 💪</h3>
-                        <p className="text-purple-700 font-medium">Welcome to the team!</p>
-                        <div className="bg-purple-100 p-4 rounded-2xl">
-                          <span className="text-purple-800 font-semibold">Your learning journey has begun</span>
-                        </div>
-                        <p className="text-sm text-gray-600">Keep up the excellent work!</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {internData.status === "Completed" && (
-                    <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-8 rounded-3xl border border-indigo-200/50 shadow-inner">
-                      <div className="flex justify-center mb-6">
-                        <div className="relative">
-                          <div className="text-7xl animate-bounce" style={{ animationDuration: '1s' }}>
-                            🏆
-                          </div>
-                          <div className="absolute -inset-4 animate-pulse">
-                            <div className="text-8xl opacity-20">🎆</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-center space-y-3">
-                        <h3 className="text-xl font-bold text-gray-800">Mission Accomplished! 🎆</h3>
-                        <p className="text-indigo-700 font-medium">Internship completed successfully</p>
-                        <div className="bg-indigo-100 p-4 rounded-2xl">
-                          <span className="text-indigo-800 font-semibold">You're now part of our alumni network</span>
-                        </div>
-                        <p className="text-sm text-gray-600">Congratulations on this achievement!</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Default message for other statuses */}
-                  {!["Applied", "Selected", "Rejected", "In Review", "Under Review", "In Training", "Completed"].includes(internData.status) && (
-                    <div className="bg-gradient-to-br from-gray-50 to-slate-50 p-8 rounded-3xl border border-gray-200/50 shadow-inner">
-                      <div className="text-center">
-                        <p className="text-gray-600 text-lg leading-relaxed">{getStatusMessage(internData.status)}</p>
-                      </div>
-                    </div>
-                  )}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-4">
+                  <h3 className="font-semibold text-blue-800 flex items-center gap-2 mb-2">
+                    <Target className="w-5 h-5" />
+                    Next Steps
+                  </h3>
+                  <p className="text-blue-700 text-sm">
+                    Complete your current module to unlock the next set of skills in your {internData.domain} journey.
+                    Check your email for learning resources and assignments.
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Enhanced Quick Actions */}
-            <Card className="relative overflow-hidden bg-white/30 backdrop-blur-xl border border-white/40 shadow-2xl hover:shadow-3xl transition-all duration-500 rounded-3xl group">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Status */}
+          <Card className="p-6 shadow-sm bg-white border border-gray-200">
+            <CardHeader className="p-0 mb-6">
+              <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                {getStatusIcon(internData.status)}
+                Application Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 space-y-6">
+              <div className="text-center">
+                <Badge className={`${getStatusColor(internData.status)} text-lg px-4 py-2 mb-6`}>
+                  {internData.status}
+                </Badge>
 
-              <CardHeader className="relative p-8 pb-6">
-                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-emerald-700 to-blue-700 bg-clip-text text-transparent flex items-center gap-3">
-                  <div className="p-3 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-2xl shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                    <Sparkles className="w-8 h-8 text-white animate-pulse" />
-                  </div>
-                  Quick Actions
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="relative p-8 pt-4 space-y-4">
-                {/* Contact Support */}
-                <div
-                  className="group/item relative overflow-hidden bg-white/50 backdrop-blur-md border border-white/60 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105 hover:bg-white/70"
-                  onClick={() => window.open("https://mail.google.com/mail/u/0/#inbox?compose=DmwnWtDsVNbMNKTNwzTxmkpwGdhvfstmFcPTmJdfNPCsQjKpWZStJStKgcJrcFvsfVQcJBfwjhlq")}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-green-500/10 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-                  <div className="relative flex items-center gap-4">
-                    <div className="p-3 bg-gradient-to-r from-blue-500 to-green-600 rounded-xl text-white shadow-lg group-hover/item:scale-110 transition-transform duration-300">
-                      <Mail className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-gray-800">Contact Support</h4>
-                      <p className="text-sm text-gray-600">Get help via email</p>
-                    </div>
-                    <div className="ml-auto opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    </div>
-                  </div>
+                {/* Status Message */}
+                <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                  <p className="text-gray-700">
+                    {getStatusMessage(internData.status)}
+                  </p>
                 </div>
 
-                {/* Call Support */}
-                <div
-                  className="group/item relative overflow-hidden bg-white/50 backdrop-blur-md border border-white/60 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105 hover:bg-white/70"
-                  onClick={() => window.open("tel:9359463350")}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-blue-500/10 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-                  <div className="relative flex items-center gap-4">
-                    <div className="p-3 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl text-white shadow-lg group-hover/item:scale-110 transition-transform duration-300">
-                      <Phone className="w-6 h-6" />
+                {/* Animated Status Visualization */}
+                {internData.status === "Applied" && (
+                  <div className="space-y-4">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-pulse" style={{ animationDuration: '2s' }}>
+                        📝
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-gray-800">Call Support</h4>
-                      <p className="text-sm text-gray-600">+91 9359463350</p>
-                    </div>
-                    <div className="ml-auto opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">Your application has been submitted</p>
+                      <div className="flex items-center justify-center text-blue-600">
+                        <span className="text-sm font-medium">Waiting for review</span>
+                      </div>
+                      <p className="text-xs text-gray-500">We'll update you soon</p>
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Delete Application */}
-                <div
-                  className="group/item relative overflow-hidden bg-red-50/70 backdrop-blur-md border border-red-200/60 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105 hover:bg-red-100/70"
-                  onClick={deleteApplication}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-pink-500/10 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-                  <div className="relative flex items-center gap-4">
-                    <div className="p-3 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl text-white shadow-lg group-hover/item:scale-110 transition-transform duration-300">
-                      <Trash2 className="w-6 h-6" />
+                {internData.status === "Selected" && (
+                  <div className="space-y-4">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
+                        😊
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-red-800">Delete Application</h4>
-                      <p className="text-sm text-red-600">Permanently remove</p>
-                    </div>
-                    <div className="ml-auto opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
-                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">You have been selected!</p>
+                      <div className="flex items-center justify-center text-green-600">
+                        <span className="text-sm font-medium">Congratulations!</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Check your email for next steps</p>
                     </div>
                   </div>
+                )}
+
+                {internData.status === "Rejected" && (
+                  <div className="space-y-4">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
+                        😢
+                      </div>
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">Your application was not successful</p>
+                      <div className="flex items-center justify-center text-red-600">
+                        <span className="text-sm font-medium">Better luck next time!</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Keep improving and apply again</p>
+                    </div>
+                  </div>
+                )}
+
+                {(internData.status === "In Review" || internData.status === "Under Review") && (
+                  <div className="space-y-4">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-spin" style={{ animationDuration: '2s' }}>
+                        ⏳
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-blue-600">Your application is under review</p>
+                      <div className="flex items-center justify-center text-blue-600">
+                        <span className="text-sm font-medium">Please wait for updates</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {internData.status === "In Training" && (
+                  <div className="space-y-4">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-bounce" style={{ animationDuration: '1.5s' }}>
+                        🎓
+                      </div>
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">Welcome to the team!</p>
+                      <div className="flex items-center justify-center text-purple-600">
+                        <span className="text-sm font-medium">Your training has begun</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Keep up the great work</p>
+                    </div>
+                  </div>
+                )}
+
+                {internData.status === "Completed" && (
+                  <div className="space-y-4">
+                    <div className="flex justify-center">
+                      <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
+                        🏆
+                      </div>
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">Congratulations!</p>
+                      <div className="flex items-center justify-center text-blue-600">
+                        <span className="text-sm font-medium">Internship completed successfully</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Well done!</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Educational Progress Card */}
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-200">
+                <h3 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
+                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                  Program Progress
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Modules Completed</span>
+                    <span className="font-medium">3/12</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style={{ width: '25%' }}></div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Keep going! You're making great progress in your internship journey.
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card className="p-6 shadow-sm bg-white border border-gray-200">
+            <CardHeader className="p-0 mb-4">
+              <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-gray-700" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 space-y-3">
+              <Card className="p-4 bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
+                <div className="flex items-center gap-3" onClick={() => window.open("https://mail.google.com/mail/u/0/#inbox?compose=DmwnWtDsVNbMNKTNwzTxmkpwGdhvfstmFcPTmJdfNPCsQjKpWZStJStKgcJrcFvsfVQcJBfwjhlq")}>
+                  <Mail className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <div className="text-base font-medium text-gray-700">Contact Support</div>
+                    <div className="text-xs text-gray-500">Get help with your application</div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4 bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
+                <div className="flex items-center gap-3" onClick={() => window.open("tel:9359463350")}>
+                  <Phone className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <div className="text-base font-medium text-gray-700">Call Support</div>
+                    <div className="text-xs text-gray-500">+91 9359463350</div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4 bg-red-50 border border-red-200 hover:bg-red-100 transition-colors cursor-pointer">
+                <div className="flex items-center gap-3" onClick={deleteApplication}>
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                  <div>
+                    <div className="text-base font-medium text-red-700">Delete Application</div>
+                    <div className="text-xs text-red-500">Permanently remove your application</div>
+                  </div>
+                </div>
+              </Card>
+            </CardContent>
+          </Card>
+
+          {/* Educational Resources */}
+          <Card className="p-6 shadow-sm bg-white border border-gray-200">
+            <CardHeader className="p-0 mb-4">
+              <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Award className="w-5 h-5 text-gray-700" />
+                Learning Resources
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <BookOpen className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-gray-800">Internship Guide</h4>
+                    <p className="text-xs text-gray-600">Tips for success in your program</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100">
+                  <Target className="w-5 h-5 text-purple-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-gray-800">Career Development</h4>
+                    <p className="text-xs text-gray-600">Building your professional skills</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
+                  <Award className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-gray-800">Certification Path</h4>
+                    <p className="text-xs text-gray-600">Earning your completion certificate</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

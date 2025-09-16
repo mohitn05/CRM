@@ -1,11 +1,12 @@
 import random
+import random
 import hashlib
 import datetime
 from flask import Blueprint, request, jsonify
 from app.db import db
 from app.models.password_reset import PasswordResetRequest
 from app.models.student import StudentApplication
-from app.services.email_sender import send_email
+from app.services.email_sender import send_otp_email
 
 password_reset_bp = Blueprint("password_reset", __name__)
 
@@ -41,10 +42,11 @@ def request_password_reset():
     )
     db.session.add(reset_request)
     db.session.commit()
-    # Send OTP email
-    subject = "Your Password Reset OTP"
-    body = f"Your OTP code is: {otp}\nIt expires in 10 minutes."
-    send_email(email, subject, body)
+    # Send detailed OTP email - get student name safely
+    student_name = student.name if student else "User"
+    email_sent = send_otp_email(email, student_name, otp)
+    if not email_sent:
+        return jsonify({"message": "Failed to send OTP email"}), 500
     return jsonify({"message": "OTP sent to email"}), 200
 
 @password_reset_bp.route("/password-reset/verify", methods=["POST"])

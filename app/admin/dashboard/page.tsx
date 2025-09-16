@@ -5,9 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "@/components/ui/use-toast"
 import type { ScriptableContext } from "chart.js"
 import { ArcElement, BarElement, CategoryScale, Chart, ChartOptions, Legend, LinearScale, Tooltip } from "chart.js"
-import { Award, ClipboardListIcon, Code, Database, GraduationCap, Layers, Monitor, Palette, Send, Server, Smartphone, TrendingUp, Users } from "lucide-react"
+import { Award, BookOpen, Calendar, ClipboardListIcon, Code, Database, GraduationCap, Layers, Monitor, Palette, Send, Server, Smartphone, Target, TrendingUp, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Bar, Pie } from "react-chartjs-2"
 
 // Register Chart.js elements for Pie and Bar charts
@@ -33,6 +33,8 @@ const sendEmailNotification = async (email: string, name: string, status: string
 export default function DashboardPage() {
   const router = useRouter()
   const [applications, setApplications] = useState<Application[]>([])
+  const [lastUpdated, setLastUpdated] = useState<string>("")
+  const [isClient, setIsClient] = useState(false)
 
   // Helper to normalize domain names
   const normalizeDomain = (domain: string) => {
@@ -47,15 +49,14 @@ export default function DashboardPage() {
     return domain;
   };
 
-  // Debug: Log applications state whenever it changes
-  useEffect(() => {
-    console.log('Applications loaded for dashboard:', applications);
-  }, [applications]);
   const [recentApplications, setRecentApplications] = useState<Application[]>([])
   const [selectedDomain, setSelectedDomain] = useState<string>("")
   const [domains, setDomains] = useState<string[]>([])
 
   useEffect(() => {
+    // Set client flag to avoid hydration mismatches
+    setIsClient(true)
+
     // Check authentication
     if (!localStorage.getItem("adminAuth")) {
       router.push("/admin/login")
@@ -64,6 +65,13 @@ export default function DashboardPage() {
 
     // Load applications and refresh data
     loadApplications()
+
+    // Set up periodic refresh every 5 minutes to keep data fresh
+    const interval = setInterval(() => {
+      loadApplications()
+    }, 5 * 60 * 1000) // 5 minutes
+
+    return () => clearInterval(interval)
   }, [router])
 
   const loadApplications = async () => {
@@ -71,6 +79,7 @@ export default function DashboardPage() {
       const response = await fetch("http://localhost:5000/api/admin/applications")
       const data = await response.json()
       setApplications(data)
+      setLastUpdated(new Date().toLocaleString('en-CA'))
 
       const recent = data
         .sort((a: Application, b: Application) => new Date(b.dateApplied).getTime() - new Date(a.dateApplied).getTime())
@@ -144,7 +153,7 @@ export default function DashboardPage() {
     }
   }
 
-  const stats = {
+  const stats = useMemo(() => ({
     total: applications.length,
     applied: applications.filter((app) => app.status === "Applied").length,
     inReview: applications.filter((app) => app.status === "In Review" || app.status === "Under Review").length,
@@ -152,11 +161,15 @@ export default function DashboardPage() {
     rejected: applications.filter((app) => app.status === "Rejected").length,
     inTraining: applications.filter((app) => app.status === "In Training").length,
     completed: applications.filter((app) => app.status === "Completed").length,
-  }
+  }), [applications])
 
   // Normalize all application domains before stats
-  const normalizedApplications = applications.map(app => ({ ...app, domain: normalizeDomain(app.domain) }));
-  const domainStats = {
+  const normalizedApplications = useMemo(() =>
+    applications.map(app => ({ ...app, domain: normalizeDomain(app.domain) })),
+    [applications]
+  )
+
+  const domainStats = useMemo(() => ({
     "Frontend Developer": normalizedApplications.filter((app) => app.domain === "Frontend Developer").length,
     "Backend Developer": normalizedApplications.filter((app) => app.domain === "Backend Developer").length,
     "Database Management": normalizedApplications.filter((app) => app.domain === "Database Management").length,
@@ -165,7 +178,7 @@ export default function DashboardPage() {
     "Full Stack Developer": normalizedApplications.filter((app) => app.domain === "Full Stack Developer").length,
     "UI/UX Designer": normalizedApplications.filter((app) => app.domain === "UI/UX Designer").length,
     "Digital Marketing": normalizedApplications.filter((app) => app.domain === "Digital Marketing").length,
-  };
+  }), [normalizedApplications])
 
   // Gradient color stops for each domain - Using your specified colors with gradients
   const pieGradients = [
@@ -189,7 +202,7 @@ export default function DashboardPage() {
     });
   }
 
-  const pieChartData = {
+  const pieChartData = useMemo(() => ({
     labels: Object.keys(domainStats),
     datasets: [
       {
@@ -207,9 +220,9 @@ export default function DashboardPage() {
         hoverBorderColor: "#ffffff",
       },
     ],
-  }
+  }), [domainStats])
 
-  const barChartData = {
+  const barChartData = useMemo(() => ({
     labels: ["Applied", "In Review", "Selected", "Rejected", "In Training", "Completed"],
     datasets: [
       {
@@ -234,7 +247,7 @@ export default function DashboardPage() {
         borderWidth: 2,
       },
     ],
-  }
+  }), [stats])
 
   const barChartOptions: ChartOptions<"bar"> = {
     responsive: true,
@@ -385,7 +398,7 @@ export default function DashboardPage() {
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="flex items-center gap-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl">
                   <TrendingUp className="h-10 w-10 text-white" />
                 </div>
                 <div>
@@ -401,7 +414,7 @@ export default function DashboardPage() {
                       <span>Live Updates</span>
                     </div>
                     <div className="text-sm text-gray-500">
-                      Last updated: {new Date().toLocaleString('en-CA')}
+                      Last updated: {isClient ? (lastUpdated || "Loading...") : "Loading..."}
                     </div>
                   </div>
                 </div>
@@ -464,6 +477,105 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Educational Insights Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2 bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+            <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
+                  <BookOpen className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-900">Educational Insights</CardTitle>
+                  <CardDescription className="text-sm text-gray-600">Learning outcomes and student progress</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { title: "Avg. Completion Time", value: "8.2 weeks", icon: Calendar, color: "from-blue-500 to-indigo-500" },
+                  { title: "Top Performing Domain", value: "Frontend Dev", icon: Target, color: "from-purple-500 to-pink-500" },
+                  { title: "Mentor Satisfaction", value: "4.8/5.0", icon: Award, color: "from-emerald-500 to-teal-500" }
+                ].map((item, index) => (
+                  <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div className={`w-10 h-10 bg-gradient-to-br ${item.color} rounded-lg flex items-center justify-center mb-3`}>
+                      <item.icon className="h-5 w-5 text-white" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-gray-600 mb-1">{item.title}</h3>
+                    <p className="text-xl font-bold text-gray-900">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 bg-blue-50/50 border border-blue-200 rounded-xl p-4">
+                <h3 className="font-semibold text-blue-800 flex items-center gap-2 mb-2">
+                  <BookOpen className="w-5 h-5" />
+                  Educational Program Note
+                </h3>
+                <p className="text-blue-700 text-sm">
+                  This dashboard provides insights into student learning outcomes and program effectiveness.
+                  Use these metrics to improve curriculum alignment with industry needs and enhance student success rates.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+            <CardHeader className="bg-gradient-to-r from-gray-50 to-purple-50 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg">
+                  <Layers className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-900">Quick Actions</CardTitle>
+                  <CardDescription className="text-sm text-gray-600">Manage your program efficiently</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <button
+                onClick={() => router.push('/admin/students')}
+                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 group"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+                  <Users className="h-5 w-5 text-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-700">View All Students</h3>
+                  <p className="text-sm text-gray-600">Manage applications and progress</p>
+                </div>
+              </button>
+
+              <button
+                onClick={loadApplications}
+                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:from-emerald-100 hover:to-teal-100 transition-all duration-200 group"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-emerald-700">Refresh Data</h3>
+                  <p className="text-sm text-gray-600">Update dashboard statistics</p>
+                </div>
+              </button>
+
+              <button
+                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 hover:from-amber-100 hover:to-orange-100 transition-all duration-200 group"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+                  <Send className="h-5 w-5 text-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-amber-700">Send Notifications</h3>
+                  <p className="text-sm text-gray-600">Communicate with students</p>
+                </div>
+              </button>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Enhanced Recent Applications with Professional Styling */}
@@ -552,11 +664,17 @@ export default function DashboardPage() {
                         </td>
                         <td className="py-4 px-6">
                           <div className="text-sm text-gray-600">
-                            {new Date(app.dateApplied).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
+                            {(() => {
+                              try {
+                                return new Date(app.dateApplied).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                })
+                              } catch {
+                                return 'Invalid date'
+                              }
+                            })()}
                           </div>
                         </td>
                         <td className="py-4 px-6 text-center">
