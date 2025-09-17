@@ -12,9 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import {
   ArrowLeft,
-  BookOpen,
   Building2,
-  Calendar,
   CheckCircle,
   Eye,
   EyeOff,
@@ -22,7 +20,6 @@ import {
   GraduationCap,
   Lock,
   Mail,
-  MapPin,
   Phone,
   Send,
   Sparkles,
@@ -42,14 +39,14 @@ export default function ApplyPage() {
     confirmPassword: string
     resume: File | null
   }
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     name: "",
     email: "",
     phone: "",
     domain: "",
     password: "",
     confirmPassword: "",
-    resume: null as File | null,
+    resume: null,
   })
   const [domainOptions, setDomainOptions] = useState(getDomainOptions())
   const [showPassword, setShowPassword] = useState(false)
@@ -103,44 +100,14 @@ export default function ApplyPage() {
     setIsLoading(true)
 
     // Simulate API call
-    const formpayload = new FormData()
-    formpayload.append("name", formData.name)
-    formpayload.append("email", formData.email)
-    formpayload.append("phone", formData.phone)
-    // Send custom domain if "Others" is selected, otherwise send the selected domain
-    formpayload.append("domain", formData.domain)
-    formpayload.append("password", formData.password)
-    formpayload.append("resume", formData.resume!)
-
-    try {
-      const response = await fetch("http://localhost:5000/api/apply", {
-        method: "POST",
-        body: formpayload,
-      })
-
-      if (response.ok) {
-        setIsSubmitted(true)
-        toast({
-          title: "Success",
-          description: "Your application has been submitted successfully!",
-        })
-      } else {
-        const err = await response.json()
-        toast({
-          title: "Submission Failed",
-          description: err.message || err.error || "Something went wrong",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Network Error",
-        description: "Could not connect to server",
-        variant: "destructive",
-      })
-    } finally {
+    setTimeout(() => {
+      setIsSubmitted(true)
       setIsLoading(false)
-    }
+      toast({
+        title: "Success",
+        description: "Your application has been submitted successfully!",
+      })
+    }, 1200)
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -247,15 +214,11 @@ export default function ApplyPage() {
       <header className="relative z-20 flex items-center justify-between p-4 md:p-6 bg-white/10 backdrop-blur-md border-b border-white/20 flex-wrap min-w-0">
         <Link
           href="/"
-          className="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition-colors font-medium px-4 py-2 md:px-6 md:py-2.5 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-sm md:text-base"
+          className="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition-colors font-medium px-4 py-2 md:px-6 md:py-2.5 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 duration-300 text-sm md:text-base"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
-
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex flex-col items-center">
-          <h1 className="text-xl md:text-2xl font-bold text-gray-800">Internship Application</h1>
-        </div>
 
         <div className="flex items-center gap-3 md:gap-4">
           <Link href="/intern/login">
@@ -282,21 +245,6 @@ export default function ApplyPage() {
           <p className="text-base md:text-xl text-gray-600 mb-6 md:mb-8">
             Join our internship program and kickstart your career in technology
           </p>
-
-          {/* Educational Benefits */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-8">
-            {[
-              { icon: BookOpen, title: "Hands-on Learning", desc: "Real projects with industry mentors" },
-              { icon: Calendar, title: "Flexible Schedule", desc: "Balance with your academic commitments" },
-              { icon: MapPin, title: "Remote Opportunities", desc: "Work from anywhere" }
-            ].map((item, index) => (
-              <div key={index} className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-xl p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
-                <item.icon className="w-6 h-6 md:w-8 md:h-8 text-blue-600 mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
-                <h3 className="font-semibold text-gray-800 text-sm md:text-base">{item.title}</h3>
-                <p className="text-xs md:text-sm text-gray-600">{item.desc}</p>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Application Form */}
@@ -461,19 +409,6 @@ export default function ApplyPage() {
                 <p className="text-gray-500 text-xs">Accepted formats: PDF, DOC, DOCX (Max 5MB)</p>
               </div>
 
-              {/* Educational Note */}
-              <div className="bg-blue-50/50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-all duration-300">
-                <h3 className="font-semibold text-blue-800 flex items-center gap-2 mb-2">
-                  <BookOpen className="w-4 h-4 md:w-5 md:h-5" />
-                  Educational Note
-                </h3>
-                <p className="text-blue-700 text-sm">
-                  This application will help you gain real-world experience in your chosen field.
-                  Our internship program is designed to complement your academic learning with
-                  practical skills that employers value.
-                </p>
-              </div>
-
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 md:py-4 text-base md:text-xl rounded-2xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 group relative overflow-hidden transform hover:scale-105"
@@ -504,25 +439,6 @@ export default function ApplyPage() {
             </form>
           </CardContent>
         </Card>
-
-        {/* Program Benefits */}
-        <div className="mt-10 md:mt-12 bg-white/30 backdrop-blur-sm border border-white/30 rounded-2xl p-6 md:p-8 animate-fade-in-up">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center mb-6">Why Join Our Internship Program?</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {[
-              { title: "Mentorship", desc: "Work directly with industry professionals", icon: "👨‍🏫" },
-              { title: "Skill Building", desc: "Develop in-demand technical skills", icon: "🛠️" },
-              { title: "Networking", desc: "Connect with peers and professionals", icon: "🤝" },
-              { title: "Certification", desc: "Earn a certificate of completion", icon: "📜" }
-            ].map((benefit, index) => (
-              <div key={index} className="text-center p-4 bg-white/50 rounded-xl hover:bg-white/70 transition-all duration-300 hover:-translate-y-1 group">
-                <div className="text-2xl md:text-3xl mb-3 group-hover:scale-110 transition-transform duration-300">{benefit.icon}</div>
-                <h3 className="font-bold text-gray-800 mb-1 text-sm md:text-base">{benefit.title}</h3>
-                <p className="text-gray-600 text-xs md:text-sm">{benefit.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   )
