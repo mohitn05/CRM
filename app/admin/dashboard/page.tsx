@@ -390,7 +390,7 @@ export default function DashboardPage() {
     <AdminLayout>
       <div className="p-6 space-y-8">
         {/* Enhanced Professional Header Section */}
-        <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl shadow-lg border border-gray-200 p-8 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl shadow-lg border border-gray-200 p-8 relative overflow-hidden hover:shadow-xl transition-all duration-300">
           {/* Background decoration */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full -translate-y-8 translate-x-8"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 rounded-full translate-y-4 -translate-x-4"></div>
@@ -398,7 +398,7 @@ export default function DashboardPage() {
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="flex items-center gap-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl hover:rotate-3 transition-transform duration-300">
                   <TrendingUp className="h-10 w-10 text-white" />
                 </div>
                 <div>
@@ -500,7 +500,7 @@ export default function DashboardPage() {
                   { title: "Top Performing Domain", value: "Frontend Dev", icon: Target, color: "from-purple-500 to-pink-500" },
                   { title: "Mentor Satisfaction", value: "4.8/5.0", icon: Award, color: "from-emerald-500 to-teal-500" }
                 ].map((item, index) => (
-                  <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                  <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                     <div className={`w-10 h-10 bg-gradient-to-br ${item.color} rounded-lg flex items-center justify-center mb-3`}>
                       <item.icon className="h-5 w-5 text-white" />
                     </div>
@@ -510,7 +510,7 @@ export default function DashboardPage() {
                 ))}
               </div>
 
-              <div className="mt-6 bg-blue-50/50 border border-blue-200 rounded-xl p-4">
+              <div className="mt-6 bg-blue-50/50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-all duration-300">
                 <h3 className="font-semibold text-blue-800 flex items-center gap-2 mb-2">
                   <BookOpen className="w-5 h-5" />
                   Educational Program Note
@@ -539,7 +539,7 @@ export default function DashboardPage() {
             <CardContent className="p-6 space-y-4">
               <button
                 onClick={() => router.push('/admin/students')}
-                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 group"
+                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 group hover:scale-[1.02]"
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
                   <Users className="h-5 w-5 text-white" />
@@ -552,7 +552,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={loadApplications}
-                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:from-emerald-100 hover:to-teal-100 transition-all duration-200 group"
+                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:from-emerald-100 hover:to-teal-100 transition-all duration-200 group hover:scale-[1.02]"
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
                   <TrendingUp className="h-5 w-5 text-white" />
@@ -564,7 +564,7 @@ export default function DashboardPage() {
               </button>
 
               <button
-                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 hover:from-amber-100 hover:to-orange-100 transition-all duration-200 group"
+                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 hover:from-amber-100 hover:to-orange-100 transition-all duration-200 group hover:scale-[1.02]"
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
                   <Send className="h-5 w-5 text-white" />
@@ -939,7 +939,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Professional Footer Section */}
-        <div className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl shadow-sm border border-gray-200 p-8 mt-12">
+        <div className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl shadow-sm border border-gray-200 p-8 mt-12 hover:shadow-lg transition-all duration-300">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4">

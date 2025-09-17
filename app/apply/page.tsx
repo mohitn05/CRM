@@ -183,26 +183,26 @@ export default function ApplyPage() {
           ></div>
         </div>
 
-        <Card className="w-full max-w-lg bg-white/30 backdrop-blur-2xl border border-white/30 shadow-2xl">
-          <CardContent className="pt-12 text-center relative">
+        <Card className="w-full max-w-lg bg-white/30 backdrop-blur-2xl border border-white/30 shadow-2xl animate-fade-in-up">
+          <CardContent className="pt-10 md:pt-12 text-center relative">
             {/* Success animation */}
-            <div className="relative mb-8">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full mx-auto flex items-center justify-center shadow-2xl animate-bounce">
-                <CheckCircle className="h-12 w-12 text-white" />
+            <div className="relative mb-6 md:mb-8">
+              <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full mx-auto flex items-center justify-center shadow-2xl animate-bounce">
+                <CheckCircle className="h-10 w-10 md:h-12 md:w-12 text-white" />
               </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse">
-                <Sparkles className="h-4 w-4 text-yellow-800" />
+              <div className="absolute -top-2 -right-2 w-6 h-6 md:w-8 md:h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse">
+                <Sparkles className="h-3 w-3 md:h-4 md:w-4 text-yellow-800" />
               </div>
             </div>
 
-            <h2 className="text-3xl font-black text-gray-800 mb-4">Application Submitted!</h2>
-            <p className="text-gray-700 mb-8 text-lg leading-relaxed">
+            <h2 className="text-2xl md:text-3xl font-black text-gray-800 mb-4">Application Submitted!</h2>
+            <p className="text-gray-700 mb-6 md:mb-8 text-base md:text-lg leading-relaxed">
               🎉 Congratulations! Your application has been successfully submitted.
               <br />
               <span className="text-blue-600">We'll review it and get back to you within 48 hours.</span>
             </p>
 
-            <div className="bg-white/20 backdrop-blur-sm border border-white/20 rounded-2xl p-6 mb-8">
+            <div className="bg-white/20 backdrop-blur-sm border border-white/20 rounded-2xl p-5 md:p-6 mb-6 md:mb-8">
               <h3 className="text-gray-800 font-semibold mb-3">What happens next?</h3>
               <div className="space-y-2 text-gray-700 text-sm">
                 <div className="flex items-center gap-2">
@@ -222,14 +222,14 @@ export default function ApplyPage() {
 
             <div className="space-y-3">
               <Link href="/">
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 md:py-4 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                   Back to Home
                 </Button>
               </Link>
               <Link href="/intern/login">
                 <Button
                   variant="outline"
-                  className="w-full bg-white/20 border-white/30 text-gray-700 hover:bg-white/40 font-semibold py-4 text-lg rounded-xl"
+                  className="w-full bg-white/20 border-white/30 text-gray-700 hover:bg-white/40 font-semibold py-3 md:py-4 text-base md:text-lg rounded-xl"
                 >
                   Login to Dashboard
                 </Button>
@@ -244,22 +244,22 @@ export default function ApplyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden page-transition w-full min-w-0">
       {/* Header */}
-      <header className="relative z-20 flex items-center justify-between p-6 bg-white/10 backdrop-blur-md border-b border-white/20 flex-wrap min-w-0">
+      <header className="relative z-20 flex items-center justify-between p-4 md:p-6 bg-white/10 backdrop-blur-md border-b border-white/20 flex-wrap min-w-0">
         <Link
           href="/"
-          className="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition-colors font-medium px-6 py-2 rounded-full"
+          className="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition-colors font-medium px-4 py-2 md:px-6 md:py-2.5 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-sm md:text-base"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
 
         <div className="absolute left-1/2 transform -translate-x-1/2 flex flex-col items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Internship Application</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-800">Internship Application</h1>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4">
           <Link href="/intern/login">
-            <Button variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6">
+            <Button variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 md:px-6 text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
               Login
             </Button>
           </Link>
@@ -272,44 +272,44 @@ export default function ApplyPage() {
         <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-200/15 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 container mx-auto max-w-4xl py-8 px-4 min-w-0 overflow-x-auto">
+      <div className="relative z-10 container mx-auto max-w-4xl py-6 md:py-8 px-4 min-w-0 overflow-x-auto">
         {/* Welcome Section */}
-        <div className="text-center mb-12">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-xl">
-            <GraduationCap className="w-10 h-10 text-white" />
+        <div className="text-center mb-10 md:mb-12 animate-fade-in-up">
+          <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl mx-auto mb-5 md:mb-6 flex items-center justify-center shadow-xl animate-float">
+            <GraduationCap className="w-8 h-8 md:w-10 md:h-10 text-white" />
           </div>
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">Ready to Start Your Journey?</h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <h2 className="text-2xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-4">Ready to Start Your Journey?</h2>
+          <p className="text-base md:text-xl text-gray-600 mb-6 md:mb-8">
             Join our internship program and kickstart your career in technology
           </p>
 
           {/* Educational Benefits */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-8">
             {[
               { icon: BookOpen, title: "Hands-on Learning", desc: "Real projects with industry mentors" },
               { icon: Calendar, title: "Flexible Schedule", desc: "Balance with your academic commitments" },
               { icon: MapPin, title: "Remote Opportunities", desc: "Work from anywhere" }
             ].map((item, index) => (
-              <div key={index} className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-xl p-4">
-                <item.icon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-semibold text-gray-800">{item.title}</h3>
-                <p className="text-sm text-gray-600">{item.desc}</p>
+              <div key={index} className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-xl p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+                <item.icon className="w-6 h-6 md:w-8 md:h-8 text-blue-600 mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
+                <h3 className="font-semibold text-gray-800 text-sm md:text-base">{item.title}</h3>
+                <p className="text-xs md:text-sm text-gray-600">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Application Form */}
-        <Card className="bg-white/40 backdrop-blur-2xl border border-white/30 shadow-2xl min-w-0">
-          <CardHeader className="text-center pb-8">
-            <CardTitle className="text-3xl font-bold text-gray-800 mb-2">Join Our Internship Program</CardTitle>
-            <CardDescription className="text-gray-600 text-lg">
+        <Card className="bg-white/40 backdrop-blur-2xl border border-white/30 shadow-2xl min-w-0 animate-fade-in-up">
+          <CardHeader className="text-center pb-6 md:pb-8">
+            <CardTitle className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Join Our Internship Program</CardTitle>
+            <CardDescription className="text-gray-600 text-base md:text-lg">
               Create your account and start your career journey
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className={cn("space-y-8", isLoading && "opacity-50 pointer-events-none")}>
-              <div className="grid md:grid-cols-2 gap-6 min-w-0 overflow-x-auto">
+            <form onSubmit={handleSubmit} className={cn("space-y-6 md:space-y-8", isLoading && "opacity-50 pointer-events-none")}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 min-w-0 overflow-x-auto">
                 <div className="space-y-3">
                   <Label htmlFor="name" className="text-gray-700 font-semibold flex items-center gap-2">
                     <User className="h-4 w-4 text-blue-600" />
@@ -322,7 +322,7 @@ export default function ApplyPage() {
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     required
-                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-12 rounded-xl"
+                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-10 md:h-12 rounded-xl transition-all duration-300 hover:shadow-md"
                   />
                 </div>
 
@@ -338,7 +338,7 @@ export default function ApplyPage() {
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     required
-                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-12 rounded-xl"
+                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-10 md:h-12 rounded-xl transition-all duration-300 hover:shadow-md"
                   />
                 </div>
 
@@ -355,7 +355,7 @@ export default function ApplyPage() {
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     maxLength={10}
                     required
-                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-12 rounded-xl"
+                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20 h-10 md:h-12 rounded-xl transition-all duration-300 hover:shadow-md"
                   />
                 </div>
 
@@ -369,7 +369,7 @@ export default function ApplyPage() {
                     onValueChange={(value) => handleInputChange("domain", value)}
                     required
                   >
-                    <SelectTrigger className="bg-white/10 border-blue-500/20 text-gray-800 h-12 rounded-xl">
+                    <SelectTrigger className="bg-white/10 border-blue-500/20 text-gray-800 h-10 md:h-12 rounded-xl hover:shadow-md transition-all duration-300">
                       <SelectValue placeholder="Select your domain" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-grey-500">
@@ -394,14 +394,14 @@ export default function ApplyPage() {
                       value={formData.password}
                       onChange={(e) => handleInputChange("password", e.target.value)}
                       required
-                      className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-purple-400 focus:ring-purple-400/20 h-12 rounded-xl pr-12"
+                      className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-purple-400 focus:ring-purple-400/20 h-10 md:h-12 rounded-xl pr-10 md:pr-12 transition-all duration-300 hover:shadow-md"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800 transition-colors"
                     >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showPassword ? <EyeOff className="h-4 w-4 md:h-5 md:w-5" /> : <Eye className="h-4 w-4 md:h-5 md:w-5" />}
                     </button>
                   </div>
                 </div>
@@ -419,14 +419,14 @@ export default function ApplyPage() {
                       value={formData.confirmPassword}
                       onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
                       required
-                      className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-purple-400 focus:ring-purple-400/20 h-12 rounded-xl pr-12"
+                      className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 placeholder:text-gray-500 focus:border-purple-400 focus:ring-purple-400/20 h-10 md:h-12 rounded-xl pr-10 md:pr-12 transition-all duration-300 hover:shadow-md"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800 transition-colors"
                     >
-                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4 md:h-5 md:w-5" /> : <Eye className="h-4 w-4 md:h-5 md:w-5" />}
                     </button>
                   </div>
                 </div>
@@ -445,16 +445,16 @@ export default function ApplyPage() {
                     accept=".pdf,.doc,.docx"
                     onChange={handleFileChange}
                     required
-                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 file:bg-gradient-to-r file:from-blue-500 file:to-indigo-500 file:text-white file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 focus:border-indigo-400 focus:ring-indigo-400/20 h-12 rounded-xl"
+                    className="bg-white/50 backdrop-blur-sm border-white/40 text-gray-800 file:bg-gradient-to-r file:from-blue-500 file:to-indigo-500 file:text-white file:border-0 file:rounded-lg file:px-3 file:py-2 md:file:px-4 md:file:py-2.5 file:mr-4 focus:border-indigo-400 focus:ring-indigo-400/20 h-10 md:h-12 rounded-xl transition-all duration-300 hover:shadow-md"
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <Upload className="h-5 w-5 text-cyan-600" />
+                    <Upload className="h-4 w-4 md:h-5 md:w-5 text-cyan-600" />
                   </div>
                 </div>
                 {formData.resume && (
-                  <div className="flex items-center gap-2 text-gray-700 text-sm">
+                  <div className="flex items-center gap-2 text-gray-700 text-sm animate-fade-in">
                     <FileText className="h-4 w-4 text-cyan-600" />
-                    <span>{formData.resume.name}</span>
+                    <span className="truncate max-w-xs">{formData.resume.name}</span>
                     <span className="text-gray-500">({(formData.resume.size / 1024 / 1024).toFixed(2)} MB)</span>
                   </div>
                 )}
@@ -462,9 +462,9 @@ export default function ApplyPage() {
               </div>
 
               {/* Educational Note */}
-              <div className="bg-blue-50/50 border border-blue-200 rounded-xl p-4">
+              <div className="bg-blue-50/50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-all duration-300">
                 <h3 className="font-semibold text-blue-800 flex items-center gap-2 mb-2">
-                  <BookOpen className="w-5 h-5" />
+                  <BookOpen className="w-4 h-4 md:w-5 md:h-5" />
                   Educational Note
                 </h3>
                 <p className="text-blue-700 text-sm">
@@ -476,19 +476,19 @@ export default function ApplyPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-6 text-xl rounded-2xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 group relative overflow-hidden"
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 md:py-4 text-base md:text-xl rounded-2xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 group relative overflow-hidden transform hover:scale-105"
                 disabled={isLoading}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                 {isLoading ? (
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 md:w-6 md:h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                     Processing Application...
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
                     Register & Apply
-                    <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    <Send className="h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 )}
               </Button>
@@ -496,7 +496,7 @@ export default function ApplyPage() {
               <div className="text-center">
                 <p className="text-gray-600 text-sm">
                   Already have an account?{" "}
-                  <Link href="/intern/login" className="text-blue-600 hover:text-indigo-700 font-medium">
+                  <Link href="/intern/login" className="text-blue-600 hover:text-indigo-700 font-medium transition-colors">
                     Login here
                   </Link>
                 </p>
@@ -506,19 +506,19 @@ export default function ApplyPage() {
         </Card>
 
         {/* Program Benefits */}
-        <div className="mt-12 bg-white/30 backdrop-blur-sm border border-white/30 rounded-2xl p-8">
-          <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Why Join Our Internship Program?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="mt-10 md:mt-12 bg-white/30 backdrop-blur-sm border border-white/30 rounded-2xl p-6 md:p-8 animate-fade-in-up">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center mb-6">Why Join Our Internship Program?</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {[
               { title: "Mentorship", desc: "Work directly with industry professionals", icon: "👨‍🏫" },
               { title: "Skill Building", desc: "Develop in-demand technical skills", icon: "🛠️" },
               { title: "Networking", desc: "Connect with peers and professionals", icon: "🤝" },
               { title: "Certification", desc: "Earn a certificate of completion", icon: "📜" }
             ].map((benefit, index) => (
-              <div key={index} className="text-center p-4 bg-white/50 rounded-xl hover:bg-white/70 transition-colors">
-                <div className="text-3xl mb-3">{benefit.icon}</div>
-                <h3 className="font-bold text-gray-800 mb-1">{benefit.title}</h3>
-                <p className="text-gray-600 text-sm">{benefit.desc}</p>
+              <div key={index} className="text-center p-4 bg-white/50 rounded-xl hover:bg-white/70 transition-all duration-300 hover:-translate-y-1 group">
+                <div className="text-2xl md:text-3xl mb-3 group-hover:scale-110 transition-transform duration-300">{benefit.icon}</div>
+                <h3 className="font-bold text-gray-800 mb-1 text-sm md:text-base">{benefit.title}</h3>
+                <p className="text-gray-600 text-xs md:text-sm">{benefit.desc}</p>
               </div>
             ))}
           </div>

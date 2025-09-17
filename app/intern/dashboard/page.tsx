@@ -10,8 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import {
-  Award,
-  BookOpen,
   Building2,
   Calendar,
   CheckCircle,
@@ -23,7 +21,6 @@ import {
   Phone,
   Save,
   Sparkles,
-  Target,
   Trash2,
   TrendingUp,
   User,
@@ -135,7 +132,6 @@ export default function InternDashboard() {
           domain: editData.domain,
         }),
       });
-
       if (response.ok) {
         const result = await response.json();
         const updatedInternData = {
@@ -296,20 +292,20 @@ export default function InternDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Applied":
-        return "bg-blue-100 text-blue-800"
+        return "bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white"
       case "Under Review":
       case "In Review":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white"
       case "Selected":
-        return "bg-green-100 text-green-800"
+        return "bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-white"
       case "Rejected":
-        return "bg-red-100 text-red-800"
+        return "bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 text-white"
       case "In Training":
-        return "bg-purple-100 text-purple-800"
+        return "bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500 text-white"
       case "Completed":
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 text-white"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-gray-500 via-slate-500 to-zinc-500 text-white"
     }
   }
 
@@ -317,13 +313,13 @@ export default function InternDashboard() {
     switch (status) {
       case "Selected":
       case "Completed":
-        return <CheckCircle className="w-4 h-4" />
+        return <CheckCircle className="w-6 h-6" />
       case "Rejected":
-        return <XCircle className="w-4 h-4" />
+        return <XCircle className="w-6 h-6" />
       case "In Training":
-        return <FileText className="w-4 h-4" />
+        return <FileText className="w-6 h-6" />
       default:
-        return <Clock className="w-4 h-4" />
+        return <Clock className="w-6 h-6" />
     }
   }
 
@@ -347,57 +343,21 @@ export default function InternDashboard() {
     }
   }
 
-  // Educational content based on domain
-  const getDomainLearningPath = (domain: string) => {
-    switch (domain) {
-      case "Frontend Developer":
-        return [
-          { skill: "HTML/CSS Fundamentals", progress: 100 },
-          { skill: "JavaScript Basics", progress: 80 },
-          { skill: "React Framework", progress: 60 },
-          { skill: "State Management", progress: 40 }
-        ];
-      case "Backend Developer":
-        return [
-          { skill: "Server Fundamentals", progress: 100 },
-          { skill: "Database Design", progress: 85 },
-          { skill: "API Development", progress: 70 },
-          { skill: "Authentication", progress: 50 }
-        ];
-      case "Database Management":
-        return [
-          { skill: "SQL Basics", progress: 100 },
-          { skill: "Database Design", progress: 90 },
-          { skill: "Performance Tuning", progress: 65 },
-          { skill: "Backup Strategies", progress: 45 }
-        ];
-      default:
-        return [
-          { skill: "Core Concepts", progress: 100 },
-          { skill: "Intermediate Skills", progress: 75 },
-          { skill: "Advanced Topics", progress: 50 },
-          { skill: "Specialization", progress: 25 }
-        ];
-    }
-  };
-
   if (!internData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading your dashboard...</p>
         </div>
       </div>
     )
   }
 
-  const learningPath = getDomainLearningPath(internData.domain);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 sm:p-6 md:p-8 w-full min-w-0">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 sm:p-6 md:p-8">
       {/* Header */}
-      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4 flex-wrap min-w-0">
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Welcome, {internData.name}!</h1>
           <p className="text-gray-600">Intern Dashboard</p>
@@ -418,184 +378,158 @@ export default function InternDashboard() {
       </header>
 
       {/* Grid Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
-        {/* Left Column - Profile and Status */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Profile Card */}
-          <Card className="p-6 shadow-sm bg-white border border-gray-200 min-w-0">
-            <CardHeader className="p-0 mb-6">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
-                  <User className="w-6 h-6 text-gray-700" />
-                  Profile Information
-                </CardTitle>
-                {!isEditing ? (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Profile Card */}
+        <Card className="lg:col-span-2 p-6 shadow-lg bg-white border border-gray-200 rounded-2xl">
+          <CardHeader className="p-0 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                  <User className="w-6 h-6 text-white" />
+                </div>
+                Profile Information
+              </CardTitle>
+              {!isEditing ? (
+                <Button
+                  onClick={() => {
+                    if (internData.status === "Applied") {
+                      setIsEditing(true);
+                    } else {
+                      toast({
+                        title: "🚫 Edit Unavailable",
+                        description: "You cannot edit your information right now. If you need to update your details, please contact support.",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                  className={`bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white hover:scale-105 transition-all duration-300 ${internData.status !== "Applied" ? "opacity-50 cursor-not-allowed" : ""}`}
+                  disabled={internData.status !== "Applied"}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </Button>
+              ) : (
+                <div className="flex gap-3">
                   <Button
                     onClick={() => {
-                      if (internData.status === "Applied") {
-                        setIsEditing(true);
-                      } else {
-                        toast({
-                          title: "🚫 Edit Unavailable",
-                          description: "You cannot edit your information right now. If you need to update your details, please contact support or email us at mohitnarnaware.ams@gmail.com.",
-                          variant: "destructive"
-                        });
-                      }
+                      setIsEditing(false);
+                      setEditData(internData)
                     }}
-                    className={`btn btn-muted text-blue-600${internData.status !== "Applied" ? " opacity-50 cursor-not-allowed" : ""}`}
-                    tabIndex={0}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 hover:scale-105 transition-all duration-300"
                   >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit
+                    <X className="w-4 h-4 mr-2" />
+                    Cancel
                   </Button>
-                ) : (
-                  <div className="flex gap-2">
-                    <Button onClick={() => { setIsEditing(false); setEditData(internData) }} className="btn btn-outline">
-                      <X className="w-4 h-4 mr-2" />
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSave} disabled={isLoading || internData.status !== "Applied"} className="btn btn-primary bg-blue-600 hover:bg-blue-700">
-                      <Save className="w-4 h-4 mr-2" />
-                      {isLoading ? "Saving..." : "Save"}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardHeader>
+                  <Button
+                    onClick={handleSave}
+                    disabled={isLoading || internData.status !== "Applied"}
+                    className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white hover:scale-105 transition-all duration-300"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {isLoading ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardHeader>
 
-            <CardContent className="p-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
-                {[
-                  { label: "Full Name", value: internData.name, icon: <User />, key: "name" },
-                  { label: "Email Address", value: internData.email, icon: <Mail />, key: "email" },
-                  { label: "Phone Number", value: internData.phone, icon: <Phone />, key: "phone" },
-                ].map(({ label, value, icon, key }) => (
-                  <div key={key} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <Label className="flex items-center gap-2 text-gray-700 mb-2 text-base font-medium">{icon}<span>{label}</span></Label>
-                    {isEditing ? (
-                      <Input
-                        type={key === "phone" ? "tel" : "text"}
-                        value={(editData as any)[key]}
-                        onChange={(e) => setEditData(prev => prev ? { ...prev, [key]: e.target.value } : null)}
-                        maxLength={key === "phone" ? 10 : undefined}
-                        className="text-base"
-                        disabled={internData.status !== "Applied"}
-                      />
-                    ) : (
-                      <p className="text-gray-900 font-semibold text-base">{value}</p>
-                    )}
-                  </div>
-                ))}
-
-                {/* Domain */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <Label className="flex items-center gap-2 text-gray-700 mb-2 text-base font-medium">
-                    <Building2 className="w-4 h-4" /> Domain
+          <CardContent className="p-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {[
+                { label: "Full Name", value: internData.name, icon: <User className="text-blue-500" />, key: "name" },
+                { label: "Email Address", value: internData.email, icon: <Mail className="text-blue-500" />, key: "email" },
+                { label: "Phone Number", value: internData.phone, icon: <Phone className="text-blue-500" />, key: "phone" },
+              ].map(({ label, value, icon, key }) => (
+                <div key={key} className="bg-gray-50 p-5 rounded-xl border border-gray-200 hover:shadow-md transition-all duration-300">
+                  <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
+                    {icon}
+                    <span>{label}</span>
                   </Label>
                   {isEditing ? (
-                    <Select
-                      value={editData?.domain || ""}
-                      onValueChange={(value) => {
-                        setEditData((p) => p ? { ...p, domain: value } : null);
-                        setDomainOptions(getDomainOptions());
-                      }}
+                    <Input
+                      type={key === "phone" ? "tel" : "text"}
+                      value={(editData as any)[key]}
+                      onChange={(e) => setEditData(prev => prev ? { ...prev, [key]: e.target.value } : null)}
+                      maxLength={key === "phone" ? 10 : undefined}
+                      className="border-2 border-blue-200 focus:border-blue-400 focus:ring-blue-300/30 rounded-xl"
                       disabled={internData.status !== "Applied"}
-                    >
-                      <SelectTrigger className="bg-white text-black border-gray-300 text-base">
-                        <SelectValue placeholder="Select Domain" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white text-black border-gray-300">
-                        {domainOptions.map((d: { value: string; label: string }) => (
-                          <SelectItem key={d.value} value={d.value} className="bg-white text-black hover:bg-gray-100">{d.label.replace(/^[^ ]+ /, "")}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    />
                   ) : (
-                    <Badge className="text-base px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
-                      {(() => {
-                        const domain = editData?.domain || internData.domain;
-                        if (domain === "Frontend") return "Frontend Developer";
-                        if (domain === "Backend") return "Backend Developer";
-                        return domain;
-                      })()}
-                    </Badge>
+                    <p className="text-gray-900 font-semibold">{value}</p>
                   )}
                 </div>
+              ))}
 
-                {/* Registration Date */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <Label className="flex items-center gap-2 text-gray-700 mb-2 text-base font-medium">
-                    <Calendar className="w-4 h-4" /> Registration Date
-                  </Label>
-                  <p className="text-gray-900 font-semibold text-base">
-                    {internData.dateRegistered && !isNaN(new Date(internData.dateRegistered).getTime())
-                      ? new Date(internData.dateRegistered).toLocaleDateString()
-                      : "Not Available"}
-                  </p>
-                </div>
+              {/* Domain */}
+              <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 hover:shadow-md transition-all duration-300">
+                <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
+                  <Building2 className="w-4 h-4 text-blue-500" /> Domain
+                </Label>
+                {isEditing ? (
+                  <Select
+                    value={editData?.domain || ""}
+                    onValueChange={(value) => {
+                      setEditData((p) => p ? { ...p, domain: value } : null);
+                      setDomainOptions(getDomainOptions());
+                    }}
+                    disabled={internData.status !== "Applied"}
+                  >
+                    <SelectTrigger className="bg-white text-black border-2 border-blue-200 focus:border-blue-400 focus:ring-blue-300/30 rounded-xl">
+                      <SelectValue placeholder="Select Domain" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white text-black border-blue-200 rounded-xl">
+                      {domainOptions.map((d: { value: string; label: string }) => (
+                        <SelectItem key={d.value} value={d.value} className="hover:bg-blue-50 rounded-lg">{d.label.replace(/^[^ ]+ /, "")}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Badge className="text-base px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl">
+                    {(() => {
+                      const domain = editData?.domain || internData.domain;
+                      if (domain === "Frontend") return "Frontend Developer";
+                      if (domain === "Backend") return "Backend Developer";
+                      return domain;
+                    })()}
+                  </Badge>
+                )}
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Learning Path */}
-          <Card className="p-6 shadow-sm bg-white border border-gray-200">
-            <CardHeader className="p-0 mb-6">
-              <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-gray-700" />
-                Your Learning Path
-              </CardTitle>
-              <p className="text-gray-600 mt-2">Progress in your {internData.domain} specialization</p>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="space-y-6">
-                {learningPath.map((item, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium text-gray-800">{item.skill}</span>
-                      <span className="text-sm text-gray-600">{item.progress}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2.5 rounded-full"
-                        style={{ width: `${item.progress}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-4">
-                  <h3 className="font-semibold text-blue-800 flex items-center gap-2 mb-2">
-                    <Target className="w-5 h-5" />
-                    Next Steps
-                  </h3>
-                  <p className="text-blue-700 text-sm">
-                    Complete your current module to unlock the next set of skills in your {internData.domain} journey.
-                    Check your email for learning resources and assignments.
-                  </p>
-                </div>
+              {/* Registration Date */}
+              <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 hover:shadow-md transition-all duration-300">
+                <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
+                  <Calendar className="w-4 h-4 text-blue-500" /> Registration Date
+                </Label>
+                <p className="text-gray-900 font-semibold">
+                  {internData.dateRegistered && !isNaN(new Date(internData.dateRegistered).getTime())
+                    ? new Date(internData.dateRegistered).toLocaleDateString()
+                    : "Not Available"}
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Right Column */}
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           {/* Status */}
-          <Card className="p-6 shadow-sm bg-white border border-gray-200">
+          <Card className="p-6 shadow-lg bg-white border border-gray-200 rounded-2xl">
             <CardHeader className="p-0 mb-6">
-              <CardTitle className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
-                {getStatusIcon(internData.status)}
+              <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                  {getStatusIcon(internData.status)}
+                </div>
                 Application Status
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 space-y-6">
               <div className="text-center">
-                <Badge className={`${getStatusColor(internData.status)} text-lg px-4 py-2 mb-6`}>
+                <Badge className={`${getStatusColor(internData.status)} text-xl px-6 py-3 mb-6 font-bold rounded-xl`}>
                   {internData.status}
                 </Badge>
 
                 {/* Status Message */}
-                <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
                   <p className="text-gray-700">
                     {getStatusMessage(internData.status)}
                   </p>
@@ -610,11 +544,11 @@ export default function InternDashboard() {
                       </div>
                     </div>
                     <div className="text-center space-y-1">
-                      <p className="text-sm text-gray-600">Your application has been submitted</p>
+                      <p className="text-gray-600">Your application has been submitted</p>
                       <div className="flex items-center justify-center text-blue-600">
-                        <span className="text-sm font-medium">Waiting for review</span>
+                        <span className="font-medium">Waiting for review</span>
                       </div>
-                      <p className="text-xs text-gray-500">We'll update you soon</p>
+                      <p className="text-sm text-gray-500">We'll update you soon</p>
                     </div>
                   </div>
                 )}
@@ -627,11 +561,11 @@ export default function InternDashboard() {
                       </div>
                     </div>
                     <div className="text-center space-y-1">
-                      <p className="text-sm text-gray-600">You have been selected!</p>
+                      <p className="text-gray-600">You have been selected!</p>
                       <div className="flex items-center justify-center text-green-600">
-                        <span className="text-sm font-medium">Congratulations!</span>
+                        <span className="font-medium">Congratulations!</span>
                       </div>
-                      <p className="text-xs text-gray-500">Check your email for next steps</p>
+                      <p className="text-sm text-gray-500">Check your email for next steps</p>
                     </div>
                   </div>
                 )}
@@ -644,11 +578,11 @@ export default function InternDashboard() {
                       </div>
                     </div>
                     <div className="text-center space-y-1">
-                      <p className="text-sm text-gray-600">Your application was not successful</p>
+                      <p className="text-gray-600">Your application was not successful</p>
                       <div className="flex items-center justify-center text-red-600">
-                        <span className="text-sm font-medium">Better luck next time!</span>
+                        <span className="font-medium">Better luck next time!</span>
                       </div>
-                      <p className="text-xs text-gray-500">Keep improving and apply again</p>
+                      <p className="text-sm text-gray-500">Keep improving and apply again</p>
                     </div>
                   </div>
                 )}
@@ -661,9 +595,9 @@ export default function InternDashboard() {
                       </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-blue-600">Your application is under review</p>
+                      <p className="text-gray-600">Your application is under review</p>
                       <div className="flex items-center justify-center text-blue-600">
-                        <span className="text-sm font-medium">Please wait for updates</span>
+                        <span className="font-medium">Please wait for updates</span>
                       </div>
                     </div>
                   </div>
@@ -677,11 +611,11 @@ export default function InternDashboard() {
                       </div>
                     </div>
                     <div className="text-center space-y-1">
-                      <p className="text-sm text-gray-600">Welcome to the team!</p>
+                      <p className="text-gray-600">Welcome to the team!</p>
                       <div className="flex items-center justify-center text-purple-600">
-                        <span className="text-sm font-medium">Your training has begun</span>
+                        <span className="font-medium">Your training has begun</span>
                       </div>
-                      <p className="text-xs text-gray-500">Keep up the great work</p>
+                      <p className="text-sm text-gray-500">Keep up the great work</p>
                     </div>
                   </div>
                 )}
@@ -694,32 +628,34 @@ export default function InternDashboard() {
                       </div>
                     </div>
                     <div className="text-center space-y-1">
-                      <p className="text-sm text-gray-600">Congratulations!</p>
+                      <p className="text-gray-600">Congratulations!</p>
                       <div className="flex items-center justify-center text-blue-600">
-                        <span className="text-sm font-medium">Internship completed successfully</span>
+                        <span className="font-medium">Internship completed successfully</span>
                       </div>
-                      <p className="text-xs text-gray-500">Well done!</p>
+                      <p className="text-sm text-gray-500">Well done!</p>
                     </div>
                   </div>
                 )}
               </div>
 
               {/* Educational Progress Card */}
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-200">
-                <h3 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
-                  <TrendingUp className="w-5 h-5 text-blue-600" />
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200">
+                <h3 className="font-bold text-gray-900 flex items-center gap-2 mb-4">
+                  <TrendingUp className="w-5 h-5 text-blue-500" />
                   Program Progress
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Modules Completed</span>
-                    <span className="font-medium">3/12</span>
+                    <span className="text-gray-700 font-medium">Modules Completed</span>
+                    <span className="font-bold text-gray-900">3/12</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style={{ width: '25%' }}></div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2.5 rounded-full" style={{ width: '25%' }}></div>
                   </div>
-                  <div className="text-xs text-gray-500 mt-2">
-                    Keep going! You're making great progress in your internship journey.
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Beginner</span>
+                    <span>Intermediate</span>
+                    <span>Advanced</span>
                   </div>
                 </div>
               </div>
@@ -727,78 +663,37 @@ export default function InternDashboard() {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="p-6 shadow-sm bg-white border border-gray-200">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          <Card className="p-6 shadow-lg bg-white border border-gray-200 rounded-2xl">
+            <CardHeader className="p-0 mb-5">
+              <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-gray-700" />
                 Quick Actions
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 space-y-3">
-              <Card className="p-4 bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3" onClick={() => window.open("https://mail.google.com/mail/u/0/#inbox?compose=DmwnWtDsVNbMNKTNwzTxmkpwGdhvfstmFcPTmJdfNPCsQjKpWZStJStKgcJrcFvsfVQcJBfwjhlq")}>
-                  <Mail className="w-5 h-5 text-blue-600" />
-                  <div>
-                    <div className="text-base font-medium text-gray-700">Contact Support</div>
-                    <div className="text-xs text-gray-500">Get help with your application</div>
-                  </div>
-                </div>
-              </Card>
+              <Button
+                className="w-full justify-start bg-gray-100 hover:bg-gray-200 text-gray-800 py-4 rounded-xl transition-all duration-300"
+                onClick={() => window.open("https://mail.google.com/mail/u/0/#inbox?compose=DmwnWtDsVNbMNKTNwzTxmkpwGdhvfstmFcPTmJdfNPCsQjKpWZStJStKgcJrcFvsfVQcJBfwjhlq")}
+              >
+                <Mail className="w-5 h-5 text-blue-500 mr-3" />
+                <span className="font-medium">Contact Support</span>
+              </Button>
 
-              <Card className="p-4 bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3" onClick={() => window.open("tel:9359463350")}>
-                  <Phone className="w-5 h-5 text-blue-600" />
-                  <div>
-                    <div className="text-base font-medium text-gray-700">Call Support</div>
-                    <div className="text-xs text-gray-500">+91 9359463350</div>
-                  </div>
-                </div>
-              </Card>
+              <Button
+                className="w-full justify-start bg-gray-100 hover:bg-gray-200 text-gray-800 py-4 rounded-xl transition-all duration-300"
+                onClick={() => window.open("tel:9359463350")}
+              >
+                <Phone className="w-5 h-5 text-blue-500 mr-3" />
+                <span className="font-medium">Call Support: +91 9359463350</span>
+              </Button>
 
-              <Card className="p-4 bg-red-50 border border-red-200 hover:bg-red-100 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3" onClick={deleteApplication}>
-                  <Trash2 className="w-5 h-5 text-red-600" />
-                  <div>
-                    <div className="text-base font-medium text-red-700">Delete Application</div>
-                    <div className="text-xs text-red-500">Permanently remove your application</div>
-                  </div>
-                </div>
-              </Card>
-            </CardContent>
-          </Card>
-
-          {/* Educational Resources */}
-          <Card className="p-6 shadow-sm bg-white border border-gray-200">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <Award className="w-5 h-5 text-gray-700" />
-                Learning Resources
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                  <BookOpen className="w-5 h-5 text-blue-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-gray-800">Internship Guide</h4>
-                    <p className="text-xs text-gray-600">Tips for success in your program</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100">
-                  <Target className="w-5 h-5 text-purple-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-gray-800">Career Development</h4>
-                    <p className="text-xs text-gray-600">Building your professional skills</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
-                  <Award className="w-5 h-5 text-green-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-gray-800">Certification Path</h4>
-                    <p className="text-xs text-gray-600">Earning your completion certificate</p>
-                  </div>
-                </div>
-              </div>
+              <Button
+                className="w-full justify-start bg-red-50 hover:bg-red-100 text-red-700 py-4 rounded-xl transition-all duration-300"
+                onClick={deleteApplication}
+              >
+                <Trash2 className="w-5 h-5 text-red-500 mr-3" />
+                <span className="font-medium">Delete Application</span>
+              </Button>
             </CardContent>
           </Card>
         </div>
