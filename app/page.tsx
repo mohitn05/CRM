@@ -84,11 +84,6 @@ export default function LandingPage() {
               Login
             </Button>
           </Link>
-          <Link href="/apply">
-            <Button className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white rounded-xl px-6 py-2 font-semibold shadow-md hover:shadow-lg transition-all duration-300">
-              Apply Now
-            </Button>
-          </Link>
         </div>
       </header>
 
@@ -114,7 +109,7 @@ export default function LandingPage() {
         {/* CTA Button with enhanced animation and gradient */}
         <Link href="/apply">
           <Button className={`group bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-4 text-lg font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 animate-fade-in-up delay-300 ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            Get Started
+            Apply Now
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
           </Button>
         </Link>
@@ -160,50 +155,79 @@ export default function LandingPage() {
       </div>
 
       {/* FOOTER - enhanced to match screenshot */}
-      <footer className="bg-[#f5f7ff] text-gray-800 py-6 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-10 md:gap-0">
+      <footer className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 text-gray-800 py-8 border-t border-white/30">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col lg:flex-row justify-between items-center lg:items-start gap-8 lg:gap-0">
           {/* Left Section */}
-          <div className="flex-1 min-w-[320px]">
-            <div className="flex items-center mb-2">
-              <div className="bg-gradient-to-br from-blue-600 to-purple-500 text-white p-3 rounded-xl mr-4">
-                <GraduationCap className="w-7 h-7" />
+          <div className="flex-1 min-w-[280px] text-center lg:text-left">
+            <div className="flex items-center justify-center lg:justify-start mb-4">
+              <div className="bg-gradient-to-br from-blue-600 to-purple-600 text-white p-2.5 rounded-xl mr-3 shadow-md">
+                <GraduationCap className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-blue-900">
+                <h1 className="text-2xl font-extrabold bg-gradient-to-r from-blue-700 via-purple-600 to-indigo-800 bg-clip-text text-transparent">
                   InternPro <span className="text-purple-600">CRM</span>
                 </h1>
-                <p className="text-gray-500 text-base font-medium">Professional Internship Management</p>
+                <p className="text-gray-600 text-sm font-medium">Professional Internship Management</p>
               </div>
             </div>
-            <p className="text-gray-700 text-lg mt-6 mb-8 max-w-xl">
+            <p className="text-gray-700 text-base mt-4 mb-6 max-w-lg leading-relaxed mx-auto lg:mx-0">
               Empowering organizations with cutting-edge internship management technology.
             </p>
-            <div className="mt-10">
-              <p className="text-gray-500 text-sm mb-1">© 2025 InternPro CRM. All rights reserved.</p>
-              <p className="text-gray-400 text-xs">Powered by AartMultiservices Technology Solutions</p>
+          </div>
+          {/* Right Section - Enhanced Contact Info */}
+          <div className="flex-1 min-w-[280px] max-w-md">
+            <h2 className="text-xl font-extrabold bg-gradient-to-r from-blue-700 via-purple-600 to-indigo-800 bg-clip-text text-transparent mb-6 text-center lg:text-left">
+              Contact Us
+            </h2>
+            <div className="space-y-4">
+              {/* Phone Contact Card */}
+              <div className="bg-white/40 backdrop-blur-lg border border-white/40 rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300 group">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-gradient-to-br from-green-400 to-emerald-500 text-white p-2 rounded-lg mr-3 shadow-sm">
+                      <Phone className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 text-sm">Call Us</h3>
+                      <a href="tel:+919359463350" className="text-blue-600 hover:text-indigo-700 font-bold text-sm transition-colors">
+                        +91 93594 63350
+                      </a>
+                    </div>
+                  </div>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <ArrowRight className="w-3 h-3 text-blue-500" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Email Contact Card */}
+              <div className="bg-white/40 backdrop-blur-lg border border-white/40 rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300 group">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white p-2 rounded-lg mr-3 shadow-sm">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 text-sm">Email Us</h3>
+                      <a href="mailto:info@aartmultiservices.com" className="text-blue-600 hover:text-indigo-700 font-bold text-sm transition-colors">
+                        info@aartmultiservices.com
+                      </a>
+                    </div>
+                  </div>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <ArrowRight className="w-3 h-3 text-blue-500" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          {/* Right Section */}
-          <div className="flex-1 min-w-[320px] flex flex-col items-end">
-            <h2 className="text-xl font-bold mb-6">Contact Us</h2>
-            <div className="flex items-center mb-4">
-              <span className="mr-4 text-gray-700">Call us directly</span>
-              <a href="tel:+919359463350" className="flex items-center">
-                <span className="text-lg font-semibold text-gray-900">+91 93594 63350</span>
-                <div className="bg-gradient-to-br from-green-400 to-blue-400 text-white p-3 ml-2 rounded-xl">
-                  <Phone className="w-6 h-6" />
-                </div>
-              </a>
-            </div>
-            <div className="flex items-center mb-8">
-              <span className="mr-4 text-gray-700">Email support</span>
-              <a href="mailto:info@aartmultiservices.com" className="flex items-center">
-                <span className="text-lg font-semibold text-gray-900">info@aartmultiservices.com</span>
-                <div className="bg-gradient-to-br from-purple-500 to-blue-500 text-white p-3 ml-2 rounded-xl">
-                  <Mail className="w-6 h-6" />
-                </div>
-              </a>
-            </div>
+        </div>
+
+        {/* Copyright and Powered By Section - Always at the bottom */}
+        <div className="max-w-7xl mx-auto px-4 md:px-8 mt-8 pt-6 border-t border-white/20">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-500 text-xs text-center md:text-left">© 2025 InternPro CRM. All rights reserved.</p>
+            <p className="text-gray-400 text-[10px] text-center md:text-right">Powered by AartMultiservices Technology Solutions</p>
           </div>
         </div>
       </footer>
