@@ -383,14 +383,33 @@ export default function StudentDetailPage() {
   }
 
   const viewResume = () => {
-    if (!application?.resume) return
+    try {
+      // Check if resume data is available
+      if (!application?.resumeName) {
+        toast({
+          title: "👀 Resume Not Available",
+          description: "⚠️ No resume file was uploaded for this application.",
+          variant: "warning" as any,
+        })
+        return
+      }
 
-    window.open(application.resume, "_blank")
-    toast({
-      title: "👀 Resume Opened!",
-      description: "📄 Resume opened in new tab for viewing.",
-      variant: "info" as any,
-    })
+      // Open the file in a new tab for viewing using the filename
+      const fileUrl = `http://localhost:5000/uploads/${application.resumeName}`
+      window.open(fileUrl, "_blank")
+
+      toast({
+        title: "👀 Resume Opened!",
+        description: "📄 Resume opened in new tab for viewing.",
+        variant: "info" as any,
+      })
+    } catch (error) {
+      toast({
+        title: "❌ View Failed",
+        description: "⚠️ Could not open resume. Please check if the file exists and try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   const getStatusColor = (status: string) => {

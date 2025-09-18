@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Minimal Apply Form Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Minimal Apply Form Test</h1>
+    <form id="applicationForm">
+        <div class="form-group">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" value="Minimal Test User" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="minimal@test.com" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone" name="phone" value="6666666666" required>
+        </div>
+        <div class="form-group">
+            <label for="domain">Domain:</label>
+            <select id="domain" name="domain" required>
+                <option value="Frontend Developer">Frontend Developer</option>
+                <option value="Backend Developer">Backend Developer</option>
+                <option value="Full Stack Developer">Full Stack Developer</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" value="minimal123" required>
+        </div>
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" value="minimal123" required>
+        </div>
+        <div class="form-group">
+            <label for="resume">Resume (text file):</label>
+            <input type="file" id="resume" name="resume" accept=".txt" required>
+        </div>
+        <button type="submit" id="submitBtn">Submit Application</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('applicationForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const form = document.getElementById('applicationForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+
+            // Show loading state
+            form.classList.add('loading');
+            submitBtn.textContent = 'Processing...';
+
+            try {
+                // Get form data
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const domain = document.getElementById('domain').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const resume = document.getElementById('resume').files[0];
+
+                // Validation
+                if (!/^[A-Za-z ]+$/.test(name.trim())) {
+                    throw new Error("Full name should only contain letters and spaces.");
+                }
+
+                if (!/^\d{10}$/.test(phone)) {
+                    throw new Error("Phone number must be 10 digits long.");
+                }
+
+                if (password !== confirmPassword) {
+                    throw new Error("Password and confirm password do not match.");
+                }
+
+                if (password.length < 6) {
+                    throw new Error("Password must be at least 6 characters long.");
+                }
+
+                // Create FormData
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('email', email);
+                formData.append('phone', phone);
+                formData.append('domain', domain);
+                formData.append('password', password);
+                if (resume) {
+                    formData.append('resume', resume);
+                }
+
+                // Submit to backend
+                const response = await fetch('http://localhost:5000/api/apply', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="result success">✅ Success: ${result.message}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="result error">❌ Error: ${result.message || 'Failed to submit application'}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Error: ${error.message}</div>`;
+            } finally {
+                // Reset loading state
+                form.classList.remove('loading');
+                submitBtn.textContent = 'Submit Application';
+            }
+        });
+    </script>
+</body>
+
+</html>

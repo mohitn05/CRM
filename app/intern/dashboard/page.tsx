@@ -529,462 +529,364 @@ export default function InternDashboard() {
           </div>
         </header>
 
-        {/* Grid Content */}
+        {/* Grid Content - Optimized for better space utilization */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Profile Card */}
-          <Card className="lg:col-span-2 p-6 shadow-lg bg-white/50 backdrop-blur-3xl border border-white/50 rounded-2xl hover:shadow-2xl transition-all duration-500">
-            <CardHeader className="p-0 mb-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
-                <div className="absolute -top-3 -left-3 w-32 h-32 rounded-full bg-gradient-to-br from-blue-400/10 to-indigo-400/10 blur-xl"></div>
-                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3 relative z-10">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
-                    <User className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="bg-gradient-to-r from-blue-700 via-purple-600 to-indigo-800 bg-clip-text text-transparent">Profile Information</span>
-                </CardTitle>
-                {!isEditing ? (
-                  <Button
-                    onClick={() => {
-                      if (internData.status === "Applied") {
-                        setIsEditing(true);
-                      } else {
-                        toast({
-                          title: "🚫 Edit Unavailable",
-                          description: "You cannot edit your information right now. If you need to update your details, please contact support.",
-                          variant: "destructive"
-                        });
-                      }
-                    }}
-                    className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl ${internData.status !== "Applied" ? "opacity-50 cursor-not-allowed" : ""}`}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                ) : (
-                  <div className="flex gap-3">
+          {/* Profile Card - Now takes full width on mobile, 2/3 on large screens */}
+          <div className="lg:col-span-2">
+            <Card className="p-6 shadow-lg bg-white/50 backdrop-blur-3xl border border-white/50 rounded-2xl hover:shadow-2xl transition-all duration-500">
+              <CardHeader className="p-0 mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
+                  <div className="absolute -top-3 -left-3 w-32 h-32 rounded-full bg-gradient-to-br from-blue-400/10 to-indigo-400/10 blur-xl"></div>
+                  <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3 relative z-10">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
+                      <User className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="bg-gradient-to-r from-blue-700 via-purple-600 to-indigo-800 bg-clip-text text-transparent">Profile Information</span>
+                  </CardTitle>
+                  {!isEditing ? (
                     <Button
                       onClick={() => {
-                        setIsEditing(false);
-                        setEditData(internData)
-                      }}
-                      className="bg-gray-200 hover:bg-gray-300 text-gray-800 hover:scale-105 transition-all duration-300 shadow-md"
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleSave}
-                      disabled={isLoading}
-                      className={`bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl ${internData.status !== "Applied" ? "opacity-50 cursor-not-allowed" : ""}`}
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      {isLoading ? "Saving..." : "Save Changes"}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardHeader>
-
-            <CardContent className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {[
-                  { label: "Full Name", value: internData.name, icon: <User className="text-white" />, key: "name", color: "from-blue-500 to-indigo-500" },
-                  { label: "Email Address", value: internData.email, icon: <Mail className="text-white" />, key: "email", color: "from-indigo-500 to-purple-500" },
-                  { label: "Phone Number", value: internData.phone, icon: <Phone className="text-white" />, key: "phone", color: "from-purple-500 to-pink-500" },
-                ].map(({ label, value, icon, key, color }) => (
-                  <div key={key} className="bg-white/40 backdrop-blur-lg p-5 rounded-2xl border border-white/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden hover:-translate-y-1">
-                    <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${color}`}></div>
-                    <div className="absolute -top-3 -right-3 w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-30"></div>
-                    <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
-                      <div className={`bg-gradient-to-br ${color} p-1.5 rounded-lg shadow-md`}>
-                        {icon}
-                      </div>
-                      <span>{label}</span>
-                    </Label>
-                    {isEditing ? (
-                      <Input
-                        type={key === "phone" ? "tel" : "text"}
-                        value={(editData as any)[key]}
-                        onChange={(e) => setEditData(prev => prev ? { ...prev, [key]: e.target.value } : null)}
-                        maxLength={key === "phone" ? 10 : undefined}
-                        className="border-2 border-blue-200 focus:border-blue-400 focus:ring-blue-300/30 rounded-xl bg-white/50 backdrop-blur-sm"
-                        disabled={internData.status !== "Applied"}
-                        onFocus={(e) => {
-                          if (internData.status !== "Applied") {
-                            toast({
-                              title: "🚫 Edit Unavailable",
-                              description: "You cannot edit your information right now. If you need to update your details, please contact support.",
-                              variant: "destructive"
-                            });
-                          }
-                        }}
-                      />
-                    ) : (
-                      <p className="text-gray-900 font-semibold pl-1 relative z-10">{value}</p>
-                    )}
-                  </div>
-                ))}
-
-                {/* Domain */}
-                <div className="bg-white/40 backdrop-blur-lg p-5 rounded-2xl border border-white/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden hover:-translate-y-1">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
-                  <div className="absolute -top-3 -right-3 w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-30"></div>
-                  <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
-                    <div className="bg-gradient-to-br from-amber-500 to-orange-500 p-1.5 rounded-lg shadow-md">
-                      <Building2 className="w-4 h-4 text-white" />
-                    </div>
-                    <span>Domain</span>
-                  </Label>
-                  {isEditing ? (
-                    <Select
-                      value={editData?.domain || ""}
-                      onValueChange={(value) => {
-                        if (internData.status !== "Applied") {
+                        if (internData.status === "Applied") {
+                          setIsEditing(true);
+                        } else {
                           toast({
                             title: "🚫 Edit Unavailable",
-                            description: "You cannot edit your domain right now. If you need to change your domain, please contact support.",
+                            description: "You cannot edit your information right now. If you need to update your details, please contact support.",
                             variant: "destructive"
                           });
-                          return;
                         }
-                        setEditData((p) => p ? { ...p, domain: value } : null);
-                        setDomainOptions(getDomainOptions());
                       }}
-                      disabled={internData.status !== "Applied"}
+                      className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl ${internData.status !== "Applied" ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
-                      <SelectTrigger className="bg-white/50 backdrop-blur-sm text-black border-2 border-blue-200 focus:border-blue-400 focus:ring-blue-300/30 rounded-xl">
-                        <SelectValue placeholder="Select Domain" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white/80 backdrop-blur-lg text-black border-blue-200 rounded-xl border border-white/50 shadow-lg">
-                        {domainOptions.map((d: { value: string; label: string }) => (
-                          <SelectItem key={d.value} value={d.value} className="hover:bg-blue-50 rounded-lg">{d.label.replace(/^[^ ]+ /, "")}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit Profile
+                    </Button>
                   ) : (
-                    <Badge className="text-base px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl shadow-md">
-                      {(() => {
-                        const domain = editData?.domain || internData.domain;
-                        if (domain === "Frontend") return "Frontend Developer";
-                        if (domain === "Backend") return "Backend Developer";
-                        return domain;
-                      })()}
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Resume Upload */}
-                <div className="bg-white/40 backdrop-blur-lg p-5 rounded-2xl border border-white/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden hover:-translate-y-1">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-                  <div className="absolute -top-3 -right-3 w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-30"></div>
-                  <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
-                    <div className="bg-gradient-to-br from-emerald-500 to-teal-500 p-1.5 rounded-lg shadow-md">
-                      <FileText className="w-4 h-4 text-white" />
-                    </div>
-                    <span>Resume</span>
-                  </Label>
-                  {isEditing ? (
-                    <div className="space-y-3">
-                      <Input
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        onChange={handleFileChange}
-                        className="border-2 border-blue-200 focus:border-blue-400 focus:ring-blue-300/30 rounded-xl file:bg-gradient-to-r file:from-emerald-500 file:to-teal-500 file:text-white file:border-0 file:rounded-lg file:px-3 file:py-2 file:mr-4 bg-white/50 backdrop-blur-sm"
-                        disabled={internData.status !== "Applied"}
-                      />
-                      {editData?.resume && (
-                        <div className="flex items-center gap-2 text-gray-700 text-sm">
-                          <FileText className="h-4 w-4 text-emerald-500" />
-                          <span className="truncate max-w-xs">{editData.resume.name}</span>
-                          <span className="text-gray-500">({(editData.resume.size / 1024 / 1024).toFixed(2)} MB)</span>
-                        </div>
-                      )}
-                      <p className="text-gray-500 text-xs">Accepted formats: PDF, DOC, DOCX (Max 5MB)</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {internData.resume ? (
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-5 w-5 text-emerald-500" />
-                          <span className="text-gray-900 font-semibold truncate">{internData.resume.name || "resume.pdf"}</span>
-                        </div>
-                      ) : (
-                        <p className="text-gray-500">No resume uploaded</p>
-                      )}
+                    <div className="flex gap-3">
                       <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-2 bg-gradient-to-r from-emerald-500/50 to-teal-500/50 hover:from-emerald-500/80 hover:to-teal-500/80 border border-emerald-200/50 text-emerald-700 hover:text-emerald-900"
                         onClick={() => {
-                          if (internData.status === "Applied") {
-                            setIsEditing(true);
-                          } else {
-                            toast({
-                              title: "🚫 Edit Unavailable",
-                              description: "You cannot edit your resume right now. If you need to update your resume, please contact support.",
-                              variant: "destructive"
-                            });
-                          }
+                          setIsEditing(false);
+                          setEditData(internData)
                         }}
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 hover:scale-105 transition-all duration-300 shadow-md"
                       >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Update Resume
+                        <X className="w-4 h-4 mr-2" />
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        className={`bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl ${internData.status !== "Applied" ? "opacity-50 cursor-not-allowed" : ""}`}
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        {isLoading ? "Saving..." : "Save Changes"}
                       </Button>
                     </div>
                   )}
                 </div>
+              </CardHeader>
 
-                {/* Registration Date */}
-                <div className="bg-white/40 backdrop-blur-lg p-5 rounded-2xl border border-white/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden hover:-translate-y-1">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
-                  <div className="absolute -top-3 -right-3 w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-30"></div>
-                  <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
-                    <div className="bg-gradient-to-br from-cyan-500 to-blue-500 p-1.5 rounded-lg shadow-md">
-                      <Calendar className="w-4 h-4 text-white" />
+              <CardContent className="p-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {[
+                    { label: "Full Name", value: internData.name, icon: <User className="text-white" />, key: "name", color: "from-blue-500 to-indigo-500" },
+                    { label: "Email Address", value: internData.email, icon: <Mail className="text-white" />, key: "email", color: "from-indigo-500 to-purple-500" },
+                    { label: "Phone Number", value: internData.phone, icon: <Phone className="text-white" />, key: "phone", color: "from-purple-500 to-pink-500" },
+                  ].map(({ label, value, icon, key, color }) => (
+                    <div key={key} className="bg-white/40 backdrop-blur-lg p-5 rounded-2xl border border-white/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden hover:-translate-y-1">
+                      <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${color}`}></div>
+                      <div className="absolute -top-3 -right-3 w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-30"></div>
+                      <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
+                        <div className={`bg-gradient-to-br ${color} p-1.5 rounded-lg shadow-md`}>
+                          {icon}
+                        </div>
+                        <span>{label}</span>
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          type={key === "phone" ? "tel" : "text"}
+                          value={(editData as any)[key]}
+                          onChange={(e) => setEditData(prev => prev ? { ...prev, [key]: e.target.value } : null)}
+                          maxLength={key === "phone" ? 10 : undefined}
+                          className="border-2 border-blue-200 focus:border-blue-400 focus:ring-blue-300/30 rounded-xl bg-white/50 backdrop-blur-sm"
+                          disabled={internData.status !== "Applied"}
+                          onFocus={(e) => {
+                            if (internData.status !== "Applied") {
+                              toast({
+                                title: "🚫 Edit Unavailable",
+                                description: "You cannot edit your information right now. If you need to update your details, please contact support.",
+                                variant: "destructive"
+                              });
+                            }
+                          }}
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-semibold pl-1 relative z-10">{value}</p>
+                      )}
                     </div>
-                    <span>Registration Date</span>
-                  </Label>
-                  <p className="text-gray-900 font-semibold pl-1 relative z-10">
-                    {internData.dateRegistered && !isNaN(new Date(internData.dateRegistered).getTime())
-                      ? new Date(internData.dateRegistered).toLocaleDateString()
-                      : "Not Available"}
-                  </p>
-                </div>
+                  ))}
 
-                {/* Recent Activity */}
-                <div className="bg-white/40 backdrop-blur-lg p-5 rounded-2xl border border-white/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden hover:-translate-y-1 md:col-span-2">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-purple-500"></div>
-                  <div className="absolute -top-3 -right-3 w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-30"></div>
-                  <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
-                    <div className="bg-gradient-to-br from-violet-500 to-purple-500 p-1.5 rounded-lg shadow-md">
-                      <Clock className="w-4 h-4 text-white" />
-                    </div>
-                    <span>Recent Activity</span>
-                  </Label>
-                  <div className="mt-4 space-y-3">
-                    <div className="flex items-start gap-3 p-3 bg-white/30 rounded-xl hover:bg-white/50 transition-colors">
-                      <div className="mt-1 w-2 h-2 bg-violet-500 rounded-full"></div>
-                      <div>
-                        <p className="text-gray-800 font-medium">Profile updated</p>
-                        <p className="text-gray-600 text-sm">Your profile information was last updated today</p>
+                  {/* Domain */}
+                  <div className="bg-white/40 backdrop-blur-lg p-5 rounded-2xl border border-white/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden hover:-translate-y-1">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+                    <div className="absolute -top-3 -right-3 w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-30"></div>
+                    <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
+                      <div className="bg-gradient-to-br from-amber-500 to-orange-500 p-1.5 rounded-lg shadow-md">
+                        <Building2 className="w-4 h-4 text-white" />
                       </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-3 bg-white/30 rounded-xl hover:bg-white/50 transition-colors">
-                      <div className="mt-1 w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <div>
-                        <p className="text-gray-800 font-medium">Application submitted</p>
-                        <p className="text-gray-600 text-sm">Your internship application was submitted on {internData.dateRegistered && !isNaN(new Date(internData.dateRegistered).getTime())
-                          ? new Date(internData.dateRegistered).toLocaleDateString()
-                          : "N/A"}</p>
+                      <span>Domain</span>
+                    </Label>
+                    {isEditing ? (
+                      <Select
+                        value={editData?.domain || ""}
+                        onValueChange={(value) => {
+                          if (internData.status !== "Applied") {
+                            toast({
+                              title: "🚫 Edit Unavailable",
+                              description: "You cannot edit your domain right now. If you need to change your domain, please contact support.",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+                          setEditData((p) => p ? { ...p, domain: value } : null);
+                          setDomainOptions(getDomainOptions());
+                        }}
+                        disabled={internData.status !== "Applied"}
+                      >
+                        <SelectTrigger className="bg-white/50 backdrop-blur-sm text-black border-2 border-blue-200 focus:border-blue-400 focus:ring-blue-300/30 rounded-xl">
+                          <SelectValue placeholder="Select Domain" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white/80 backdrop-blur-lg text-black border-blue-200 rounded-xl border border-white/50 shadow-lg">
+                          {domainOptions.map((d: { value: string; label: string }) => (
+                            <SelectItem key={d.value} value={d.value} className="hover:bg-blue-50 rounded-lg">{d.label.replace(/^[^ ]+ /, "")}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge className="text-base px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl shadow-md">
+                        {(() => {
+                          const domain = editData?.domain || internData.domain;
+                          if (domain === "Frontend") return "Frontend Developer";
+                          if (domain === "Backend") return "Backend Developer";
+                          return domain;
+                        })()}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Resume Upload */}
+                  <div className="bg-white/40 backdrop-blur-lg p-5 rounded-2xl border border-white/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden hover:-translate-y-1">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+                    <div className="absolute -top-3 -right-3 w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-30"></div>
+                    <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
+                      <div className="bg-gradient-to-br from-emerald-500 to-teal-500 p-1.5 rounded-lg shadow-md">
+                        <FileText className="w-4 h-4 text-white" />
                       </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-3 bg-white/30 rounded-xl hover:bg-white/50 transition-colors">
-                      <div className="mt-1 w-2 h-2 bg-fuchsia-500 rounded-full"></div>
-                      <div>
-                        <p className="text-gray-800 font-medium">Status check</p>
-                        <p className="text-gray-600 text-sm">You checked your application status 2 days ago</p>
+                      <span>Resume</span>
+                    </Label>
+                    {isEditing ? (
+                      <div className="space-y-3">
+                        <Input
+                          type="file"
+                          accept=".pdf,.doc,.docx"
+                          onChange={handleFileChange}
+                          className="border-2 border-blue-200 focus:border-blue-400 focus:ring-blue-300/30 rounded-xl file:bg-gradient-to-r file:from-emerald-500 file:to-teal-500 file:text-white file:border-0 file:rounded-md file:px-2 file:py-1 file:text-sm bg-white/50 backdrop-blur-sm"
+                          disabled={internData.status !== "Applied"}
+                        />
+                        {editData?.resume && (
+                          <div className="flex items-center gap-2 text-gray-700 text-sm">
+                            <FileText className="h-4 w-4 text-emerald-500" />
+                            <span className="truncate max-w-xs">{editData.resume.name}</span>
+                            <span className="text-gray-500">({(editData.resume.size / 1024 / 1024).toFixed(2)} MB)</span>
+                          </div>
+                        )}
+                        <p className="text-gray-500 text-xs">Accepted formats: PDF, DOC, DOCX (Max 5MB)</p>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {internData.resume ? (
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-5 w-5 text-emerald-500" />
+                            <span className="text-gray-900 font-semibold truncate">{internData.resume.name || "resume.pdf"}</span>
+                          </div>
+                        ) : (
+                          <p className="text-gray-500">No resume uploaded</p>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-2 bg-gradient-to-r from-emerald-500/50 to-teal-500/50 hover:from-emerald-500/80 hover:to-teal-500/80 border border-emerald-200/50 text-emerald-700 hover:text-emerald-900"
+                          onClick={() => {
+                            if (internData.status === "Applied") {
+                              setIsEditing(true);
+                            } else {
+                              toast({
+                                title: "🚫 Edit Unavailable",
+                                description: "You cannot edit your resume right now. If you need to update your resume, please contact support.",
+                                variant: "destructive"
+                              });
+                            }
+                          }}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Update Resume
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Registration Date */}
+                  <div className="bg-white/40 backdrop-blur-lg p-5 rounded-2xl border border-white/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden hover:-translate-y-1">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
+                    <div className="absolute -top-3 -right-3 w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-30"></div>
+                    <Label className="flex items-center gap-2 text-gray-700 mb-2 font-medium">
+                      <div className="bg-gradient-to-br from-cyan-500 to-blue-500 p-1.5 rounded-lg shadow-md">
+                        <Calendar className="w-4 h-4 text-white" />
+                      </div>
+                      <span>Registration Date</span>
+                    </Label>
+                    <p className="text-gray-900 font-semibold pl-1 relative z-10">
+                      {internData.dateRegistered && !isNaN(new Date(internData.dateRegistered).getTime())
+                        ? new Date(internData.dateRegistered).toLocaleDateString()
+                        : "Not Available"}
+                    </p>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Right Column */}
+          {/* Right Column - Status and Quick Actions cards */}
           <div className="flex flex-col gap-6">
-            {/* Status */}
-            <Card className="p-6 shadow-lg bg-white/50 backdrop-blur-3xl border border-white/50 rounded-2xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1">
-              <CardHeader className="p-0 mb-6">
-                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg">
+            {/* Status Card - Made more compact */}
+            <Card className="p-5 shadow-lg bg-white/50 backdrop-blur-3xl border border-white/50 rounded-2xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1">
+              <CardHeader className="p-0 mb-4">
+                <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-md">
                     {getStatusIcon(internData.status)}
                   </div>
                   <span className="bg-gradient-to-r from-blue-700 via-purple-600 to-indigo-800 bg-clip-text text-transparent">Application Status</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0 space-y-6">
+              <CardContent className="p-0 space-y-4">
                 <div className="text-center">
-                  <Badge className={`${getStatusColor(internData.status)} text-xl px-6 py-3 mb-6 font-bold rounded-xl shadow-lg`}>
+                  <Badge className={`${getStatusColor(internData.status)} text-lg px-4 py-2 mb-4 font-bold rounded-xl shadow-md`}>
                     {internData.status}
                   </Badge>
 
-                  {/* Status Message */}
-                  <div className="bg-white/40 backdrop-blur-lg rounded-2xl p-5 mb-6 border border-white/50 shadow-md">
-                    <p className="text-gray-700">
+                  {/* Status Message - Made more compact */}
+                  <div className="bg-white/40 backdrop-blur-lg rounded-xl p-4 mb-4 border border-white/50 shadow-sm">
+                    <p className="text-gray-700 text-sm">
                       {getStatusMessage(internData.status)}
                     </p>
                   </div>
 
-                  {/* Animated Status Visualization */}
-                  {internData.status === "Applied" && (
-                    <div className="space-y-4">
-                      <div className="flex justify-center">
-                        <div className="text-5xl animate-pulse" style={{ animationDuration: '2s' }}>
-                          📝
-                        </div>
+                  {/* Animated Status Visualization - Made smaller for better space utilization */}
+                  <div className="flex justify-center">
+                    {internData.status === "Applied" && (
+                      <div className="text-3xl animate-pulse" style={{ animationDuration: '2s' }}>
+                        📝
                       </div>
-                      <div className="text-center space-y-1">
-                        <p className="text-gray-600">Your application has been submitted</p>
-                        <div className="flex items-center justify-center text-blue-600">
-                          <span className="font-medium">Waiting for review</span>
-                        </div>
-                        <p className="text-sm text-gray-500">We'll update you soon</p>
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {internData.status === "Selected" && (
-                    <div className="space-y-4">
-                      <div className="flex justify-center">
-                        <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
-                          😊
-                        </div>
+                    {internData.status === "Selected" && (
+                      <div className="text-3xl animate-bounce" style={{ animationDuration: '1s' }}>
+                        😊
                       </div>
-                      <div className="text-center space-y-1">
-                        <p className="text-gray-600">You have been selected!</p>
-                        <div className="flex items-center justify-center text-green-600">
-                          <span className="font-medium">Congratulations!</span>
-                        </div>
-                        <p className="text-sm text-gray-500">Check your email for next steps</p>
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {internData.status === "Rejected" && (
-                    <div className="space-y-4">
-                      <div className="flex justify-center">
-                        <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
-                          😢
-                        </div>
+                    {internData.status === "Rejected" && (
+                      <div className="text-3xl animate-bounce" style={{ animationDuration: '1s' }}>
+                        😢
                       </div>
-                      <div className="text-center space-y-1">
-                        <p className="text-gray-600">Your application was not successful</p>
-                        <div className="flex items-center justify-center text-red-600">
-                          <span className="font-medium">Better luck next time!</span>
-                        </div>
-                        <p className="text-sm text-gray-500">Keep improving and apply again</p>
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {(internData.status === "In Review" || internData.status === "Under Review") && (
-                    <div className="space-y-4">
-                      <div className="flex justify-center">
-                        <div className="text-5xl animate-spin" style={{ animationDuration: '2s' }}>
-                          ⏳
-                        </div>
+                    {(internData.status === "In Review" || internData.status === "Under Review") && (
+                      <div className="text-3xl animate-spin" style={{ animationDuration: '2s' }}>
+                        ⏳
                       </div>
-                      <div className="text-center">
-                        <p className="text-gray-600">Your application is under review</p>
-                        <div className="flex items-center justify-center text-blue-600">
-                          <span className="font-medium">Please wait for updates</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {internData.status === "In Training" && (
-                    <div className="space-y-4">
-                      <div className="flex justify-center">
-                        <div className="text-5xl animate-bounce" style={{ animationDuration: '1.5s' }}>
-                          🎓
-                        </div>
+                    {internData.status === "In Training" && (
+                      <div className="text-3xl animate-bounce" style={{ animationDuration: '1.5s' }}>
+                        🎓
                       </div>
-                      <div className="text-center space-y-1">
-                        <p className="text-gray-600">Welcome to the team!</p>
-                        <div className="flex items-center justify-center text-purple-600">
-                          <span className="font-medium">Your training has begun</span>
-                        </div>
-                        <p className="text-sm text-gray-500">Keep up the great work</p>
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {internData.status === "Completed" && (
-                    <div className="space-y-4">
-                      <div className="flex justify-center">
-                        <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
-                          🏆
-                        </div>
+                    {internData.status === "Completed" && (
+                      <div className="text-3xl animate-bounce" style={{ animationDuration: '1s' }}>
+                        🏆
                       </div>
-                      <div className="text-center space-y-1">
-                        <p className="text-gray-600">Congratulations!</p>
-                        <div className="flex items-center justify-center text-blue-600">
-                          <span className="font-medium">Internship completed successfully</span>
-                        </div>
-                        <p className="text-sm text-gray-500">Well done!</p>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <Card className="p-6 shadow-lg bg-white/50 backdrop-blur-3xl border border-white/50 rounded-2xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1">
-              <CardHeader className="p-0 mb-5">
-                <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            {/* Quick Actions Card - Made more compact */}
+            <Card className="p-5 shadow-lg bg-white/50 backdrop-blur-3xl border border-white/50 rounded-2xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1">
+              <CardHeader className="p-0 mb-3">
+                <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
                   <div className="relative">
-                    <Sparkles className="w-5 h-5 text-gray-700" />
-                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-ping"></div>
+                    <Sparkles className="w-4 h-4 text-gray-700" />
+                    <div className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-ping"></div>
                   </div>
                   <span className="bg-gradient-to-r from-blue-700 via-purple-600 to-indigo-800 bg-clip-text text-transparent">Quick Actions</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0 space-y-4">
+              <CardContent className="p-0 space-y-3">
                 <Button
-                  className="w-full justify-between bg-gradient-to-r from-blue-500/50 to-indigo-500/50 hover:from-blue-500/80 hover:to-indigo-500/80 text-gray-800 py-4 rounded-xl transition-all duration-300 border border-blue-200/50 shadow-md hover:shadow-lg group relative overflow-hidden"
+                  className="w-full justify-between bg-gradient-to-r from-blue-500/50 to-indigo-500/50 hover:from-blue-500/80 hover:to-indigo-500/80 text-gray-800 py-3 rounded-xl transition-all duration-300 border border-blue-200/50 shadow-sm hover:shadow-md group relative overflow-hidden text-sm"
                   onClick={() => window.open("https://mail.google.com/mail/u/0/#inbox?compose=DmwnWtDsVNbMNKTNwzTxmkpwGdhvfstmFcPTmJdfNPCsQjKpWZStJStKgcJrcFvsfVQcJBfwjhlq")}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-indigo-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="flex items-center relative">
-                    <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-2 rounded-lg mr-3 group-hover:rotate-12 transition-transform duration-300 shadow-md">
-                      <Mail className="w-5 h-5 text-white" />
+                    <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-1.5 rounded-md mr-2 group-hover:rotate-12 transition-transform duration-300 shadow-sm">
+                      <Mail className="w-4 h-4 text-white" />
                     </div>
                     <span className="font-medium">Contact Support</span>
                   </div>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center">
-                    <span className="mr-2 text-sm">Reach out</span>
-                    <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span className="mr-1 text-xs">Reach out</span>
+                    <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   </div>
                 </Button>
 
                 <Button
-                  className="w-full justify-between bg-gradient-to-r from-green-500/50 to-emerald-500/50 hover:from-green-500/80 hover:to-emerald-500/80 text-gray-800 py-4 rounded-xl transition-all duration-300 border border-green-200/50 shadow-md hover:shadow-lg group relative overflow-hidden"
+                  className="w-full justify-between bg-gradient-to-r from-green-500/50 to-emerald-500/50 hover:from-green-500/80 hover:to-emerald-500/80 text-gray-800 py-3 rounded-xl transition-all duration-300 border border-green-200/50 shadow-sm hover:shadow-md group relative overflow-hidden text-sm"
                   onClick={() => window.open("tel:9359463350")}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-green-400/10 to-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="flex items-center relative">
-                    <div className="bg-gradient-to-br from-green-500 to-emerald-500 p-2 rounded-lg mr-3 group-hover:rotate-12 transition-transform duration-300 shadow-md">
-                      <Phone className="w-5 h-5 text-white" />
+                    <div className="bg-gradient-to-br from-green-500 to-emerald-500 p-1.5 rounded-md mr-2 group-hover:rotate-12 transition-transform duration-300 shadow-sm">
+                      <Phone className="w-4 h-4 text-white" />
                     </div>
-                    <span className="font-medium">Call Support: +91 93594 63350</span>
+                    <span className="font-medium">Call Support</span>
                   </div>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center">
-                    <span className="mr-2 text-sm">Dial now</span>
-                    <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span className="mr-1 text-xs">Dial now</span>
+                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   </div>
                 </Button>
 
                 <Button
-                  className="w-full justify-between bg-gradient-to-r from-red-500/50 to-rose-500/50 hover:from-red-500/80 hover:to-rose-500/80 text-gray-800 py-4 rounded-xl transition-all duration-300 border border-red-200/50 shadow-md hover:shadow-lg group relative overflow-hidden"
+                  className="w-full justify-between bg-gradient-to-r from-red-500/50 to-rose-500/50 hover:from-red-500/80 hover:to-rose-500/80 text-gray-800 py-3 rounded-xl transition-all duration-300 border border-red-200/50 shadow-sm hover:shadow-md group relative overflow-hidden text-sm"
                   onClick={deleteApplication}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-red-400/10 to-rose-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="flex items-center relative">
-                    <div className="bg-gradient-to-br from-red-500 to-rose-500 p-2 rounded-lg mr-3 group-hover:rotate-12 transition-transform duration-300 shadow-md">
-                      <Trash2 className="w-5 h-5 text-white" />
+                    <div className="bg-gradient-to-br from-red-500 to-rose-500 p-1.5 rounded-md mr-2 group-hover:rotate-12 transition-transform duration-300 shadow-sm">
+                      <Trash2 className="w-4 h-4 text-white" />
                     </div>
                     <span className="font-medium">Delete Application</span>
                   </div>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center">
-                    <span className="mr-2 text-sm">Proceed</span>
-                    <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span className="mr-1 text-xs">Proceed</span>
+                    <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   </div>

@@ -26,25 +26,30 @@
       "static/chunks/main-app.js",
       "static/chunks/app/apply/page.js"
     ],
-    "/intern/login/loading": [
+    "/admin/dashboard/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/intern/login/loading.js"
+      "static/chunks/app/admin/dashboard/loading.js"
     ],
-    "/intern/login/page": [
+    "/admin/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/intern/login/page.js"
+      "static/chunks/app/admin/dashboard/page.js"
     ],
-    "/intern/dashboard/loading": [
+    "/admin/students/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/intern/dashboard/loading.js"
+      "static/chunks/app/admin/students/loading.js"
     ],
-    "/intern/dashboard/page": [
+    "/admin/students/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/intern/dashboard/page.js"
+      "static/chunks/app/admin/students/page.js"
+    ],
+    "/admin/student/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/admin/student/[id]/page.js"
     ]
   }
 }

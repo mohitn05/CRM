@@ -229,6 +229,16 @@ export default function StudentsPage() {
 
   const downloadResume = (fileName: string) => {
     try {
+      // Check if fileName is valid
+      if (!fileName) {
+        toast({
+          title: "Download Failed",
+          description: "No resume file available for this application.",
+          variant: "destructive",
+        })
+        return
+      }
+
       // Open the file in a new tab for download
       const fileUrl = `http://localhost:5000/uploads/${fileName}`
       window.open(fileUrl, '_blank')
@@ -246,12 +256,33 @@ export default function StudentsPage() {
     }
   }
 
-  const viewResume = (resume: string) => {
-    window.open(resume, "_blank")
-    toast({
-      title: "Resume Opened",
-      description: "Resume opened in new tab.",
-    })
+  const viewResume = (fileName: string) => {
+    try {
+      // Check if fileName is valid
+      if (!fileName) {
+        toast({
+          title: "View Failed",
+          description: "No resume file available for this application.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Open the file in a new tab for viewing
+      const fileUrl = `http://localhost:5000/uploads/${fileName}`
+      window.open(fileUrl, '_blank')
+
+      toast({
+        title: "Resume Opened",
+        description: "Resume opened in new tab.",
+      })
+    } catch (error) {
+      toast({
+        title: "View Failed",
+        description: "Could not open resume. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -278,7 +309,18 @@ export default function StudentsPage() {
     const csvContent = [
       headers.join(","),
       ...filteredApplications.map((app) =>
-        [app.name, app.email, app.phone, app.domain, app.status, app.dateApplied, app.resumeName || "No Resume"].join(
+        [
+          app.name,
+          app.email,
+          app.phone,
+          app.domain,
+          app.status,
+          new Date(app.dateApplied).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short'
+          }),
+          app.resumeName || "No Resume"
+        ].join(
           ",",
         ),
       ),
@@ -381,7 +423,7 @@ export default function StudentsPage() {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200">
                   <div className={`w-2 h-2 rounded-full animate-pulse ${connectionStatus === 'connected' ? 'bg-green-400' :
-                      connectionStatus === 'disconnected' ? 'bg-red-400' : 'bg-yellow-400'
+                    connectionStatus === 'disconnected' ? 'bg-red-400' : 'bg-yellow-400'
                     }`}></div>
                   <span className="text-xs font-medium text-gray-700">
                     {connectionStatus === 'connected' ? 'Connected' :
@@ -543,7 +585,7 @@ export default function StudentsPage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => viewResume(app.resume!)}
+                                onClick={() => viewResume(app.resumeName!)}
                                 className="h-8 px-3 text-xs border-blue-300 text-blue-600 hover:bg-blue-50 transition-all duration-200 hover:scale-105"
                               >
                                 <Download className="h-3 w-3 mr-1" />

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Exact Form Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Exact Form Test</h1>
+    <p>This form exactly mimics the frontend submission to test if the issue is with the browser form.</p>
+
+    <form id="applicationForm">
+        <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" value="Exact Test User" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" value="exact.test@example.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" value="1234567890" maxlength="10" required>
+        </div>
+
+        <div class="form-group">
+            <label for="domain">Domain *</label>
+            <select id="domain" required>
+                <option value="">Select your domain</option>
+                <option value="Frontend Developer" selected>Frontend Developer</option>
+                <option value="Backend Developer">Backend Developer</option>
+                <option value="Database Management">Database Management</option>
+                <option value="Web Developer">Web Developer</option>
+                <option value="Android Developer">Android Developer</option>
+                <option value="Full Stack Developer">Full Stack Developer</option>
+                <option value="UI/UX Designer">UI/UX Designer</option>
+                <option value="Digital Marketing">Digital Marketing</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" value="testpassword" required>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password *</label>
+            <input type="password" id="confirmPassword" value="testpassword" required>
+        </div>
+
+        <div class="form-group">
+            <label for="resume">Resume/CV *</label>
+            <input type="file" id="resume" accept=".pdf,.doc,.docx,.txt" required>
+        </div>
+
+        <button type="submit">Register & Apply</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('applicationForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Get form data
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('phone', document.getElementById('phone').value);
+            formData.append('domain', document.getElementById('domain').value);
+            formData.append('password', document.getElementById('password').value);
+
+            // Add resume file
+            const resumeFile = document.getElementById('resume').files[0];
+            if (resumeFile) {
+                formData.append('resume', resumeFile);
+            } else {
+                // Create a dummy file if none selected
+                const dummyFile = new Blob(['This is a test resume for exact form testing.'], { type: 'text/plain' });
+                formData.append('resume', dummyFile, 'exact_test_resume.txt');
+            }
+
+            // Show what we're sending
+            console.log('Sending FormData:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/apply', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                const resultDiv = document.getElementById('result');
+                if (response.ok) {
+                    resultDiv.innerHTML = `<h3>Success!</h3><p>${result.message}</p>`;
+                    resultDiv.className = 'success';
+                } else {
+                    resultDiv.innerHTML = `<h3>Error ${response.status}</h3><p>${result.message || 'Unknown error'}</p>`;
+                    resultDiv.className = 'error';
+                }
+
+                console.log('Response:', response.status, result);
+            } catch (error) {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = `<h3>Network Error</h3><p>${error.message}</p>`;
+                resultDiv.className = 'error';
+                console.error('Network error:', error);
+            }
+        });
+    </script>
+</body>
+
+</html>

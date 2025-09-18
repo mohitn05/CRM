@@ -57,8 +57,19 @@ export default function ApplyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("=== FORM SUBMISSION DEBUG INFO ===")
+    console.log("Form submission started")
+    console.log("Current form data:", formData)
+    console.log("Resume file:", formData.resume)
+    console.log("Resume file details:", formData.resume ? {
+      name: formData.resume.name,
+      size: formData.resume.size,
+      type: formData.resume.type
+    } : "No resume file selected")
+
     // Validate full name: only letters and spaces allowed
     if (!/^[A-Za-z ]+$/.test(formData.name.trim())) {
+      console.log("❌ Name validation failed")
       toast({
         title: "Invalid Name",
         description: "Full name should only contain letters and spaces. No digits or special characters allowed.",
@@ -69,6 +80,7 @@ export default function ApplyPage() {
 
     // Validate Phone number format : should be 10 digits
     if (!/^\d{10}$/.test(formData.phone)) {
+      console.log("❌ Phone validation failed")
       toast({
         title: "Invalid Phone Number",
         description: "Phone number must be 10 digits long.",
@@ -79,6 +91,7 @@ export default function ApplyPage() {
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
+      console.log("❌ Password confirmation failed")
       toast({
         title: "Password Mismatch",
         description: "Password and confirm password do not match.",
@@ -89,6 +102,7 @@ export default function ApplyPage() {
 
     // Validate password strength
     if (formData.password.length < 6) {
+      console.log("❌ Password strength validation failed")
       toast({
         title: "Weak Password",
         description: "Password must be at least 6 characters long.",
@@ -97,24 +111,96 @@ export default function ApplyPage() {
       return
     }
 
+    console.log("✅ All validations passed")
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitted(true)
-      setIsLoading(false)
-      toast({
-        title: "Success",
-        description: "Your application has been submitted successfully!",
+    try {
+      // Create FormData object to send multipart/form-data
+      const formDataToSend = new FormData()
+      formDataToSend.append("name", formData.name)
+      formDataToSend.append("email", formData.email)
+      formDataToSend.append("phone", formData.phone)
+      formDataToSend.append("domain", formData.domain)
+      formDataToSend.append("password", formData.password)
+
+      console.log("Form data prepared:", {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        domain: formData.domain
       })
-    }, 1200)
+
+      if (formData.resume) {
+        formDataToSend.append("resume", formData.resume)
+        console.log("✅ Resume file added:", formData.resume.name, formData.resume.size, "bytes")
+      } else {
+        console.log("❌ No resume file selected - this will cause submission to fail")
+        toast({
+          title: "Resume Required",
+          description: "Please select a resume file to submit your application.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Log the actual FormData contents
+      console.log("FormData contents:")
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`  ${key}:`, value)
+      }
+
+      // Make API call to backend
+      console.log("📡 Making API call to http://localhost:5000/api/apply")
+      const response = await fetch("http://localhost:5000/api/apply", {
+        method: "POST",
+        body: formDataToSend,
+      })
+
+      console.log("📥 API response received:", response.status, response.statusText)
+
+      const result = await response.json()
+      console.log("📄 API response data:", result)
+
+      if (response.ok) {
+        console.log("🎉 Form submission successful")
+        setIsSubmitted(true)
+        toast({
+          title: "Success",
+          description: "Your application has been submitted successfully!",
+        })
+      } else {
+        console.log("❌ Form submission failed with server error")
+        toast({
+          title: "Submission Failed",
+          description: result.message || "Failed to submit application. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error: unknown) {
+      console.error("💥 Error submitting application:", error)
+      if (error instanceof Error) {
+        console.error("Error details:", {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        })
+      }
+      toast({
+        title: "Network Error",
+        description: "Failed to connect to server. Please check your connection and try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+      console.log("🏁 Form submission process completed")
+      console.log("==================================")
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value,
-      ...(field === "domain" && value !== "Others" ? { customDomain: "" } : {})
+      [field]: value
     }))
     if (field === "domain" && value !== "Others") {
       setDomainOptions(getDomainOptions())
@@ -122,9 +208,13 @@ export default function ApplyPage() {
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("File input changed")
     const file = e.target.files?.[0]
     if (file) {
+      console.log("File selected:", file.name, file.size, file.type)
+
       if (file.size > 5 * 1024 * 1024) {
+        console.log("File too large")
         toast({
           title: "File too large",
           description: "Please upload a file smaller than 5MB.",
@@ -132,7 +222,11 @@ export default function ApplyPage() {
         })
         return
       }
+
+      console.log("File accepted")
       setFormData((prev) => ({ ...prev, resume: file }))
+    } else {
+      console.log("No file selected")
     }
   }
 

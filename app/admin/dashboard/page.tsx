@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "@/components/ui/use-toast"
 import type { ScriptableContext } from "chart.js"
 import { ArcElement, BarElement, CategoryScale, Chart, ChartOptions, Legend, LinearScale, Tooltip } from "chart.js"
-import { Award, BookOpen, Calendar, ClipboardListIcon, Code, Database, GraduationCap, Layers, Monitor, Palette, Send, Server, Smartphone, Target, TrendingUp, Users } from "lucide-react"
+import { Award, ClipboardListIcon, Code, Database, GraduationCap, Layers, Monitor, Palette, Send, Server, Smartphone, TrendingUp, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { Bar, Pie } from "react-chartjs-2"
@@ -135,6 +135,16 @@ export default function DashboardPage() {
 
   const downloadResume = (fileName: string) => {
     try {
+      // Check if fileName is valid
+      if (!fileName) {
+        toast({
+          title: "❌ Download Failed",
+          description: "⚠️ No resume file available for this application.",
+          variant: "warning" as any,
+        })
+        return
+      }
+
       // Open the file in a new tab for download
       const fileUrl = `http://localhost:5000/uploads/${fileName}`
       window.open(fileUrl, '_blank')
@@ -477,105 +487,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           ))}
-        </div>
-
-        {/* Educational Insights Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2 bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
-            <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
-                  <BookOpen className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl font-bold text-gray-900">Educational Insights</CardTitle>
-                  <CardDescription className="text-sm text-gray-600">Learning outcomes and student progress</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  { title: "Avg. Completion Time", value: "8.2 weeks", icon: Calendar, color: "from-blue-500 to-indigo-500" },
-                  { title: "Top Performing Domain", value: "Frontend Dev", icon: Target, color: "from-purple-500 to-pink-500" },
-                  { title: "Mentor Satisfaction", value: "4.8/5.0", icon: Award, color: "from-emerald-500 to-teal-500" }
-                ].map((item, index) => (
-                  <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-                    <div className={`w-10 h-10 bg-gradient-to-br ${item.color} rounded-lg flex items-center justify-center mb-3`}>
-                      <item.icon className="h-5 w-5 text-white" />
-                    </div>
-                    <h3 className="text-sm font-semibold text-gray-600 mb-1">{item.title}</h3>
-                    <p className="text-xl font-bold text-gray-900">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 bg-blue-50/50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-all duration-300">
-                <h3 className="font-semibold text-blue-800 flex items-center gap-2 mb-2">
-                  <BookOpen className="w-5 h-5" />
-                  Educational Program Note
-                </h3>
-                <p className="text-blue-700 text-sm">
-                  This dashboard provides insights into student learning outcomes and program effectiveness.
-                  Use these metrics to improve curriculum alignment with industry needs and enhance student success rates.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
-            <CardHeader className="bg-gradient-to-r from-gray-50 to-purple-50 border-b border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg">
-                  <Layers className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl font-bold text-gray-900">Quick Actions</CardTitle>
-                  <CardDescription className="text-sm text-gray-600">Manage your program efficiently</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <button
-                onClick={() => router.push('/admin/students')}
-                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 group hover:scale-[1.02]"
-              >
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
-                  <Users className="h-5 w-5 text-white" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-700">View All Students</h3>
-                  <p className="text-sm text-gray-600">Manage applications and progress</p>
-                </div>
-              </button>
-
-              <button
-                onClick={loadApplications}
-                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:from-emerald-100 hover:to-teal-100 transition-all duration-200 group hover:scale-[1.02]"
-              >
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-white" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-emerald-700">Refresh Data</h3>
-                  <p className="text-sm text-gray-600">Update dashboard statistics</p>
-                </div>
-              </button>
-
-              <button
-                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 hover:from-amber-100 hover:to-orange-100 transition-all duration-200 group hover:scale-[1.02]"
-              >
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
-                  <Send className="h-5 w-5 text-white" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-amber-700">Send Notifications</h3>
-                  <p className="text-sm text-gray-600">Communicate with students</p>
-                </div>
-              </button>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Enhanced Recent Applications with Professional Styling */}

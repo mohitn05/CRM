@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Comprehensive Frontend Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Comprehensive Frontend Integration Test</h1>
+
+    <div class="test-section">
+        <h2>Test 1: Direct API Call Simulation</h2>
+        <p>This test simulates what the frontend should do when submitting the form.</p>
+        <button id="directApiTest">Run Direct API Test</button>
+        <div id="directApiLogs" class="log"></div>
+        <div id="directApiResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Form Submission Simulation</h2>
+        <p>This test simulates the complete form submission process.</p>
+        <form id="testForm">
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" value="Frontend Integration Test" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="frontend.integration@test.com" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" name="phone" value="8888888888" required>
+            </div>
+            <div class="form-group">
+                <label for="domain">Domain:</label>
+                <select id="domain" name="domain" required>
+                    <option value="Frontend Developer">Frontend Developer</option>
+                    <option value="Backend Developer">Backend Developer</option>
+                    <option value="Full Stack Developer">Full Stack Developer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" value="frontend123" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" value="frontend123" required>
+            </div>
+            <div class="form-group">
+                <label for="resume">Resume (text file):</label>
+                <input type="file" id="resume" name="resume" accept=".txt" required>
+            </div>
+            <button type="submit">Submit Application</button>
+        </form>
+        <div id="formLogs" class="log"></div>
+        <div id="formResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Login Verification</h2>
+        <p>This test verifies that the submitted application can be used for login.</p>
+        <button id="loginTest">Run Login Test</button>
+        <div id="loginLogs" class="log"></div>
+        <div id="loginResult"></div>
+    </div>
+
+    <script>
+        // Utility functions
+        function log(containerId, message) {
+            const logsDiv = document.getElementById(containerId);
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = `[${new Date().toISOString()}] ${message}`;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        function showResult(containerId, message, type) {
+            const resultDiv = document.getElementById(containerId);
+            resultDiv.innerHTML = message;
+            resultDiv.className = 'result ' + type;
+        }
+
+        // Test 1: Direct API Call Simulation
+        document.getElementById('directApiTest').addEventListener('click', async function () {
+            const logsContainer = 'directApiLogs';
+            const resultContainer = 'directApiResult';
+
+            log(logsContainer, 'Starting direct API call test');
+
+            // Create test file
+            const fileContent = 'This is a test resume file for direct API testing.';
+            const blob = new Blob([fileContent], { type: 'text/plain' });
+            const file = new File([blob], 'direct_api_test.txt', { type: 'text/plain' });
+
+            log(logsContainer, 'Test file created');
+
+            // Create FormData
+            const formData = new FormData();
+            formData.append('name', 'Direct API Test User');
+            formData.append('email', 'direct.api@test.com');
+            formData.append('phone', '9999999999');
+            formData.append('domain', 'Direct API Testing');
+            formData.append('password', 'directapi123');
+            formData.append('resume', file);
+
+            log(logsContainer, 'FormData object created with test data');
+
+            try {
+                log(logsContainer, 'Making POST request to http://localhost:5000/api/apply');
+                const response = await fetch('http://localhost:5000/api/apply', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                log(logsContainer, `Response received with status: ${response.status}`);
+
+                const result = await response.json();
+                log(logsContainer, `Response JSON: ${JSON.stringify(result)}`);
+
+                if (response.ok) {
+                    log(logsContainer, 'Direct API call test PASSED');
+                    showResult(resultContainer, `✅ Success: ${result.message}`, 'success');
+                } else {
+                    log(logsContainer, 'Direct API call test FAILED');
+                    showResult(resultContainer, `❌ Error: ${result.message || 'Failed to submit application'}`, 'error');
+                }
+            } catch (error) {
+                log(logsContainer, `Network error: ${error.message}`);
+                showResult(resultContainer, `❌ Network Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Test 2: Form Submission Simulation
+        document.getElementById('testForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const logsContainer = 'formLogs';
+            const resultContainer = 'formResult';
+
+            log(logsContainer, 'Form submission started');
+
+            // Get form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const domain = document.getElementById('domain').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const resume = document.getElementById('resume').files[0];
+
+            log(logsContainer, `Form data collected: name=${name}, email=${email}, phone=${phone}, domain=${domain}`);
+
+            // Simple validation
+            if (password !== confirmPassword) {
+                log(logsContainer, 'Validation failed: Passwords do not match');
+                showResult(resultContainer, 'Password and confirm password do not match.', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                log(logsContainer, 'Validation failed: Password too short');
+                showResult(resultContainer, 'Password must be at least 6 characters long.', 'error');
+                return;
+            }
+
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('phone', phone);
+            formData.append('domain', domain);
+            formData.append('password', password);
+            if (resume) {
+                formData.append('resume', resume);
+                log(logsContainer, `Resume file added: ${resume.name}`);
+            }
+
+            log(logsContainer, 'FormData object created, attempting to submit to backend');
+
+            try {
+                log(logsContainer, 'Making fetch request to http://localhost:5000/api/apply');
+                const response = await fetch('http://localhost:5000/api/apply', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                log(logsContainer, `Response received: status=${response.status}`);
+
+                let result;
+                try {
+                    result = await response.json();
+                    log(logsContainer, `Response JSON parsed: ${JSON.stringify(result)}`);
+                } catch (parseError) {
+                    const text = await response.text();
+                    log(logsContainer, `Response text (failed to parse JSON): ${text}`);
+                    result = { message: text };
+                }
+
+                if (response.ok) {
+                    log(logsContainer, 'Form submission test PASSED');
+                    showResult(resultContainer, `✅ Success: ${result.message}`, 'success');
+                } else {
+                    log(logsContainer, `Form submission test FAILED with status ${response.status}`);
+                    showResult(resultContainer, `❌ Error: ${result.message || 'Failed to submit application'}`, 'error');
+                }
+            } catch (error) {
+                log(logsContainer, `Network error occurred: ${error.message}`);
+                showResult(resultContainer, `❌ Network Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Test 3: Login Verification
+        document.getElementById('loginTest').addEventListener('click', async function () {
+            const logsContainer = 'loginLogs';
+            const resultContainer = 'loginResult';
+
+            log(logsContainer, 'Starting login verification test');
+
+            try {
+                log(logsContainer, 'Making POST request to http://localhost:5000/api/intern/login');
+                const response = await fetch('http://localhost:5000/api/intern/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        emailOrPhone: 'direct.api@test.com',
+                        password: 'directapi123'
+                    })
+                });
+
+                log(logsContainer, `Response received with status: ${response.status}`);
+
+                const result = await response.json();
+                log(logsContainer, `Response JSON: ${JSON.stringify(result)}`);
+
+                if (response.ok) {
+                    log(logsContainer, 'Login verification test PASSED');
+                    showResult(resultContainer, `✅ Login Success: Welcome ${result.student.name}`, 'success');
+                } else {
+                    log(logsContainer, 'Login verification test FAILED');
+                    showResult(resultContainer, `❌ Login Error: ${result.message || 'Login failed'}`, 'error');
+                }
+            } catch (error) {
+                log(logsContainer, `Network error: ${error.message}`);
+                showResult(resultContainer, `❌ Network Error: ${error.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CORS Test</title>
+</head>
+
+<body>
+    <h1>Form Submission Test</h1>
+    <form id="testForm">
+        <input type="text" id="name" value="CORS Test User" placeholder="Name"><br><br>
+        <input type="email" id="email" value="cors.test@example.com" placeholder="Email"><br><br>
+        <input type="text" id="phone" value="1234567890" placeholder="Phone"><br><br>
+        <input type="text" id="domain" value="Frontend Developer" placeholder="Domain"><br><br>
+        <input type="password" id="password" value="testpassword" placeholder="Password"><br><br>
+        <input type="file" id="resume" accept=".txt,.pdf,.doc,.docx"><br><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('phone', document.getElementById('phone').value);
+            formData.append('domain', document.getElementById('domain').value);
+            formData.append('password', document.getElementById('password').value);
+
+            const resumeFile = document.getElementById('resume').files[0];
+            if (resumeFile) {
+                formData.append('resume', resumeFile);
+            } else {
+                // Create a dummy file if none selected
+                const dummyFile = new Blob(['This is a test resume'], { type: 'text/plain' });
+                formData.append('resume', dummyFile, 'test_resume.txt');
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/apply', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                document.getElementById('result').innerHTML = `<p>Status: ${response.status}</p><p>Message: ${result.message}</p>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+
+</html>
