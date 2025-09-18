@@ -165,6 +165,8 @@ export default function StudentDetailPage() {
     setIsLoading(true);
 
     try {
+      // Always normalize domain before saving
+      const normalizedDomain = normalizeDomain(editData.domain);
       const response = await fetch(`http://localhost:5000/api/students/${editData.id}`, {
         method: 'PUT',
         headers: {
@@ -174,15 +176,20 @@ export default function StudentDetailPage() {
           name: editData.name,
           email: editData.email,
           phone: editData.phone,
-          domain: editData.domain,
+          domain: normalizedDomain,
           status: editData.status,
         }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        setApplication(result.student);
-        setEditData(result.student);
+        // Normalize domain in local state as well
+        const normalizedStudent = {
+          ...result.student,
+          domain: normalizeDomain(result.student.domain)
+        };
+        setApplication(normalizedStudent);
+        setEditData(normalizedStudent);
         setIsEditing(false);
 
         toast({
@@ -246,6 +253,8 @@ export default function StudentDetailPage() {
     try {
       // Check if we're in edit mode or direct status update mode
       if (isEditing && editData) {
+        // Always normalize domain before saving
+        const normalizedDomain = normalizeDomain(editData.domain);
         // We're in edit mode - save all changes including status
         const response = await fetch(`http://localhost:5000/api/students/${editData.id}`, {
           method: 'PUT',
@@ -256,20 +265,25 @@ export default function StudentDetailPage() {
             name: editData.name,
             email: editData.email,
             phone: editData.phone,
-            domain: editData.domain,
+            domain: normalizedDomain,
             status: pendingStatusUpdate.status,
           }),
         })
 
         if (response.ok) {
           const result = await response.json()
-          setApplication(result.student)
-          setEditData(result.student)
+          // Normalize domain in local state as well
+          const normalizedStudent = {
+            ...result.student,
+            domain: normalizeDomain(result.student.domain)
+          };
+          setApplication(normalizedStudent)
+          setEditData(normalizedStudent)
           setIsEditing(false) // Exit edit mode
 
           toast({
-            title: `🎯 Application ${result.student.name} Updated!`,
-            description: `✨ ${result.student.name}'s application updated and email notification sent successfully!`,
+            title: `🎯 Application ${normalizedStudent.name} Updated!`,
+            description: `✨ ${normalizedStudent.name}'s application updated and email notification sent successfully!`,
             variant: "success" as any,
           })
         } else {
@@ -294,12 +308,17 @@ export default function StudentDetailPage() {
 
         if (response.ok) {
           const result = await response.json()
-          setApplication(result.student)
-          setEditData(result.student)
+          // Normalize domain in local state as well
+          const normalizedStudent = {
+            ...result.student,
+            domain: normalizeDomain(result.student.domain)
+          };
+          setApplication(normalizedStudent)
+          setEditData(normalizedStudent)
 
           toast({
-            title: `🎉 Status Updated to ${result.student.status}!`,
-            description: `✅ ${result.student.name}'s status updated successfully. Email and notification sent!`,
+            title: `🎉 Status Updated to ${normalizedStudent.status}!`,
+            description: `✅ ${normalizedStudent.name}'s status updated successfully. Email and notification sent!`,
             variant: "success" as any,
           })
         } else {

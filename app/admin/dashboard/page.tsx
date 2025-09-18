@@ -91,6 +91,10 @@ export default function DashboardPage() {
       const recent = data
         .sort((a: Application, b: Application) => new Date(b.dateApplied).getTime() - new Date(a.dateApplied).getTime())
         .slice(0, 10)
+        .map((app: Application) => ({
+          ...app,
+          domain: normalizeDomain(app.domain)
+        }))
       setRecentApplications(recent)
 
       // Only use fixed domains
@@ -187,14 +191,14 @@ export default function DashboardPage() {
   )
 
   const domainStats = useMemo(() => ({
-    "Frontend Developer": normalizedApplications.filter((app) => app.domain === "Frontend Developer").length,
-    "Backend Developer": normalizedApplications.filter((app) => app.domain === "Backend Developer").length,
-    "Database Management": normalizedApplications.filter((app) => app.domain === "Database Management").length,
-    "Web Developer": normalizedApplications.filter((app) => app.domain === "Web Developer").length,
-    "Android Developer": normalizedApplications.filter((app) => app.domain === "Android Developer").length,
-    "Full Stack Developer": normalizedApplications.filter((app) => app.domain === "Full Stack Developer").length,
-    "UI/UX Designer": normalizedApplications.filter((app) => app.domain === "UI/UX Designer").length,
-    "Digital Marketing": normalizedApplications.filter((app) => app.domain === "Digital Marketing").length,
+    "Frontend Developer": normalizedApplications.filter((app) => normalizeDomain(app.domain) === "Frontend Developer").length,
+    "Backend Developer": normalizedApplications.filter((app) => normalizeDomain(app.domain) === "Backend Developer").length,
+    "Database Management": normalizedApplications.filter((app) => normalizeDomain(app.domain) === "Database Management").length,
+    "Web Developer": normalizedApplications.filter((app) => normalizeDomain(app.domain) === "Web Developer").length,
+    "Android Developer": normalizedApplications.filter((app) => normalizeDomain(app.domain) === "Android Developer").length,
+    "Full Stack Developer": normalizedApplications.filter((app) => normalizeDomain(app.domain) === "Full Stack Developer").length,
+    "UI/UX Designer": normalizedApplications.filter((app) => normalizeDomain(app.domain) === "UI/UX Designer").length,
+    "Digital Marketing": normalizedApplications.filter((app) => normalizeDomain(app.domain) === "Digital Marketing").length,
   }), [normalizedApplications])
 
   // Gradient color stops for each domain - Using your specified colors with gradients
@@ -405,7 +409,7 @@ export default function DashboardPage() {
   // Filter applications by selected domain
   const filteredApplications = !selectedDomain
     ? applications
-    : applications.filter(app => app.domain === selectedDomain)
+    : applications.filter(app => normalizeDomain(app.domain) === normalizeDomain(selectedDomain))
 
   return (
     <AdminLayout>

@@ -184,11 +184,9 @@ export default function StudentsPage() {
 
     // Domain filter
     if (domainFilter !== "all") {
-      console.log('Filtering by domain:', domainFilter);
-      console.log('Available domains in applications:', [...new Set(applications.map(app => app.domain))]);
+      const normalizedFilter = normalizeDomain(domainFilter);
       filtered = filtered.filter((app) => {
-        const match = app.domain === domainFilter;
-        console.log(`App ${app.id} domain: ${app.domain}, Filter: ${domainFilter}, Match: ${match}`);
+        const match = normalizeDomain(app.domain) === normalizedFilter;
         return match;
       });
     }
