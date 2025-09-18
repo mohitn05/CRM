@@ -21,7 +21,6 @@ import {
   Eye,
   FileText,
   Mail,
-  MessageSquare,
   Phone,
   Save,
   Trash2,
@@ -987,44 +986,54 @@ export default function StudentDetailPage() {
             </Card>
 
             {/* Communication History */}
-            <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
-              <CardHeader className="bg-gradient-to-r from-gray-50 to-green-50 border-b border-gray-200">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-green-600 to-teal-600 rounded-lg">
-                    <MessageSquare className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-bold text-gray-900">Communication</CardTitle>
-                    <p className="text-sm text-gray-600 mt-1">Email & SMS notifications</p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+            {/* Contact Section - Two Wide Cards */}
+            <div className="grid grid-cols-1 gap-6">
+              <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
+                      <Mail className="h-5 w-5 text-white" />
+                    </div>
                     <div>
-                      <p className="font-medium text-gray-900">Application Received</p>
-                      <p className="text-sm text-gray-600">Sent on application submission</p>
+                      <CardTitle className="text-lg font-bold text-gray-900">Email to Applicant</CardTitle>
+                      <p className="text-sm text-gray-600 mt-1">Send an email directly to the applicant</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                    <Mail className="h-5 w-5 text-purple-600 mt-0.5" />
+                </CardHeader>
+                <CardContent className="p-6 flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-gray-700">Email:</span>
+                    <a
+                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(application.email)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-indigo-700 font-bold text-sm transition-colors"
+                    >
+                      {application.email}
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+                <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                      <Phone className="h-5 w-5 text-white" />
+                    </div>
                     <div>
-                      <p className="font-medium text-gray-900">Status Updates</p>
-                      <p className="text-sm text-gray-600">Email notifications for status changes</p>
+                      <CardTitle className="text-lg font-bold text-gray-900">Call to Applicant</CardTitle>
+                      <p className="text-sm text-gray-600 mt-1">Call the applicant directly</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                    <MessageSquare className="h-5 w-5 text-green-600 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-gray-900">SMS Notifications</p>
-                      <p className="text-sm text-gray-600">Real-time SMS updates (if enabled)</p>
-                    </div>
+                </CardHeader>
+                <CardContent className="p-6 flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-gray-700">Phone:</span>
+                    <a href={`tel:${application.phone}`} className="text-green-600 hover:text-emerald-700 font-bold text-sm transition-colors">{application.phone}</a>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
 

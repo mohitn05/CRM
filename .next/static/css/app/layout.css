@@ -3375,6 +3375,9 @@ select {
 .to-zinc-500 {
   --tw-gradient-to: #71717a var(--tw-gradient-to-position);
 }
+.to-emerald-600 {
+  --tw-gradient-to: #059669 var(--tw-gradient-to-position);
+}
 .bg-\[length\:200\%_100\%\] {
   background-size: 200% 100%;
 }
@@ -4959,6 +4962,10 @@ main {
 .hover\:text-white:hover {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+.hover\:text-emerald-700:hover {
+  --tw-text-opacity: 1;
+  color: rgb(4 120 87 / var(--tw-text-opacity, 1));
 }
 .hover\:underline:hover {
   text-decoration-line: underline;

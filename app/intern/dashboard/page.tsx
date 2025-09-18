@@ -860,7 +860,7 @@ export default function InternDashboardPage() {
               <CardContent className="p-0 space-y-3">
                 <Button
                   className="w-full justify-between bg-gradient-to-r from-blue-500/50 to-indigo-500/50 hover:from-blue-500/80 hover:to-indigo-500/80 text-gray-800 py-3 rounded-xl transition-all duration-300 border border-blue-200/50 shadow-sm hover:shadow-md group relative overflow-hidden text-sm"
-                  onClick={() => window.open("https://mail.google.com/mail/u/0/#inbox?compose=DmwnWtDsVNbMNKTNwzTxmkpwGdhvfstmFcPTmJdfNPCsQjKpWZStJStKgcJrcFvsfVQcJBfwjhlq")}
+                  onClick={() => window.open("https://mail.google.com/mail/?view=cm&fs=1&to=info@aartimultiservices.com", "_blank")}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-indigo-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="flex items-center relative">
