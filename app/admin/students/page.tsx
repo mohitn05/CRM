@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/hooks/use-toast"
@@ -47,6 +48,25 @@ const sendNotification = async (email: string, phone: string, name: string, stat
     sms: { sent: true, message: smsMessage },
   }
 }
+
+// Helper to normalize domain names
+const normalizeDomain = (domain: string) => {
+  // Trim whitespace and convert to consistent case for comparison
+  const trimmedDomain = domain.trim();
+
+  // Handle case-insensitive matching
+  const lowerDomain = trimmedDomain.toLowerCase();
+
+  if (lowerDomain === "frontend" || lowerDomain === "frontend developer") return "Frontend Developer";
+  if (lowerDomain === "backend" || lowerDomain === "backend developer") return "Backend Developer";
+  if (lowerDomain === "database" || lowerDomain === "database management") return "Database Management";
+  if (lowerDomain === "web developer") return "Web Developer";
+  if (lowerDomain === "android developer") return "Android Developer";
+  if (lowerDomain === "full stack developer") return "Full Stack Developer";
+  if (lowerDomain === "ui/ux designer" || lowerDomain === "uiux designer") return "UI/UX Designer";
+  if (lowerDomain === "digital marketing") return "Digital Marketing";
+  return domain;
+};
 
 export default function StudentsPage() {
   const [applications, setApplications] = useState<Application[]>([])
@@ -97,8 +117,16 @@ export default function StudentsPage() {
       const response = await fetch("http://localhost:5000/api/admin/applications")
       if (response.ok) {
         const data = await response.json()
-        setApplications(data)
-        setFilteredApplications(data)
+        console.log('Raw applications data:', data);
+        // Normalize domain names
+        const normalizedData = data.map((app: Application) => ({
+          ...app,
+          domain: normalizeDomain(app.domain)
+        }));
+        console.log('Normalized applications data:', normalizedData);
+        console.log('Unique domains after normalization:', [...new Set(normalizedData.map((app: Application) => app.domain))]);
+        setApplications(normalizedData)
+        setFilteredApplications(normalizedData)
         setLastUpdated(new Date())
         setConnectionStatus('connected')
 
@@ -156,7 +184,13 @@ export default function StudentsPage() {
 
     // Domain filter
     if (domainFilter !== "all") {
-      filtered = filtered.filter((app) => app.domain === domainFilter)
+      console.log('Filtering by domain:', domainFilter);
+      console.log('Available domains in applications:', [...new Set(applications.map(app => app.domain))]);
+      filtered = filtered.filter((app) => {
+        const match = app.domain === domainFilter;
+        console.log(`App ${app.id} domain: ${app.domain}, Filter: ${domainFilter}, Match: ${match}`);
+        return match;
+      });
     }
 
     // Status filter
@@ -164,6 +198,7 @@ export default function StudentsPage() {
       filtered = filtered.filter((app) => app.status === statusFilter)
     }
 
+    console.log('Filtered applications count:', filtered.length);
     setFilteredApplications(filtered)
   }, [applications, searchTerm, domainFilter, statusFilter])
 
@@ -288,19 +323,20 @@ export default function StudentsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Applied":
-        return "bg-blue-100 text-blue-800"
+        return "bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white"
       case "In Review":
-        return "bg-yellow-100 text-yellow-800"
+      case "Under Review":
+        return "bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white"
       case "Selected":
-        return "bg-blue-100 text-blue-800"
+        return "bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-white"
       case "Rejected":
-        return "bg-red-100 text-red-800"
+        return "bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 text-white"
       case "In Training":
-        return "bg-purple-100 text-purple-800"
+        return "bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500 text-white"
       case "Completed":
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 text-white"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-gray-500 via-slate-500 to-zinc-500 text-white"
     }
   }
 
@@ -374,30 +410,32 @@ export default function StudentsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-6">
-                <div className="text-center">
-                  <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    {applications.length}
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="flex gap-4">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                      {applications.length}
+                    </div>
+                    <div className="text-sm font-medium text-gray-600">Total Applications</div>
+                    <div className="text-xs text-green-600 font-medium mt-1 flex items-center justify-center gap-1">
+                      <TrendingUp className="w-3 h-3" />
+                      Active tracking
+                    </div>
                   </div>
-                  <div className="text-sm font-medium text-gray-600">Total Applications</div>
-                  <div className="text-xs text-green-600 font-medium mt-1 flex items-center justify-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    Active tracking
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                    {filteredApplications.length}
-                  </div>
-                  <div className="text-sm font-medium text-gray-600">Filtered Results</div>
-                  <div className="text-xs text-blue-600 font-medium mt-1 flex items-center justify-center gap-1">
-                    <Search className="w-3 h-3" />
-                    Current view
+                  <div className="text-center">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                      {filteredApplications.length}
+                    </div>
+                    <div className="text-sm font-medium text-gray-600">Filtered Results</div>
+                    <div className="text-xs text-blue-600 font-medium mt-1 flex items-center justify-center gap-1">
+                      <Search className="w-3 h-3" />
+                      Current view
+                    </div>
                   </div>
                 </div>
                 <Button
                   onClick={exportToCSV}
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Export CSV
@@ -410,7 +448,7 @@ export default function StudentsPage() {
         {/* Enhanced Professional Filters Section */}
         <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
                   <Search className="h-5 w-5 text-white" />
@@ -433,7 +471,7 @@ export default function StudentsPage() {
                 <button
                   onClick={() => loadApplications()}
                   disabled={isLoading}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50"
+                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 whitespace-nowrap"
                 >
                   {isLoading ? '🔄 Loading...' : '🔄 Refresh'}
                 </button>
@@ -456,9 +494,13 @@ export default function StudentsPage() {
                   </SelectTrigger>
                   <SelectContent className="bg-white border shadow-lg">
                     <SelectItem value="all">All Domains</SelectItem>
-                    {require("@/lib/domains").getDomainOptions().map((d: { value: string; label: string }) => (
-                      <SelectItem key={d.value} value={d.value}>{d.label.replace(/^[^ ]+ /, "")}</SelectItem>
-                    ))}
+                    {(() => {
+                      const domainOptions = require("@/lib/domains").getDomainOptions();
+                      console.log('Domain options for filter:', domainOptions);
+                      return domainOptions.map((d: { value: string; label: string }) => (
+                        <SelectItem key={d.value} value={d.value}>{d.label.replace(/^[^ ]+ /, "")}</SelectItem>
+                      ));
+                    })()}
                   </SelectContent>
                 </Select>
               </div>
@@ -532,17 +574,17 @@ export default function StudentsPage() {
                 )}
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table className="w-full">
+              <ScrollArea className="w-full h-[calc(100vh-220px)]">
+                <Table className="w-full min-w-[1200px]">
                   <TableHeader>
                     <TableRow className="bg-gray-50 border-b border-gray-200">
-                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Applicant</TableHead>
-                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Contact</TableHead>
-                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Domain</TableHead>
-                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Status</TableHead>
-                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Resume</TableHead>
-                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Applied</TableHead>
-                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider text-center">Actions</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider w-64">Applicant</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider w-40">Contact</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider w-40">Domain</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider w-32">Status</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider w-40">Resume</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider w-40">Applied</TableHead>
+                      <TableHead className="font-semibold text-gray-800 text-sm uppercase tracking-wider text-center w-40">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
 
@@ -552,7 +594,7 @@ export default function StudentsPage() {
                         key={app.id}
                         className="group hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200"
                       >
-                        <TableCell className="py-4 px-6">
+                        <TableCell className="py-4 px-6 w-64">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                               {app.name.charAt(0).toUpperCase()}
@@ -563,10 +605,10 @@ export default function StudentsPage() {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="py-4 px-6">
+                        <TableCell className="py-4 px-6 w-40">
                           <div className="text-sm text-gray-600">{app.phone}</div>
                         </TableCell>
-                        <TableCell className="py-4 px-6">
+                        <TableCell className="py-4 px-6 w-40">
                           <Badge
                             variant="outline"
                             className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-blue-200 font-semibold"
@@ -574,12 +616,12 @@ export default function StudentsPage() {
                             {app.domain}
                           </Badge>
                         </TableCell>
-                        <TableCell className="py-4 px-6">
+                        <TableCell className="py-4 px-6 w-32">
                           <Badge className={`${getStatusColor(app.status)} font-bold border`}>
                             {app.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="py-4 px-6">
+                        <TableCell className="py-4 px-6 w-40">
                           {app.resumeName ? (
                             <div className="flex gap-2">
                               <Button
@@ -596,7 +638,7 @@ export default function StudentsPage() {
                             <span className="text-gray-400 text-sm font-medium">No resume</span>
                           )}
                         </TableCell>
-                        <TableCell className="py-4 px-6">
+                        <TableCell className="py-4 px-6 w-40">
                           <div className="text-sm text-gray-600 font-medium">
                             {new Date(app.dateApplied).toLocaleDateString('en-US', {
                               month: 'short',
@@ -605,7 +647,7 @@ export default function StudentsPage() {
                             })}
                           </div>
                         </TableCell>
-                        <TableCell className="py-4 px-6 text-center">
+                        <TableCell className="py-4 px-6 text-center w-40">
                           <div className="flex gap-2 justify-center">
                             {app.status === "In Training" && (
                               <Button
@@ -630,7 +672,8 @@ export default function StudentsPage() {
                     ))}
                   </TableBody>
                 </Table>
-              </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
             )}
           </CardContent>
         </Card>

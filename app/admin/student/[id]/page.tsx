@@ -45,6 +45,25 @@ interface Application {
 
 
 
+// Helper to normalize domain names
+const normalizeDomain = (domain: string) => {
+  // Trim whitespace and convert to consistent case for comparison
+  const trimmedDomain = domain.trim();
+
+  // Handle case-insensitive matching
+  const lowerDomain = trimmedDomain.toLowerCase();
+
+  if (lowerDomain === "frontend" || lowerDomain === "frontend developer") return "Frontend Developer";
+  if (lowerDomain === "backend" || lowerDomain === "backend developer") return "Backend Developer";
+  if (lowerDomain === "database" || lowerDomain === "database management") return "Database Management";
+  if (lowerDomain === "web developer") return "Web Developer";
+  if (lowerDomain === "android developer") return "Android Developer";
+  if (lowerDomain === "full stack developer") return "Full Stack Developer";
+  if (lowerDomain === "ui/ux designer" || lowerDomain === "uiux designer") return "UI/UX Designer";
+  if (lowerDomain === "digital marketing") return "Digital Marketing";
+  return domain;
+};
+
 export default function StudentDetailPage() {
   const [application, setApplication] = useState<Application | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -72,8 +91,13 @@ export default function StudentDetailPage() {
         const response = await fetch(`http://localhost:5000/api/students/${params.id}`)
         if (response.ok) {
           const studentData = await response.json()
-          setApplication(studentData)
-          setEditData(studentData)
+          // Normalize domain name
+          const normalizedStudentData = {
+            ...studentData,
+            domain: normalizeDomain(studentData.domain)
+          };
+          setApplication(normalizedStudentData)
+          setEditData(normalizedStudentData)
         } else {
           toast({
             title: "⚠️ Load Error",
@@ -415,19 +439,20 @@ export default function StudentDetailPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Applied":
-        return "bg-blue-100 text-blue-800"
+        return "bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white"
       case "In Review":
-        return "bg-yellow-100 text-yellow-800"
+      case "Under Review":
+        return "bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white"
       case "Selected":
-        return "bg-blue-100 text-blue-800"
+        return "bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-white"
       case "Rejected":
-        return "bg-red-100 text-red-800"
+        return "bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 text-white"
       case "In Training":
-        return "bg-purple-100 text-purple-800"
+        return "bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500 text-white"
       case "Completed":
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 text-white"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-gray-500 via-slate-500 to-zinc-500 text-white"
     }
   }
 
@@ -485,7 +510,7 @@ export default function StudentDetailPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-8 p-4 lg:p-6 w-full min-w-0">
+      <div className="space-y-8 p-4 md:p-6 w-full min-w-0">
         {/* Enhanced Professional Header Section */}
         <div className="bg-gradient-to-r from-slate-50 to-purple-50 rounded-2xl shadow-lg border border-gray-200 p-6 relative overflow-hidden">
           {/* Background decoration */}
@@ -502,7 +527,7 @@ export default function StudentDetailPage() {
                     <ArrowLeft className="h-4 w-4" />
                     Back to Dashboard
                   </Link>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-blue-800 bg-clip-text text-transparent">
+                  <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-blue-800 bg-clip-text text-transparent">
                     {application.name}'s Application
                   </h1>
                   <p className="text-gray-600 font-medium">
@@ -511,7 +536,7 @@ export default function StudentDetailPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 {isEditing ? (
                   <>
                     <Button
@@ -562,7 +587,7 @@ export default function StudentDetailPage() {
           <div className="lg:col-span-2">
             <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
               <CardHeader className="bg-gradient-to-r from-gray-50 to-purple-50 border-b border-gray-200">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg">
                       <User className="h-5 w-5 text-white" />
@@ -708,7 +733,7 @@ export default function StudentDetailPage() {
                   </Label>
                   {application.resume ? (
                     <div className="p-6 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl border border-orange-200">
-                      <div className="flex items-center gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
                           <FileText className="h-6 w-6 text-white" />
                         </div>
@@ -721,7 +746,7 @@ export default function StudentDetailPage() {
                             Uploaded on {new Date(application.dateApplied).toLocaleDateString('en-CA')}
                           </p>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex flex-wrap gap-3">
                           <Button
                             size="sm"
                             variant="outline"
@@ -898,43 +923,43 @@ export default function StudentDetailPage() {
                         <Button
                           onClick={() => updateStatus("In Training")}
                           disabled={isLoading}
-                          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-all duration-300 hover:scale-105"
                         >
-                          {isLoading ? "Starting..." : "🎓 Start Training"}
+                          {isLoading ? "Processing..." : "🎓 Start Training"}
                         </Button>
                       </div>
                     )}
 
-                    {/* In Training Status - Show In Training + Completed button */}
+                    {/* Rejected Status - Show Rejected with animation */}
+                    {application.status === "Rejected" && (
+                      <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 text-center">
+                        <div className="text-red-600 font-bold text-lg mb-2">❌ REJECTED</div>
+                        <p className="text-red-700 text-sm font-medium">Application not selected</p>
+                      </div>
+                    )}
+
+                    {/* In Training Status - Show Training with animation + Complete button */}
                     {application.status === "In Training" && (
                       <div className="space-y-3">
                         <div className="bg-purple-50 border-2 border-purple-200 rounded-lg p-4 text-center animate-pulse">
                           <div className="text-purple-600 font-bold text-lg mb-2 animate-bounce">🎓 IN TRAINING</div>
-                          <p className="text-purple-700 text-sm font-medium">Training is in progress</p>
+                          <p className="text-purple-700 text-sm font-medium">Currently undergoing training program</p>
                         </div>
                         <Button
                           onClick={() => updateStatus("Completed")}
                           disabled={isLoading}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
+                          className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-semibold transition-all duration-300 hover:scale-105"
                         >
-                          {isLoading ? "Completing..." : "🏆 Completed"}
+                          {isLoading ? "Processing..." : "🏆 Complete Training"}
                         </Button>
                       </div>
                     )}
 
-                    {/* Completed Status - Show Completed (no buttons) */}
+                    {/* Completed Status - Show Completed with animation */}
                     {application.status === "Completed" && (
-                      <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 text-center animate-pulse">
-                        <div className="text-green-600 font-bold text-lg mb-2 animate-bounce">🏆 COMPLETED!</div>
-                        <p className="text-green-700 text-sm font-medium">Training successfully completed</p>
-                      </div>
-                    )}
-
-                    {/* Rejected Status - Show Rejected (no buttons) */}
-                    {application.status === "Rejected" && (
-                      <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 text-center animate-pulse">
-                        <div className="text-red-600 font-bold text-lg mb-2 animate-bounce">❌ REJECTED</div>
-                        <p className="text-red-700 text-sm font-medium">Application was not accepted</p>
+                      <div className="bg-gradient-to-r from-green-50 to-teal-50 border-2 border-green-200 rounded-lg p-4 text-center">
+                        <div className="text-green-600 font-bold text-lg mb-2">🏆 COMPLETED!</div>
+                        <p className="text-green-700 text-sm font-medium">Successfully finished training program</p>
                       </div>
                     )}
                   </div>
@@ -942,127 +967,114 @@ export default function StudentDetailPage() {
               </CardContent>
             </Card>
 
-            {/* Enhanced Contact Actions */}
+            {/* Communication History */}
             <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
               <CardHeader className="bg-gradient-to-r from-gray-50 to-green-50 border-b border-gray-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg">
+                  <div className="p-2 bg-gradient-to-br from-green-600 to-teal-600 rounded-lg">
                     <MessageSquare className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg font-bold text-gray-900">Contact Actions</CardTitle>
-                    <p className="text-sm text-gray-600 mt-1">Reach out to the applicant</p>
+                    <CardTitle className="text-lg font-bold text-gray-900">Communication</CardTitle>
+                    <p className="text-sm text-gray-600 mt-1">Email & SMS notifications</p>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3 p-6">
-                <button
-                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl transition-all duration-200 hover:scale-105 border border-gray-200 hover:border-blue-300"
-                  onClick={() => window.open(`mailto:${application.email}`)}
-                >
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Mail className="h-5 w-5 text-blue-600" />
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-gray-900">Application Received</p>
+                      <p className="text-sm text-gray-600">Sent on application submission</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-gray-900 font-semibold block">Send Email</span>
-                    <span className="text-sm text-gray-500">{application.email}</span>
+                  <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <Mail className="h-5 w-5 text-purple-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-gray-900">Status Updates</p>
+                      <p className="text-sm text-gray-600">Email notifications for status changes</p>
+                    </div>
                   </div>
-                </button>
-                <button
-                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 rounded-xl transition-all duration-200 hover:scale-105 border border-gray-200 hover:border-green-300"
-                  onClick={() => window.open(`tel:${application.phone}`)}
-                >
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Phone className="h-5 w-5 text-green-600" />
+                  <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <MessageSquare className="h-5 w-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-gray-900">SMS Notifications</p>
+                      <p className="text-sm text-gray-600">Real-time SMS updates (if enabled)</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-gray-900 font-semibold block">Call Applicant</span>
-                    <span className="text-sm text-gray-500">{application.phone}</span>
-                  </div>
-                </button>
-                <button
-                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 rounded-xl transition-all duration-200 hover:scale-105 border border-gray-200 hover:border-purple-300"
-                  onClick={() => window.open(`sms:${application.phone}`)}
-                >
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <MessageSquare className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <span className="text-gray-900 font-semibold block">Send SMS</span>
-                    <span className="text-sm text-gray-500">{application.phone}</span>
-                  </div>
-                </button>
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
-      </div>
 
-      {/* Email Confirmation Dialog */}
-      {showConfirmDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 animate-in zoom-in-95 duration-200">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <Mail className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Send Email Notification</h3>
-                    <p className="text-sm text-gray-500">Confirm email delivery</p>
-                  </div>
-                </div>
-                <button
-                  onClick={cancelStatusUpdate}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="mb-6">
-                <p className="text-gray-700 text-base leading-relaxed">
-                  {pendingStatusUpdate?.message}
-                </p>
-                <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-2 text-blue-700 text-sm">
-                    <Mail className="h-4 w-4" />
-                    <span>Email will be sent to: <strong>{application?.email}</strong></span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3 justify-end">
-                <Button
-                  onClick={cancelStatusUpdate}
-                  variant="outline"
-                  className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={confirmStatusUpdate}
-                  disabled={isLoading}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg transition-all duration-300 hover:scale-105"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Sending...</span>
+        {/* Email Confirmation Dialog */}
+        {showConfirmDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 animate-in zoom-in-95 duration-200">
+              <div className="p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <Mail className="h-6 w-6 text-white" />
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Send Email Notification</h3>
+                      <p className="text-sm text-gray-500">Confirm email delivery</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={cancelStatusUpdate}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="mb-6">
+                  <p className="text-gray-700 text-base leading-relaxed">
+                    {pendingStatusUpdate?.message}
+                  </p>
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2 text-blue-700 text-sm">
                       <Mail className="h-4 w-4" />
-                      <span>Send Email</span>
+                      <span>Email will be sent to: <strong>{application?.email}</strong></span>
                     </div>
-                  )}
-                </Button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                  <Button
+                    onClick={cancelStatusUpdate}
+                    variant="outline"
+                    className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={confirmStatusUpdate}
+                    disabled={isLoading}
+                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg transition-all duration-300 hover:scale-105"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Sending...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        <span>Send Email</span>
+                      </div>
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </AdminLayout>
   )
 }

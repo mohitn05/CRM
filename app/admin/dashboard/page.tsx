@@ -2,6 +2,7 @@
 
 import { AdminLayout } from "@/components/admin-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { toast } from "@/components/ui/use-toast"
 import type { ScriptableContext } from "chart.js"
 import { ArcElement, BarElement, CategoryScale, Chart, ChartOptions, Legend, LinearScale, Tooltip } from "chart.js"
@@ -38,14 +39,20 @@ export default function DashboardPage() {
 
   // Helper to normalize domain names
   const normalizeDomain = (domain: string) => {
-    if (domain === "Frontend" || domain === "Frontend Developer") return "Frontend Developer";
-    if (domain === "Backend" || domain === "Backend Developer") return "Backend Developer";
-    if (domain === "Database" || domain === "Database Management") return "Database Management";
-    if (domain === "Web Developer") return "Web Developer";
-    if (domain === "Android Developer") return "Android Developer";
-    if (domain === "Full Stack Developer") return "Full Stack Developer";
-    if (domain === "UI/UX Designer") return "UI/UX Designer";
-    if (domain === "Digital Marketing") return "Digital Marketing";
+    // Trim whitespace and convert to consistent case for comparison
+    const trimmedDomain = domain.trim();
+
+    // Handle case-insensitive matching
+    const lowerDomain = trimmedDomain.toLowerCase();
+
+    if (lowerDomain === "frontend" || lowerDomain === "frontend developer") return "Frontend Developer";
+    if (lowerDomain === "backend" || lowerDomain === "backend developer") return "Backend Developer";
+    if (lowerDomain === "database" || lowerDomain === "database management") return "Database Management";
+    if (lowerDomain === "web developer") return "Web Developer";
+    if (lowerDomain === "android developer") return "Android Developer";
+    if (lowerDomain === "full stack developer") return "Full Stack Developer";
+    if (lowerDomain === "ui/ux designer" || lowerDomain === "uiux designer") return "UI/UX Designer";
+    if (lowerDomain === "digital marketing") return "Digital Marketing";
     return domain;
   };
 
@@ -378,16 +385,20 @@ export default function DashboardPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Applied":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white"
       case "In Review":
       case "Under Review":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white"
       case "Selected":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-white"
       case "Rejected":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 text-white"
+      case "In Training":
+        return "bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500 text-white"
+      case "Completed":
+        return "bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 text-white"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gradient-to-r from-gray-500 via-slate-500 to-zinc-500 text-white"
     }
   }
 
@@ -492,7 +503,7 @@ export default function DashboardPage() {
         {/* Enhanced Recent Applications with Professional Styling */}
         <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
           <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
                   <ClipboardListIcon className="h-5 w-5 text-white" />
@@ -507,18 +518,20 @@ export default function DashboardPage() {
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-xs font-medium text-gray-600">{recentApplications.length} active</span>
                 </div>
-                <button
-                  onClick={loadApplications}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                >
-                  🔄 Refresh
-                </button>
-                <button
-                  onClick={() => router.push('/admin/students')}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                >
-                  📋 View All
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={loadApplications}
+                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap"
+                  >
+                    🔄 Refresh
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/students')}
+                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap"
+                  >
+                    📋 View All
+                  </button>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -534,74 +547,77 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200">
-                      <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Applicant</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Contact</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Domain</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Status</th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Applied</th>
-                      <th className="text-center py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {recentApplications.slice(0, 5).map((app, index) => (
-                      <tr key={app.id} className="group hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200">
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                              {app.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">{app.name}</div>
-                              <div className="text-sm text-gray-500">{app.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="text-sm text-gray-600">{app.phone}</div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200">
-                            {app.domain}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold border ${getStatusColor(app.status)}`}>
-                            {app.status}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="text-sm text-gray-600">
-                            {(() => {
-                              try {
-                                return new Date(app.dateApplied).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                })
-                              } catch {
-                                return 'Invalid date'
-                              }
-                            })()}
-                          </div>
-                        </td>
-                        <td className="py-4 px-6 text-center">
-                          <button
-                            onClick={() => router.push(`/admin/student/${app.id}`)}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
-                          >
-                            <span>👁️</span>
-                            <span>View</span>
-                          </button>
-                        </td>
+              <ScrollArea className="w-full h-[400px]">
+                <div className="min-w-full inline-block">
+                  <table className="w-full min-w-[800px]">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider w-64">Applicant</th>
+                        <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider w-40">Contact</th>
+                        <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider w-40">Domain</th>
+                        <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider w-32">Status</th>
+                        <th className="text-left py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider w-40">Applied</th>
+                        <th className="text-center py-4 px-6 font-semibold text-gray-800 text-sm uppercase tracking-wider w-40">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {recentApplications.slice(0, 5).map((app, index) => (
+                        <tr key={app.id} className="group hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200">
+                          <td className="py-4 px-6 w-64">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                {app.name.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <div className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">{app.name}</div>
+                                <div className="text-sm text-gray-500">{app.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 w-40">
+                            <div className="text-sm text-gray-600">{app.phone}</div>
+                          </td>
+                          <td className="py-4 px-6 w-40">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200">
+                              {app.domain}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 w-32">
+                            <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold border ${getStatusColor(app.status)}`}>
+                              {app.status}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 w-40">
+                            <div className="text-sm text-gray-600">
+                              {(() => {
+                                try {
+                                  return new Date(app.dateApplied).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                  })
+                                } catch {
+                                  return 'Invalid date'
+                                }
+                              })()}
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-center w-40">
+                            <button
+                              onClick={() => router.push(`/admin/student/${app.id}`)}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+                            >
+                              <span>👁️</span>
+                              <span>View</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
             )}
           </CardContent>
         </Card>

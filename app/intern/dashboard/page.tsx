@@ -1,5 +1,4 @@
 "use client"
-import { getDomainOptions } from "@/lib/domains"
 
 import { NotificationBell } from "@/components/notification-bell"
 import { Badge } from "@/components/ui/badge"
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { getDomainOptions } from "@/lib/domains"
 import {
   Building2,
   Calendar,
@@ -38,7 +38,10 @@ interface InternAccount {
   applicationId: number
   status: string
   dateRegistered: string
-  resume?: File | null
+  resume?: {
+    name: string
+    size?: number
+  } | null
 }
 
 const domainDisplayNames: { [key: string]: string } = {
@@ -48,7 +51,26 @@ const domainDisplayNames: { [key: string]: string } = {
   Others: "Others"
 }
 
-export default function InternDashboard() {
+// Helper to normalize domain names
+const normalizeDomain = (domain: string) => {
+  // Trim whitespace and convert to consistent case for comparison
+  const trimmedDomain = domain.trim();
+
+  // Handle case-insensitive matching
+  const lowerDomain = trimmedDomain.toLowerCase();
+
+  if (lowerDomain === "frontend" || lowerDomain === "frontend developer") return "Frontend Developer";
+  if (lowerDomain === "backend" || lowerDomain === "backend developer") return "Backend Developer";
+  if (lowerDomain === "database" || lowerDomain === "database management") return "Database Management";
+  if (lowerDomain === "web developer") return "Web Developer";
+  if (lowerDomain === "android developer") return "Android Developer";
+  if (lowerDomain === "full stack developer") return "Full Stack Developer";
+  if (lowerDomain === "ui/ux designer" || lowerDomain === "uiux designer") return "UI/UX Designer";
+  if (lowerDomain === "digital marketing") return "Digital Marketing";
+  return domain;
+};
+
+export default function InternDashboardPage() {
   const [domainOptions, setDomainOptions] = useState(getDomainOptions())
   const [internData, setInternData] = useState<InternAccount | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -80,7 +102,8 @@ export default function InternDashboard() {
             domain: latestData.domain,
             applicationId: latestData.id,
             status: latestData.status,
-            dateRegistered: latestData.dateApplied
+            dateRegistered: latestData.dateApplied,
+            resume: latestData.resumeName ? { name: latestData.resumeName, size: undefined } : null
           }
           setInternData(updatedAccount)
           setEditData(updatedAccount)
@@ -401,7 +424,7 @@ export default function InternDashboard() {
         return
       }
 
-      setEditData(prev => prev ? { ...prev, resume: file } : null)
+      setEditData(prev => prev ? { ...prev, resume: { name: file.name, size: file.size } } : null)
     }
   }
 
@@ -454,16 +477,19 @@ export default function InternDashboard() {
               <stop offset="50%" stopColor="#1d4ed8" stopOpacity="0.1" />
               <stop offset="100%" stopColor="#1e40af" stopOpacity="0.05" />
             </linearGradient>
+
             <linearGradient id="dashboardGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.12" />
               <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.08" />
               <stop offset="100%" stopColor="#1d4ed8" stopOpacity="0.04" />
             </linearGradient>
+
             <linearGradient id="dashboardGradient3" x1="100%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#93c5fd" stopOpacity="0.1" />
               <stop offset="50%" stopColor="#60a5fa" stopOpacity="0.06" />
               <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.03" />
             </linearGradient>
+
             {/* Additional gradients to match apply page */}
             <linearGradient id="dashboardGradient4" x1="0%" y1="100%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.1" />
@@ -664,12 +690,7 @@ export default function InternDashboard() {
                       </Select>
                     ) : (
                       <Badge className="text-base px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl shadow-md">
-                        {(() => {
-                          const domain = editData?.domain || internData.domain;
-                          if (domain === "Frontend") return "Frontend Developer";
-                          if (domain === "Backend") return "Backend Developer";
-                          return domain;
-                        })()}
+                        {normalizeDomain(editData?.domain || internData.domain)}
                       </Badge>
                     )}
                   </div>
@@ -697,7 +718,9 @@ export default function InternDashboard() {
                           <div className="flex items-center gap-2 text-gray-700 text-sm">
                             <FileText className="h-4 w-4 text-emerald-500" />
                             <span className="truncate max-w-xs">{editData.resume.name}</span>
-                            <span className="text-gray-500">({(editData.resume.size / 1024 / 1024).toFixed(2)} MB)</span>
+                            {editData.resume.size && (
+                              <span className="text-gray-500">({(editData.resume.size / 1024 / 1024).toFixed(2)} MB)</span>
+                            )}
                           </div>
                         )}
                         <p className="text-gray-500 text-xs">Accepted formats: PDF, DOC, DOCX (Max 5MB)</p>

@@ -54,6 +54,11 @@ export default function AdminLoginPage() {
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-gradient-to-br from-blue-300/20 to-indigo-300/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-gradient-to-br from-purple-300/20 to-pink-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }}></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-br from-indigo-200/15 to-purple-200/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
+
+        {/* Additional floating elements for more depth */}
+        <div className="absolute top-20 right-1/4 w-16 h-16 bg-blue-200/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "1.5s" }}></div>
+        <div className="absolute bottom-20 left-1/5 w-24 h-24 bg-purple-200/20 rounded-full blur-2xl animate-bounce" style={{ animationDelay: "2.5s" }}></div>
+        <div className="absolute top-1/3 left-1/3 w-20 h-20 bg-indigo-200/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: "0.8s" }}></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
@@ -67,11 +72,11 @@ export default function AdminLoginPage() {
           </Link>
         </div>
 
-        <Card className="bg-white/50 backdrop-blur-3xl border border-white/40 shadow-3xl">
+        <Card className="bg-white/50 backdrop-blur-3xl border border-white/40 shadow-3xl hover:shadow-4xl transition-all duration-500">
           <CardHeader className="text-center pb-8">
             {/* Enhanced admin icon */}
             <div className="relative mb-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl animate-float">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl animate-float hover:rotate-6 transition-all duration-500 transform hover:scale-110">
                 <Building2 className="h-10 w-10 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center animate-pulse">
@@ -89,7 +94,7 @@ export default function AdminLoginPage() {
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-4">
                 <Label htmlFor="username" className="text-gray-800 font-bold flex items-center gap-3 text-lg">
-                  <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-2 rounded-xl">
+                  <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-2 rounded-xl shadow-md">
                     <User className="h-5 w-5 text-white" />
                   </div>
                   Username
@@ -107,7 +112,7 @@ export default function AdminLoginPage() {
 
               <div className="space-y-4">
                 <Label htmlFor="password" className="text-gray-800 font-bold flex items-center gap-3 text-lg">
-                  <div className="bg-gradient-to-br from-indigo-500 to-purple-500 p-2 rounded-xl">
+                  <div className="bg-gradient-to-br from-indigo-500 to-purple-500 p-2 rounded-xl shadow-md">
                     <Lock className="h-5 w-5 text-white" />
                   </div>
                   Password
@@ -151,6 +156,12 @@ export default function AdminLoginPage() {
                 )}
               </Button>
             </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
+                Forgot your credentials? Contact your system administrator.
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
