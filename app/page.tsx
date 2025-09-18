@@ -209,7 +209,12 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-800 text-sm">Email Us</h3>
-                      <a href="mailto:info@aartmultiservices.com" className="text-blue-600 hover:text-indigo-700 font-bold text-sm transition-colors">
+                      <a
+                        href="https://mail.google.com/mail/?view=cm&fs=1&to=info@aartmultiservices.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-indigo-700 font-bold text-sm transition-colors"
+                      >
                         info@aartmultiservices.com
                       </a>
                     </div>
