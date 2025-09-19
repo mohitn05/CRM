@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, GraduationCap, Mail, Phone, Users } from "lucide-react"
 import Link from "next/link"
-
 import { useEffect, useState } from "react"
 
 export default function LandingPage() {
@@ -90,7 +89,7 @@ export default function LandingPage() {
       {/* Main Content */}
       <div className="relative z-20 flex flex-col items-center justify-center min-h-[calc(100vh-200px)] px-4 text-center">
         {/* Main Heading with enhanced animation and layout */}
-        <div className={`mb-8 transition-all duration-1000 ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`mb-8 transition-all duration-1000 ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} style={{ minHeight: '200px' }}>
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 via-purple-100 to-purple-200 backdrop-blur-sm border border-white/30 rounded-full px-5 py-2 mb-4 animate-fade-in shadow-md">
             <GraduationCap className="w-6 h-6 text-blue-600 animate-bounce" />
             <span className="text-base font-semibold text-blue-700">Empowering Future Professionals</span>
@@ -107,12 +106,14 @@ export default function LandingPage() {
         </p>
 
         {/* CTA Button with enhanced animation and gradient */}
-        <Link href="/apply">
-          <Button className={`group bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-4 text-lg font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 animate-fade-in-up delay-300 ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            Apply Now
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-          </Button>
-        </Link>
+        <div className={`transition-all duration-1000 delay-300 ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <Link href="/apply">
+            <Button className="group bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-4 text-lg font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105">
+              Apply Now
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+            </Button>
+          </Link>
+        </div>
 
         {/* Stats Cards - screenshot style */}
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto transition-all duration-1000 delay-500">

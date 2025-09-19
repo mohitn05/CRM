@@ -4,12 +4,11 @@ import { useToast } from "@/hooks/use-toast"
 import {
   Award,
   Briefcase,
-  Building2,
   Code,
   Database,
   FileText,
   Globe,
-  Grid3X3,
+  GraduationCap,
   Layers,
   LayoutDashboard,
   LogOut,
@@ -319,12 +318,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           {/* Logo Section */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-white" />
+              <div className="bg-gradient-to-br from-blue-600 via-purple-500 to-purple-700 text-white p-2 rounded-xl shadow-lg">
+                <GraduationCap className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">
-                  Internship CRM
+                <h1 className="text-lg font-extrabold bg-gradient-to-r from-blue-700 via-purple-600 to-purple-800 bg-clip-text text-transparent">
+                  InternPro CRM
                 </h1>
                 <p className="text-sm text-gray-500">
                   Admin Portal
@@ -413,11 +412,21 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                   {sidebarOpen ? (
                     <X className="h-5 w-5 transition-transform duration-300" />
                   ) : (
-                    <Grid3X3 className="h-5 w-5 transition-transform duration-300 group-hover:rotate-90" />
+                    <GraduationCap className="h-5 w-5 transition-transform duration-300 group-hover:rotate-90" />
                   )}
                 </div>
                 <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
+
+              {/* Logo and Name in Header for Mobile View */}
+              <div className="flex items-center gap-2 md:hidden">
+                <div className="bg-gradient-to-br from-blue-600 via-purple-500 to-purple-700 text-white p-1.5 rounded-lg shadow-md">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+                <span className="text-lg font-extrabold bg-gradient-to-r from-blue-700 via-purple-600 to-purple-800 bg-clip-text text-transparent">
+                  InternPro CRM
+                </span>
+              </div>
             </div>
 
             <div className="flex items-center gap-4">

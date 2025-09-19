@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, Building2, Eye, EyeOff, Lock, Shield, User } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, GraduationCap, Lock, Shield, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
             {/* Enhanced admin icon */}
             <div className="relative mb-6">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl animate-float hover:rotate-6 transition-all duration-500 transform hover:scale-110">
-                <Building2 className="h-10 w-10 text-white" />
+                <GraduationCap className="h-10 w-10 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center animate-pulse">
                 <Shield className="h-3 w-3 text-white" />

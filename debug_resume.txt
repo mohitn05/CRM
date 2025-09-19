@@ -1,1 +1,0 @@
-This is a debug resume file for comprehensive testing.

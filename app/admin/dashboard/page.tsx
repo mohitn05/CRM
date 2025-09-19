@@ -3,13 +3,13 @@
 import { AdminLayout } from "@/components/admin-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import { toast } from "@/components/ui/use-toast"
 import type { ScriptableContext } from "chart.js"
 import { ArcElement, BarElement, CategoryScale, Chart, ChartOptions, Legend, LinearScale, Tooltip } from "chart.js"
 import { Award, ClipboardListIcon, Code, Database, GraduationCap, Layers, Monitor, Palette, Send, Server, Smartphone, TrendingUp, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { Bar, Pie } from "react-chartjs-2"
+import { toast } from "../../../hooks/use-toast"
 
 // Register Chart.js elements for Pie and Bar charts
 Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
