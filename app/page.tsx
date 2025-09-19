@@ -1,16 +1,9 @@
 "use client"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, GraduationCap, Mail, Phone, Users } from "lucide-react"
-import Link from "next/link"
-import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button";
+import { ArrowRight, GraduationCap, Mail, Phone, Users } from "lucide-react";
+import Link from "next/link";
 
 export default function LandingPage() {
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
       {/* Enhanced Geometric Wave Background */}
@@ -53,10 +46,10 @@ export default function LandingPage() {
       {/* Floating geometric shapes with enhanced animations */}
       <div className="absolute inset-0 z-0 overflow-hidden hidden md:block">
         {/* Floating circles with pulse and bounce */}
-        <div className={`absolute top-20 left-10 w-32 h-32 bg-blue-200/10 rounded-full blur-xl ${isMounted ? 'animate-pulse' : ''}`}></div>
-        <div className={`absolute top-40 right-20 w-24 h-24 bg-indigo-300/15 rounded-full blur-lg ${isMounted ? 'animate-bounce' : ''}`} style={{ animationDelay: "1s" }}></div>
-        <div className={`absolute bottom-32 left-1/4 w-40 h-40 bg-blue-100/20 rounded-full blur-2xl ${isMounted ? 'animate-pulse' : ''}`} style={{ animationDelay: "2s" }}></div>
-        <div className={`absolute bottom-20 right-1/3 w-28 h-28 bg-indigo-200/12 rounded-full blur-xl ${isMounted ? 'animate-bounce' : ''}`} style={{ animationDelay: "0.5s" }}></div>
+        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-200/10 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-indigo-300/15 rounded-full blur-lg animate-bounce" style={{ animationDelay: "1s" }}></div>
+        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-blue-100/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "2s" }}></div>
+        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-indigo-200/12 rounded-full blur-xl animate-bounce" style={{ animationDelay: "0.5s" }}></div>
         {/* Extra animated circles for more randomness */}
         <div className="absolute top-10 right-1/4 w-16 h-16 bg-purple-200/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "1.5s" }}></div>
         <div className="absolute bottom-10 left-1/5 w-24 h-24 bg-pink-200/20 rounded-full blur-2xl animate-bounce" style={{ animationDelay: "2.5s" }}></div>
@@ -89,24 +82,24 @@ export default function LandingPage() {
       {/* Main Content */}
       <div className="relative z-20 flex flex-col items-center justify-center min-h-[calc(100vh-200px)] px-4 text-center">
         {/* Main Heading with enhanced animation and layout */}
-        <div className={`mb-8 transition-all duration-1000 ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} style={{ minHeight: '200px' }}>
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 via-purple-100 to-purple-200 backdrop-blur-sm border border-white/30 rounded-full px-5 py-2 mb-4 animate-fade-in shadow-md">
+        <div className="mb-8 animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 via-purple-100 to-purple-200 backdrop-blur-sm border border-white/30 rounded-full px-5 py-2 mb-4 shadow-md">
             <GraduationCap className="w-6 h-6 text-blue-600 animate-bounce" />
             <span className="text-base font-semibold text-blue-700">Empowering Future Professionals</span>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold bg-gradient-to-r from-blue-700 via-purple-600 to-purple-800 bg-clip-text text-transparent mb-6 leading-tight animate-fade-in-up drop-shadow-xl">
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold bg-gradient-to-r from-blue-700 via-purple-600 to-purple-800 bg-clip-text text-transparent mb-6 leading-tight drop-shadow-xl">
             Internship CRM Portal
           </h1>
         </div>
 
         {/* Subheading with enhanced animation and spacing */}
-        <p className={`text-lg md:text-xl text-gray-700 max-w-2xl mx-auto mb-10 leading-relaxed font-medium animate-fade-in-up transition-all duration-1000 delay-150 ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <p className="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto mb-10 leading-relaxed font-medium animate-fade-in-up animation-delay-200">
           Transform your internship program with our comprehensive CRM solution.<br />
           Streamline applications, track progress, and scale your talent pipeline with professional tools.
         </p>
 
         {/* CTA Button with enhanced animation and gradient */}
-        <div className={`transition-all duration-1000 delay-300 ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className="animate-fade-in-up animation-delay-400">
           <Link href="/apply">
             <Button className="group bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-4 text-lg font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105">
               Apply Now
@@ -116,7 +109,7 @@ export default function LandingPage() {
         </div>
 
         {/* Stats Cards - screenshot style */}
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto transition-all duration-1000 delay-500">
+        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto animate-fade-in-up animation-delay-600">
           {/* Card 1 */}
           <div className="bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 shadow-lg border border-blue-100 rounded-2xl p-8 flex flex-col items-center min-w-[260px] group">
             <div className="bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl p-4 mb-6 flex items-center justify-center">

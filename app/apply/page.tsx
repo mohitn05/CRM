@@ -350,7 +350,7 @@ export default function ApplyPage() {
         </div>
 
         {/* Enhanced Application Form */}
-        <Card className="bg-white/50 backdrop-blur-3xl border border-white/40 shadow-3xl min-w-0 animate-fade-in-up">
+        <Card className="bg-white/50 backdrop-blur-3xl border border-white/40 shadow-3xl min-w-0 animate-fade-in-up animation-delay-200">
           <CardHeader className="text-center pb-8">
             <CardTitle className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-blue-700 via-purple-600 to-indigo-800 bg-clip-text text-transparent mb-3">Join Our Internship Program</CardTitle>
             <CardDescription className="text-gray-700 text-lg md:text-xl">

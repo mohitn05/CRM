@@ -333,7 +333,7 @@ export default function InternLoginPage() {
             </p>
           </div>
 
-          <Card className="bg-white/50 backdrop-blur-3xl border border-white/40 shadow-3xl">
+          <Card className="bg-white/50 backdrop-blur-3xl border border-white/40 shadow-3xl animate-fade-in-up animation-delay-200">
             <CardHeader className="text-center pb-8">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-xl">
                 <User className="w-8 h-8 text-white" />
