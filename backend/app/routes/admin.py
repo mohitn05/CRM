@@ -13,6 +13,7 @@ from app.services.email_sender import (
     send_in_review_email,
     send_in_training_email,
     send_rejection_email,
+    send_applied_email,
 )
 from app.services.notification_service import NotificationService
 from app.services.admin_notification_service import AdminNotificationService
@@ -154,6 +155,8 @@ def student_detail(id):
                 send_in_training_email(student.email, student.name, student.domain)
             elif student.status == "Completed":
                 send_completed_email(student.email, student.name, student.domain)
+            elif student.status == "Applied":
+                send_applied_email(student.email, student.name, student.domain, str(student.id))
             else:
                 # Fallback for any other status
                 send_email(

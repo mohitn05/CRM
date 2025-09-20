@@ -184,7 +184,7 @@ export default function LandingPage() {
                     <div>
                       <h3 className="font-semibold text-gray-800 text-sm">Call Us</h3>
                       <a href="tel:+919359463350" className="text-blue-600 hover:text-indigo-700 font-bold text-sm transition-colors">
-                        +91 93594 63350
+                        +91 9067000315
                       </a>
                     </div>
                   </div>

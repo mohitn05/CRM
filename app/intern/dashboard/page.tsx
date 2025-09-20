@@ -879,7 +879,7 @@ export default function InternDashboardPage() {
 
                 <Button
                   className="w-full justify-between bg-gradient-to-r from-green-500/50 to-emerald-500/50 hover:from-green-500/80 hover:to-emerald-500/80 text-gray-800 py-3 rounded-xl transition-all duration-300 border border-green-200/50 shadow-sm hover:shadow-md group relative overflow-hidden text-sm"
-                  onClick={() => window.open("tel:9359463350")}
+                  onClick={() => window.open("tel:9067000315")}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-green-400/10 to-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="flex items-center relative">

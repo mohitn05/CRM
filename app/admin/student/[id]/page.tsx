@@ -68,6 +68,11 @@ export default function StudentDetailPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState<Application | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  // Add separate loading states for the action buttons
+  const [isSelectLoading, setIsSelectLoading] = useState(false)
+  const [isRejectLoading, setIsRejectLoading] = useState(false)
+  const [isTrainingLoading, setIsTrainingLoading] = useState(false)
+  const [isCompleteLoading, setIsCompleteLoading] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [pendingStatusUpdate, setPendingStatusUpdate] = useState<{
     status: string
@@ -246,7 +251,24 @@ export default function StudentDetailPage() {
   const confirmStatusUpdate = async () => {
     if (!application || !pendingStatusUpdate) return
 
-    setIsLoading(true)
+    // Set the appropriate loading state based on the status being updated
+    switch (pendingStatusUpdate.status) {
+      case "Selected":
+        setIsSelectLoading(true)
+        break
+      case "Rejected":
+        setIsRejectLoading(true)
+        break
+      case "In Training":
+        setIsTrainingLoading(true)
+        break
+      case "Completed":
+        setIsCompleteLoading(true)
+        break
+      default:
+        setIsLoading(true)
+    }
+
     setShowConfirmDialog(false)
 
     try {
@@ -338,7 +360,24 @@ export default function StudentDetailPage() {
       })
     }
 
-    setIsLoading(false)
+    // Reset the appropriate loading state
+    switch (pendingStatusUpdate.status) {
+      case "Selected":
+        setIsSelectLoading(false)
+        break
+      case "Rejected":
+        setIsRejectLoading(false)
+        break
+      case "In Training":
+        setIsTrainingLoading(false)
+        break
+      case "Completed":
+        setIsCompleteLoading(false)
+        break
+      default:
+        setIsLoading(false)
+    }
+
     setPendingStatusUpdate(null)
   }
 
@@ -890,18 +929,18 @@ export default function StudentDetailPage() {
                         </div>
                         <Button
                           onClick={() => updateStatus("Selected")}
-                          disabled={isLoading}
+                          disabled={isSelectLoading || isRejectLoading}
                           className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-300 hover:scale-105"
                         >
-                          {isLoading ? "Processing..." : "✅ Accept"}
+                          {isSelectLoading ? "Processing..." : "✅ Accept"}
                         </Button>
                         <Button
                           onClick={() => updateStatus("Rejected")}
-                          disabled={isLoading}
+                          disabled={isSelectLoading || isRejectLoading}
                           variant="destructive"
                           className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold transition-all duration-300 hover:scale-105"
                         >
-                          {isLoading ? "Processing..." : "❌ Reject"}
+                          {isRejectLoading ? "Processing..." : "❌ Reject"}
                         </Button>
                       </div>
                     )}
@@ -915,18 +954,18 @@ export default function StudentDetailPage() {
                         </div>
                         <Button
                           onClick={() => updateStatus("Selected")}
-                          disabled={isLoading}
+                          disabled={isSelectLoading || isRejectLoading}
                           className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-300 hover:scale-105"
                         >
-                          {isLoading ? "Processing..." : "✅ Accept"}
+                          {isSelectLoading ? "Processing..." : "✅ Accept"}
                         </Button>
                         <Button
                           onClick={() => updateStatus("Rejected")}
-                          disabled={isLoading}
+                          disabled={isSelectLoading || isRejectLoading}
                           variant="destructive"
                           className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold transition-all duration-300 hover:scale-105"
                         >
-                          {isLoading ? "Processing..." : "❌ Reject"}
+                          {isRejectLoading ? "Processing..." : "❌ Reject"}
                         </Button>
                       </div>
                     )}
@@ -940,10 +979,10 @@ export default function StudentDetailPage() {
                         </div>
                         <Button
                           onClick={() => updateStatus("In Training")}
-                          disabled={isLoading}
+                          disabled={isTrainingLoading}
                           className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-all duration-300 hover:scale-105"
                         >
-                          {isLoading ? "Processing..." : "🎓 Start Training"}
+                          {isTrainingLoading ? "Processing..." : "🎓 Start Training"}
                         </Button>
                       </div>
                     )}
@@ -965,10 +1004,10 @@ export default function StudentDetailPage() {
                         </div>
                         <Button
                           onClick={() => updateStatus("Completed")}
-                          disabled={isLoading}
+                          disabled={isCompleteLoading}
                           className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-semibold transition-all duration-300 hover:scale-105"
                         >
-                          {isLoading ? "Processing..." : "🏆 Complete Training"}
+                          {isCompleteLoading ? "Processing..." : "🏆 Complete Training"}
                         </Button>
                       </div>
                     )}

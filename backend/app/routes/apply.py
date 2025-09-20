@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 from app import db
 from app.models.student import StudentApplication
 from app.services.email_service import send_email, validate_email
+from app.services.email_sender import send_applied_email
 
 apply_bp = Blueprint("apply", __name__)
 
@@ -76,9 +77,8 @@ def apply():
         db.session.commit()
         print("✅ Application Saved:", name, email)
 
-        subject = "Application Received"
-        body = f"Hi {name},\n\n Thanks for applying to the {domain} domain. We'll get back to you soon !"
-        send_email(email, subject, body)
+        # Send professional application confirmation email
+        send_applied_email(email, name, domain, str(application.id))
 
         return jsonify({"message": "Application received!"}), 200
 
